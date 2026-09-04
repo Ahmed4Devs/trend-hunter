@@ -1,0 +1,92 @@
+# =============================================================================
+# TrendHunter — local development infrastructure
+# =============================================================================
+# Starts the two stateful services the application needs. The apps themselves
+# run on the host through `pnpm dev`, which keeps hot reload fast; the optional
+# `apps` profile runs them in containers instead:
+#
+#   pnpm docker:up                       # postgres + redis only
+#   docker compose --profile apps up -d  # everything
+#
+# Both services publish their ports to 127.0.0.1 only, so nothing here is
+# reachable from the local network. If you already run PostgreSQL or Redis on
+# this machine, set POSTGRES_PORT / REDIS_PORT in .env and update DATABASE_URL /
+# REDIS_URL to match.
+# =============================================================================
+
+name: trendhunter
+
+services:
+  postgres:
+    # pgvector is compiled into this image; the plain postgres image cannot
+    # CREATE EXTENSION vector.
+    image: pgvector/pgvector:pg18
+    container_name: trendhunter-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-trendhunter}
+      POSTGRES_USER: ${POSTGRES_USER:-trendhunter}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-trendhunter_dev}
+      # Deterministic collation so ORDER BY behaves the same everywhere.
+      POSTGRES_INITDB_ARGS: '--locale-provider=icu --icu-locale=und-x-icu --encoding=UTF8'
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # Runs once, on an empty data directory, before the server accepts
+      # connections: creates the extensions the migrations rely on.
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-trendhunter} -d ${POSTGRES_DB:-trendhunter}']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+    command:
+      - postgres
+      - '-c'
+      - 'max_connections=100'
+      # HNSW index builds are memory hungry; the default 4MB makes them crawl.
+      - '-c'
+      - 'maintenance_work_mem=256MB'
+      - '-c'
+      - 'work_mem=16MB'
+    networks:
+      - trendhunter
+
+  redis:
+    image: redis:8-alpine
+    container_name: trendhunter-redis
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:${REDIS_PORT:-6379}:6379'
+    volumes:
+      - redis-data:/data
+    command:
+      - redis-server
+      - '--appendonly'
+      - 'yes'
+      # BullMQ needs its keys to survive; never evict them under pressure.
+      - '--maxmemory-policy'
+      - 'noeviction'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    networks:
+      - trendhunter
+
+volumes:
+  postgres-data:
+    name: trendhunter-postgres-data
+  redis-data:
+    name: trendhunter-redis-data
+
+networks:
+  trendhunter:
+    name: trendhunter
+    driver: bridge
