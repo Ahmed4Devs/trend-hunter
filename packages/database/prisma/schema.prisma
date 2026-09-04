@@ -1,0 +1,867 @@
+// ---------------------------------------------------------------------------
+// TrendHunter data model
+//
+// Conventions used throughout:
+//   * Prisma models are PascalCase; physical tables and columns are snake_case
+//     via @@map/@map, so the hand-written vector and full-text SQL stays
+//     readable and needs no quoted identifiers.
+//   * Every table carries created_at, and every mutable table carries
+//     updated_at.
+//   * Deletion is explicit: cascades are declared only where the child row has
+//     no meaning without its parent, and Restrict is used everywhere else so a
+//     mistake fails loudly instead of silently removing history.
+//   * Columns that PostgreSQL owns and Prisma cannot express (pgvector
+//     embeddings, generated tsvector columns) are declared Unsupported and
+//     driven from the SQL migrations. They are never read through the Prisma
+//     query API, only through parameterised raw SQL in
+//     packages/database/src/sql.
+// ---------------------------------------------------------------------------
+
+// Prisma 7 generates TypeScript sources into `output` rather than writing into
+// node_modules, and `output` is mandatory. The generated files carry
+// `@ts-nocheck` and are compiled by this package's own build.
+generator client {
+  provider               = "prisma-client"
+  output                 = "../src/generated/prisma"
+  runtime                = "nodejs"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  // Bare specifiers: every consumer of this package resolves through a bundler
+  // (tsup for the services, Turbopack for the web app, Vite for the tests).
+  importFileExtension    = ""
+  previewFeatures        = ["postgresqlExtensions"]
+}
+
+// Prisma 7 removed `url` from the datasource block: the CLI reads the
+// connection string from prisma.config.ts and the client receives a driver
+// adapter (see src/client.ts). There is no engine binary any more.
+datasource db {
+  provider   = "postgresql"
+  extensions = [vector, pg_trgm]
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum SourceKind {
+  X
+  REDDIT
+  HACKERNEWS
+  RSS
+  GITHUB
+
+  @@map("source_kind")
+}
+
+enum ContentLanguage {
+  EN
+  AR
+  OTHER
+
+  @@map("content_language")
+}
+
+enum UiLocale {
+  en
+  ar
+
+  @@map("ui_locale")
+}
+
+enum ThemePreference {
+  LIGHT
+  DARK
+  SYSTEM
+
+  @@map("theme_preference")
+}
+
+enum TopicStatus {
+  ACTIVE
+  ARCHIVED
+
+  @@map("topic_status")
+}
+
+enum TopicClassification {
+  NORMAL
+  EMERGING_TREND
+  HIDDEN_GEM
+  SATURATED
+
+  @@map("topic_classification")
+}
+
+enum TranslationMode {
+  LITERAL
+  NATURAL
+  X_STYLE
+  PROFESSIONAL
+  SIMPLE_ARABIC
+
+  @@map("translation_mode")
+}
+
+enum TerminologyPreference {
+  KEEP_COMMON_ENGLISH_TERMS
+  ARABIC_WHEN_POSSIBLE
+  FULL_ARABIC
+
+  @@map("terminology_preference")
+}
+
+enum TranslationTargetKind {
+  POST
+  COMMENT
+  THREAD
+  TOPIC
+  FREEFORM
+
+  @@map("translation_target_kind")
+}
+
+enum ContentDraftKind {
+  SHORT_X_POST
+  LONG_X_POST
+  X_THREAD
+  EDUCATIONAL_POST
+  OPINION_POST
+  BUSINESS_ANGLE
+  DEVELOPER_ANGLE
+  SAUDI_MARKET_ANGLE
+  SUMMARY
+  HOOK
+  CONTENT_IDEA
+
+  @@map("content_draft_kind")
+}
+
+enum ContentDraftStatus {
+  DRAFT
+  READY
+  PUBLISHED
+  ARCHIVED
+
+  @@map("content_draft_status")
+}
+
+enum SavedItemKind {
+  POST
+  TOPIC
+  THREAD
+  CONTENT_DRAFT
+
+  @@map("saved_item_kind")
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+
+  @@map("job_status")
+}
+
+enum ScanTrigger {
+  MANUAL
+  SCHEDULED
+  SYSTEM
+
+  @@map("scan_trigger")
+}
+
+enum ReportKind {
+  POSTS_COLLECTED
+  TOPICS_DETECTED
+  SOURCE_DISTRIBUTION
+  TREND_GROWTH
+  TOP_CATEGORIES
+  ARABIC_OPPORTUNITIES
+  TRANSLATION_ACTIVITY
+  CONTENT_GENERATION
+  SCAN_HISTORY
+
+  @@map("report_kind")
+}
+
+// ---------------------------------------------------------------------------
+// Authentication (Better Auth owned)
+//
+// Field names on these four models are dictated by Better Auth 1.7's Prisma
+// adapter and its admin plugin, and must not be renamed. Physical column names
+// are mapped freely.
+//
+// `role` is a plain String, not an enum, because the admin plugin writes and
+// compares lowercase role slugs ("user" / "admin"). The API layer maps it to
+// the `UserRole` domain union on the way out.
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false) @map("email_verified")
+  image         String?
+  role          String?   @default("user")
+  banned        Boolean?  @default(false)
+  banReason     String?   @map("ban_reason")
+  banExpires    DateTime? @map("ban_expires")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  accounts           Account[]
+  sessions           Session[]
+  interests          Interest[]
+  savedItems         SavedItem[]
+  translations       Translation[]
+  contentDrafts      ContentDraft[]
+  threads            Thread[]
+  manualPublications ManualPublication[]
+  scanRuns           ScanRun[]
+  reports            Report[]
+  settings           UserSettings?
+
+  @@index([role])
+  @@map("users")
+}
+
+model Session {
+  id             String   @id @default(cuid())
+  expiresAt      DateTime @map("expires_at")
+  token          String   @unique
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  ipAddress      String?  @map("ip_address")
+  userAgent      String?  @map("user_agent")
+  userId         String   @map("user_id")
+  impersonatedBy String?  @map("impersonated_by")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  // Added by Better Auth 1.7: identifies the issuing authority of the account.
+  issuer                String
+  accountId             String    @map("account_id")
+  providerId            String    @map("provider_id")
+  userId                String    @map("user_id")
+  accessToken           String?   @map("access_token")
+  refreshToken          String?   @map("refresh_token")
+  idToken               String?   @map("id_token")
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([issuer, accountId], map: "account_issuer_account_id_uidx")
+  @@index([providerId, accountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([identifier])
+  @@index([expiresAt])
+  @@map("verifications")
+}
+
+// ---------------------------------------------------------------------------
+// User configuration
+// ---------------------------------------------------------------------------
+
+model UserSettings {
+  id                        String                @id @default(cuid())
+  userId                    String                @unique @map("user_id")
+  locale                    UiLocale              @default(en)
+  theme                     ThemePreference       @default(SYSTEM)
+  translationMode           TranslationMode       @default(X_STYLE) @map("translation_mode")
+  terminologyPreference     TerminologyPreference @default(KEEP_COMMON_ENGLISH_TERMS) @map("terminology_preference")
+  aiClassificationEnabled   Boolean               @default(false) @map("ai_classification_enabled")
+  emailNotificationsEnabled Boolean               @default(false) @map("email_notifications_enabled")
+  emergingTrendAlerts       Boolean               @default(true) @map("emerging_trend_alerts")
+  arabicOpportunityAlerts   Boolean               @default(true) @map("arabic_opportunity_alerts")
+  defaultAnalyticsRange     String                @default("7d") @map("default_analytics_range")
+  createdAt                 DateTime              @default(now()) @map("created_at")
+  updatedAt                 DateTime              @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+model Interest {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  name        String
+  description String?
+  /// 0..1 multiplier applied to every keyword under this interest.
+  weight      Float    @default(1)
+  enabled     Boolean  @default(true)
+  /// Centroid embedding of the interest name, description and keywords.
+  /// Maintained by the embeddings worker; read only through raw SQL.
+  embedding   Unsupported("vector(768)")?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user     User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  keywords InterestKeyword[]
+
+  @@unique([userId, name])
+  @@index([userId, enabled])
+  @@map("interests")
+}
+
+model InterestKeyword {
+  id         String   @id @default(cuid())
+  interestId String   @map("interest_id")
+  keyword    String
+  /// 0..1 weight of this keyword inside its interest.
+  weight     Float    @default(1)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  interest Interest @relation(fields: [interestId], references: [id], onDelete: Cascade)
+
+  @@unique([interestId, keyword])
+  @@index([keyword])
+  @@map("interest_keywords")
+}
+
+// ---------------------------------------------------------------------------
+// Sources
+// ---------------------------------------------------------------------------
+
+model Source {
+  id                  String     @id @default(cuid())
+  kind                SourceKind
+  name                String
+  slug                String     @unique
+  enabled             Boolean    @default(true)
+  /// 0..1 static authority weight fed into relevance and trend scoring.
+  authorityWeight     Float      @default(0.5) @map("authority_weight")
+  scanIntervalMinutes Int        @default(15) @map("scan_interval_minutes")
+  lastScannedAt       DateTime?  @map("last_scanned_at")
+  createdAt           DateTime   @default(now()) @map("created_at")
+  updatedAt           DateTime   @updatedAt @map("updated_at")
+
+  configs SourceConfig[]
+
+  @@index([kind, enabled])
+  @@map("sources")
+}
+
+model SourceConfig {
+  id        String   @id @default(cuid())
+  sourceId  String   @map("source_id")
+  key       String
+  value     Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  source Source @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, key])
+  @@map("source_configs")
+}
+
+// ---------------------------------------------------------------------------
+// Ingestion
+// ---------------------------------------------------------------------------
+
+/// Verbatim provider payloads. Nothing is normalised here: this table exists so
+/// that every collected item can be reprocessed when the algorithms change.
+model RawItem {
+  id           String     @id @default(cuid())
+  source       SourceKind
+  sourceItemId String     @map("source_item_id")
+  payload      Json
+  contentHash  String     @map("content_hash")
+  scanRunId    String?    @map("scan_run_id")
+  processedAt  DateTime?  @map("processed_at")
+  collectedAt  DateTime   @map("collected_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  scanRun  ScanRun?  @relation(fields: [scanRunId], references: [id], onDelete: SetNull)
+  posts    Post[]
+  comments Comment[]
+
+  @@unique([source, sourceItemId])
+  @@index([contentHash])
+  @@index([collectedAt])
+  @@index([scanRunId])
+  @@index([processedAt])
+  @@map("raw_items")
+}
+
+model Post {
+  id              String          @id @default(cuid())
+  source          SourceKind
+  sourcePostId    String          @map("source_post_id")
+  authorId        String?         @map("author_id")
+  authorName      String?         @map("author_name")
+  authorUsername  String?         @map("author_username")
+  title           String?
+  content         String
+  url             String
+  canonicalUrl    String          @map("canonical_url")
+  contentHash     String          @map("content_hash")
+  language        ContentLanguage @default(OTHER)
+  /// Arabic-normalised copies (diacritics, alef/teh/alef-maqsura folding).
+  /// Populated only for Arabic rows; the full-text index reads these so the raw
+  /// title and content stay exactly as the provider published them.
+  normalizedTitle   String?       @map("normalized_title")
+  normalizedContent String?       @map("normalized_content")
+  publishedAt     DateTime        @map("published_at")
+  collectedAt     DateTime        @map("collected_at")
+  likes           Int             @default(0)
+  replies         Int             @default(0)
+  reposts         Int             @default(0)
+  views           Int             @default(0)
+  engagementScore Float           @default(0) @map("engagement_score")
+  relevanceScore  Float           @default(0) @map("relevance_score")
+  trendScore      Float           @default(0) @map("trend_score")
+  opportunityScore Float          @default(0) @map("opportunity_score")
+  /// Inspectable components behind relevance_score.
+  relevanceBreakdown Json?        @map("relevance_breakdown")
+  isRead          Boolean         @default(false) @map("is_read")
+  isSaved         Boolean         @default(false) @map("is_saved")
+  isHidden        Boolean         @default(false) @map("is_hidden")
+  rawItemId       String?         @map("raw_item_id")
+  topicId         String?         @map("topic_id")
+  /// Content embedding, written by the embeddings worker.
+  embedding       Unsupported("vector(768)")?
+  /// Weighted tsvector over title and content, generated by PostgreSQL.
+  searchVector    Unsupported("tsvector")?    @map("search_vector")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  rawItem      RawItem?      @relation(fields: [rawItemId], references: [id], onDelete: SetNull)
+  topic        Topic?        @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  comments     Comment[]
+  topicPosts   TopicPost[]
+  translations Translation[]
+  savedItems   SavedItem[]
+  drafts       ContentDraft[]
+
+  @@unique([source, sourcePostId])
+  @@index([publishedAt(sort: Desc)])
+  @@index([collectedAt(sort: Desc)])
+  @@index([source, publishedAt(sort: Desc)])
+  @@index([topicId])
+  @@index([language])
+  @@index([trendScore(sort: Desc)])
+  @@index([relevanceScore(sort: Desc)])
+  @@index([opportunityScore(sort: Desc)])
+  @@index([contentHash])
+  @@index([canonicalUrl])
+  @@index([isHidden, publishedAt(sort: Desc)])
+  @@map("posts")
+}
+
+model Comment {
+  id              String          @id @default(cuid())
+  postId          String          @map("post_id")
+  sourceCommentId String          @map("source_comment_id")
+  source          SourceKind
+  author          String?
+  content         String
+  language        ContentLanguage @default(OTHER)
+  /// Arabic-normalised copy; see Post.normalizedContent.
+  normalizedContent String?       @map("normalized_content")
+  likes           Int             @default(0)
+  contentHash     String          @map("content_hash")
+  publishedAt     DateTime        @map("published_at")
+  rawItemId       String?         @map("raw_item_id")
+  embedding       Unsupported("vector(768)")?
+  searchVector    Unsupported("tsvector")?    @map("search_vector")
+  createdAt       DateTime        @default(now()) @map("created_at")
+
+  post         Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  rawItem      RawItem?      @relation(fields: [rawItemId], references: [id], onDelete: SetNull)
+  translations Translation[]
+
+  @@unique([source, sourceCommentId])
+  @@index([postId, publishedAt(sort: Desc)])
+  @@index([language])
+  @@map("comments")
+}
+
+// ---------------------------------------------------------------------------
+// Topics and trends
+// ---------------------------------------------------------------------------
+
+model Topic {
+  id                     String              @id @default(cuid())
+  name                   String
+  slug                   String              @unique
+  summary                String?
+  /// Arabic-normalised copies; see Post.normalizedContent.
+  normalizedName         String?             @map("normalized_name")
+  normalizedSummary      String?             @map("normalized_summary")
+  status                 TopicStatus         @default(ACTIVE)
+  classification         TopicClassification @default(NORMAL)
+  /// TopicSignalExplanation[] — why the classification was assigned.
+  classificationReasons  Json                @default("[]") @map("classification_reasons")
+  postCount              Int                 @default(0) @map("post_count")
+  commentCount           Int                 @default(0) @map("comment_count")
+  englishPostCount       Int                 @default(0) @map("english_post_count")
+  arabicPostCount        Int                 @default(0) @map("arabic_post_count")
+  distinctSourceCount    Int                 @default(0) @map("distinct_source_count")
+  trendScore             Float               @default(0) @map("trend_score")
+  relevanceScore         Float               @default(0) @map("relevance_score")
+  velocity               Float               @default(0)
+  arabicOpportunityScore Float               @default(0) @map("arabic_opportunity_score")
+  /// Inspectable components behind trend_score.
+  trendBreakdown         Json?               @map("trend_breakdown")
+  /// Inspectable components behind arabic_opportunity_score.
+  arabicOpportunityBreakdown Json?           @map("arabic_opportunity_breakdown")
+  firstDetectedAt        DateTime            @map("first_detected_at")
+  lastDetectedAt         DateTime            @map("last_detected_at")
+  /// Centroid embedding of the topic's posts, used for cluster assignment.
+  embedding              Unsupported("vector(768)")?
+  searchVector           Unsupported("tsvector")?    @map("search_vector")
+  createdAt              DateTime            @default(now()) @map("created_at")
+  updatedAt              DateTime            @updatedAt @map("updated_at")
+
+  posts         Post[]
+  topicPosts    TopicPost[]
+  snapshots     TrendSnapshot[]
+  savedItems    SavedItem[]
+  translations  Translation[]
+  threads       Thread[]
+  contentDrafts ContentDraft[]
+  publications  ManualPublication[]
+
+  @@index([status, trendScore(sort: Desc)])
+  @@index([classification, trendScore(sort: Desc)])
+  @@index([arabicOpportunityScore(sort: Desc)])
+  @@index([lastDetectedAt(sort: Desc)])
+  @@index([firstDetectedAt(sort: Desc)])
+  @@map("topics")
+}
+
+/// Explicit join between topics and posts. It exists as its own table (rather
+/// than relying on Post.topicId alone) so that cluster membership keeps its own
+/// similarity score and assignment timestamp for auditing.
+model TopicPost {
+  topicId    String   @map("topic_id")
+  postId     String   @map("post_id")
+  /// Cosine similarity between the post and the topic centroid at assignment.
+  similarity Float
+  assignedAt DateTime @default(now()) @map("assigned_at")
+
+  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  post  Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([topicId, postId])
+  @@index([postId])
+  @@map("topic_posts")
+}
+
+/// Point-in-time trend state. Every component is stored, never just the score,
+/// so historical charts can explain a spike after the fact.
+model TrendSnapshot {
+  id                String   @id @default(cuid())
+  topicId           String   @map("topic_id")
+  trendScore        Float    @map("trend_score")
+  postCount         Int      @map("post_count")
+  engagement        Float
+  velocity          Float
+  relevance         Float
+  freshness         Float
+  crossSourceSignal Float    @map("cross_source_signal")
+  sourceAuthority   Float    @map("source_authority")
+  novelty           Float
+  arabicOpportunity Float    @map("arabic_opportunity")
+  saturationPenalty Float    @map("saturation_penalty")
+  recordedAt        DateTime @map("recorded_at")
+
+  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([topicId, recordedAt])
+  @@index([topicId, recordedAt(sort: Desc)])
+  @@index([recordedAt(sort: Desc)])
+  @@map("trend_snapshots")
+}
+
+// ---------------------------------------------------------------------------
+// User content
+// ---------------------------------------------------------------------------
+
+model SavedItem {
+  id             String        @id @default(cuid())
+  userId         String        @map("user_id")
+  kind           SavedItemKind
+  postId         String?       @map("post_id")
+  topicId        String?       @map("topic_id")
+  threadId       String?       @map("thread_id")
+  contentDraftId String?       @map("content_draft_id")
+  note           String?
+  collection     String?
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post         Post?         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  topic        Topic?        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  thread       Thread?       @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  contentDraft ContentDraft? @relation(fields: [contentDraftId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@unique([userId, topicId])
+  @@unique([userId, threadId])
+  @@unique([userId, contentDraftId])
+  @@index([userId, kind, createdAt(sort: Desc)])
+  @@map("saved_items")
+}
+
+model Translation {
+  id                    String                @id @default(cuid())
+  userId                String                @map("user_id")
+  targetKind            TranslationTargetKind @map("target_kind")
+  postId                String?               @map("post_id")
+  commentId             String?               @map("comment_id")
+  threadId              String?               @map("thread_id")
+  topicId               String?               @map("topic_id")
+  sourceLanguage        ContentLanguage       @map("source_language")
+  targetLanguage        ContentLanguage       @map("target_language")
+  mode                  TranslationMode
+  terminologyPreference TerminologyPreference @map("terminology_preference")
+  sourceContent         String                @map("source_content")
+  translatedContent     String                @map("translated_content")
+  preservedTerms        String[]              @map("preserved_terms")
+  explanation           String?
+  providerName          String                @map("provider_name")
+  createdAt             DateTime              @default(now()) @map("created_at")
+  updatedAt             DateTime              @updatedAt @map("updated_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post    Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  thread  Thread?  @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  topic   Topic?   @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([postId])
+  @@index([threadId])
+  @@index([targetKind, targetLanguage])
+  @@map("translations")
+}
+
+model Thread {
+  id        String             @id @default(cuid())
+  userId    String             @map("user_id")
+  topicId   String?            @map("topic_id")
+  title     String
+  language  ContentLanguage    @default(EN)
+  status    ContentDraftStatus @default(DRAFT)
+  isSaved   Boolean            @default(false) @map("is_saved")
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic        Topic?              @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  posts        ThreadPost[]
+  translations Translation[]
+  savedItems   SavedItem[]
+  drafts       ContentDraft[]
+  publications ManualPublication[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([topicId])
+  @@map("threads")
+}
+
+model ThreadPost {
+  id             String   @id @default(cuid())
+  threadId       String   @map("thread_id")
+  /// 1-based position within the thread.
+  position       Int
+  content        String
+  characterCount Int      @map("character_count")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@unique([threadId, position])
+  @@map("thread_posts")
+}
+
+model ContentDraft {
+  id             String             @id @default(cuid())
+  userId         String             @map("user_id")
+  topicId        String?            @map("topic_id")
+  postId         String?            @map("post_id")
+  threadId       String?            @map("thread_id")
+  kind           ContentDraftKind
+  status         ContentDraftStatus @default(DRAFT)
+  language       ContentLanguage    @default(EN)
+  title          String?
+  content        String
+  characterCount Int                @map("character_count")
+  tone           String?
+  providerName   String             @map("provider_name")
+  isSaved        Boolean            @default(false) @map("is_saved")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic        Topic?              @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  post         Post?               @relation(fields: [postId], references: [id], onDelete: SetNull)
+  thread       Thread?             @relation(fields: [threadId], references: [id], onDelete: SetNull)
+  savedItems   SavedItem[]
+  publications ManualPublication[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, kind, status])
+  @@index([topicId])
+  @@map("content_drafts")
+}
+
+/// Record of a post the user published manually on X.
+/// V1 never publishes automatically; this table only tracks what the user did.
+model ManualPublication {
+  id               String           @id @default(cuid())
+  userId           String           @map("user_id")
+  contentDraftId   String?          @map("content_draft_id")
+  threadId         String?          @map("thread_id")
+  topicId          String?          @map("topic_id")
+  contentKind      ContentDraftKind @map("content_kind")
+  language         ContentLanguage
+  originalContent  String           @map("original_content")
+  publishedContent String           @map("published_content")
+  publishedUrl     String?          @map("published_url")
+  publishedAt      DateTime         @map("published_at")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contentDraft ContentDraft? @relation(fields: [contentDraftId], references: [id], onDelete: SetNull)
+  thread       Thread?       @relation(fields: [threadId], references: [id], onDelete: SetNull)
+  topic        Topic?        @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  @@index([userId, publishedAt(sort: Desc)])
+  @@index([topicId])
+  @@map("manual_publications")
+}
+
+// ---------------------------------------------------------------------------
+// Operations
+// ---------------------------------------------------------------------------
+
+model ScanRun {
+  id                String       @id @default(cuid())
+  userId            String?      @map("user_id")
+  trigger           ScanTrigger
+  status            JobStatus    @default(PENDING)
+  sourceKinds       SourceKind[] @map("source_kinds")
+  itemsCollected    Int          @default(0) @map("items_collected")
+  itemsStored       Int          @default(0) @map("items_stored")
+  duplicatesSkipped Int          @default(0) @map("duplicates_skipped")
+  postsCreated      Int          @default(0) @map("posts_created")
+  commentsCreated   Int          @default(0) @map("comments_created")
+  topicsCreated     Int          @default(0) @map("topics_created")
+  startedAt         DateTime     @default(now()) @map("started_at")
+  finishedAt        DateTime?    @map("finished_at")
+  durationMs        Int?         @map("duration_ms")
+  failureReason     String?      @map("failure_reason")
+
+  user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  jobRuns  JobRun[]
+  rawItems RawItem[]
+
+  @@index([startedAt(sort: Desc)])
+  @@index([status, startedAt(sort: Desc)])
+  @@index([userId])
+  @@map("scan_runs")
+}
+
+model JobRun {
+  id            String    @id @default(cuid())
+  queue         String
+  jobName       String    @map("job_name")
+  jobId         String?   @map("job_id")
+  scanRunId     String?   @map("scan_run_id")
+  status        JobStatus @default(PENDING)
+  attempt       Int       @default(1)
+  maxAttempts   Int       @default(3) @map("max_attempts")
+  durationMs    Int?      @map("duration_ms")
+  failureReason String?   @map("failure_reason")
+  startedAt     DateTime  @default(now()) @map("started_at")
+  finishedAt    DateTime? @map("finished_at")
+
+  scanRun ScanRun? @relation(fields: [scanRunId], references: [id], onDelete: SetNull)
+
+  @@unique([queue, jobId, attempt])
+  @@index([queue, startedAt(sort: Desc)])
+  @@index([status, startedAt(sort: Desc)])
+  @@index([scanRunId])
+  @@map("job_runs")
+}
+
+/// External provider usage, aggregated per hour so the table stays small while
+/// still supporting the usage widget and the cost estimates.
+model ApiUsage {
+  id            String   @id @default(cuid())
+  provider      String
+  operation     String
+  requestCount  Int      @default(0) @map("request_count")
+  successCount  Int      @default(0) @map("success_count")
+  failureCount  Int      @default(0) @map("failure_count")
+  estimatedCost Float    @default(0) @map("estimated_cost")
+  /// Start of the hour this row aggregates.
+  recordedAt    DateTime @map("recorded_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@unique([provider, operation, recordedAt])
+  @@index([recordedAt(sort: Desc)])
+  @@map("api_usage")
+}
+
+model Report {
+  id          String     @id @default(cuid())
+  userId      String     @map("user_id")
+  kind        ReportKind
+  title       String
+  rangeFrom   DateTime   @map("range_from")
+  rangeTo     DateTime   @map("range_to")
+  filters     Json       @default("{}")
+  payload     Json
+  generatedAt DateTime   @default(now()) @map("generated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, generatedAt(sort: Desc)])
+  @@index([kind, generatedAt(sort: Desc)])
+  @@map("reports")
+}
+
+model SystemSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       Json
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("system_settings")
+}
