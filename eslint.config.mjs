@@ -1,18 +1,15 @@
-import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import { createNodeConfig } from '@trendhunter/config/eslint/node';
 
-const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
-  // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-  ]),
-]);
-
-export default eslintConfig;
+/**
+ * Root ESLint configuration.
+ *
+ * Each workspace package owns its own `eslint.config.mjs` so that type-aware
+ * linting resolves the right tsconfig project. This root config only covers
+ * repository-level scripts and configuration files.
+ */
+export default [
+  ...createNodeConfig({ tsconfigRootDir: import.meta.dirname }),
+  {
+    ignores: ['apps/**', 'packages/**', 'docker/**', 'context/**'],
+  },
+];

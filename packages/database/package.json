@@ -1,0 +1,44 @@
+{
+  "name": "@trendhunter/database",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Prisma schema, client, repositories and vector/full-text SQL.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "clean": "rimraf .turbo coverage *.tsbuildinfo",
+    "db:check": "node ../../scripts/check-migration-safety.mjs",
+    "db:deploy": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev --create-only && node ../../scripts/check-migration-safety.mjs && prisma migrate deploy && prisma generate",
+    "db:migrate:create": "prisma migrate dev --create-only",
+    "db:reset": "prisma migrate reset --force",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "catalog:",
+    "@prisma/client": "catalog:",
+    "@trendhunter/env": "workspace:*",
+    "@trendhunter/observability": "workspace:*",
+    "@trendhunter/shared": "workspace:*",
+    "@trendhunter/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@trendhunter/config": "workspace:*",
+    "@types/node": "catalog:",
+    "dotenv": "catalog:",
+    "eslint": "catalog:",
+    "prisma": "catalog:",
+    "rimraf": "catalog:",
+    "tsx": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -1,27 +1,50 @@
 {
-  "name": "trendhunter-frontend",
-  "version": "0.1.0",
+  "name": "trendhunter",
+  "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+  "type": "module",
+  "description": "Content intelligence and trend discovery platform with Arabic localisation.",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=11.0.0"
   },
-  "dependencies": {
-    "next": "16.3.4",
-    "react": "19.2.8",
-    "react-dom": "19.2.8"
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:watch": "turbo run test -- --watch",
+    "test:e2e": "turbo run test:e2e",
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,md,yml,yaml,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,json,md,yml,yaml,css}\"",
+    "clean": "turbo run clean && rimraf node_modules .turbo",
+    "db:generate": "pnpm --filter @trendhunter/database db:generate",
+    "db:migrate": "pnpm --filter @trendhunter/database db:migrate",
+    "db:deploy": "pnpm --filter @trendhunter/database db:deploy",
+    "db:seed": "pnpm --filter @trendhunter/database db:seed",
+    "db:studio": "pnpm --filter @trendhunter/database db:studio",
+    "db:reset": "pnpm --filter @trendhunter/database db:reset",
+    "db:check-drift": "node scripts/check-migration-safety.mjs",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:reset": "docker compose down -v && docker compose up -d",
+    "verify": "turbo run lint typecheck test && turbo run build",
+    "secrets:scan": "node scripts/scan-secrets.mjs"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^9",
-    "eslint-config-next": "16.3.4",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "@trendhunter/config": "workspace:*",
+    "@types/node": "catalog:",
+    "@typescript/native": "npm:typescript@7.0.2",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "prettier-plugin-tailwindcss": "catalog:",
+    "rimraf": "catalog:",
+    "turbo": "2.10.12",
+    "typescript": "npm:@typescript/typescript6@6.0.2"
   }
 }

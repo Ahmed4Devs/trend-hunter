@@ -1,0 +1,28 @@
+{
+  "name": "@trendhunter/env",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Zod-validated environment configuration for every service.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "clean": "rimraf .turbo coverage *.tsbuildinfo",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@trendhunter/config": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "rimraf": "catalog:",
+    "vitest": "catalog:"
+  }
+}

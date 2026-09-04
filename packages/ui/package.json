@@ -1,0 +1,56 @@
+{
+  "name": "@trendhunter/ui",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "TrendHunter design system: Radix-based primitives, charts and data grid.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles.css": "./src/styles.css",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "clean": "rimraf .turbo coverage *.tsbuildinfo",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@radix-ui/react-avatar": "catalog:ui",
+    "@radix-ui/react-checkbox": "catalog:ui",
+    "@radix-ui/react-dialog": "catalog:ui",
+    "@radix-ui/react-dropdown-menu": "catalog:ui",
+    "@radix-ui/react-label": "catalog:ui",
+    "@radix-ui/react-popover": "catalog:ui",
+    "@radix-ui/react-progress": "catalog:ui",
+    "@radix-ui/react-scroll-area": "catalog:ui",
+    "@radix-ui/react-select": "catalog:ui",
+    "@radix-ui/react-separator": "catalog:ui",
+    "@radix-ui/react-slot": "catalog:ui",
+    "@radix-ui/react-switch": "catalog:ui",
+    "@radix-ui/react-tabs": "catalog:ui",
+    "@radix-ui/react-tooltip": "catalog:ui",
+    "@tanstack/react-table": "catalog:ui",
+    "@trendhunter/shared": "workspace:*",
+    "@trendhunter/types": "workspace:*",
+    "class-variance-authority": "catalog:ui",
+    "clsx": "catalog:ui",
+    "cmdk": "catalog:ui",
+    "lucide-react": "catalog:ui",
+    "recharts": "catalog:ui",
+    "sonner": "catalog:ui",
+    "tailwind-merge": "catalog:ui"
+  },
+  "devDependencies": {
+    "@trendhunter/config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:react19",
+    "@types/react-dom": "catalog:react19",
+    "eslint": "catalog:",
+    "rimraf": "catalog:",
+    "tailwindcss": "catalog:next16"
+  },
+  "peerDependencies": {
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19"
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "ui": "stream",
+  "envMode": "strict",
+  "noUpdateNotifier": true,
+  "cacheMaxSize": "5GB",
+  "cacheMaxAge": "14d",
+
+  "globalDependencies": [
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    ".nvmrc",
+    "packages/config/tsconfig/*.json"
+  ],
+  "globalEnv": ["NODE_ENV", "CI"],
+  "globalPassThroughEnv": [
+    "PATH",
+    "HOME",
+    "USERPROFILE",
+    "APPDATA",
+    "LOCALAPPDATA",
+    "SYSTEMROOT",
+    "COMSPEC",
+    "TEMP",
+    "TMP",
+    "npm_config_user_agent"
+  ],
+
+  "futureFlags": {
+    "pruneIncludesGlobalFiles": true,
+    "affectedUsingTaskInputs": true,
+    "watchUsingTaskInputs": true,
+    "strictTaskEntrypointSelection": true
+  },
+
+  "tasks": {
+    "topo": {
+      "dependsOn": ["^topo"]
+    },
+
+    "db:generate": {
+      "inputs": ["prisma/schema.prisma", "prisma.config.ts"],
+      "outputs": ["src/generated/**"],
+      "cache": true,
+      "env": ["PRISMA_*"],
+      "passThroughEnv": ["DATABASE_URL"]
+    },
+
+    "build": {
+      "dependsOn": ["^build", "db:generate"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.md",
+        "!e2e/**"
+      ],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "env": ["NEXT_PUBLIC_*", "ANALYZE"],
+      "passThroughEnv": ["DATABASE_URL", "REDIS_URL"],
+      "outputLogs": "new-only"
+    },
+
+    "dev": {
+      "dependsOn": ["^db:generate"],
+      "cache": false,
+      "persistent": true,
+      "interruptible": true,
+      "env": ["NEXT_PUBLIC_*", "PORT", "HOST"],
+      "passThroughEnv": [
+        "DATABASE_URL",
+        "REDIS_URL",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "APP_URL",
+        "API_URL",
+        "API_INTERNAL_URL",
+        "LOG_LEVEL",
+        "DATA_MODE",
+        "AI_PROVIDER",
+        "AI_MODEL",
+        "EMBEDDING_DIMENSIONS",
+        "LLM_API_KEY",
+        "X_API_BEARER_TOKEN",
+        "REDDIT_CLIENT_ID",
+        "REDDIT_CLIENT_SECRET",
+        "GITHUB_TOKEN",
+        "CORS_ALLOWED_ORIGINS",
+        "ENABLE_API_DOCS",
+        "ENABLE_DEMO_ACCOUNT",
+        "ALLOW_PRIVATE_NETWORK_FETCH",
+        "TRUST_PROXY",
+        "WORKER_CONCURRENCY",
+        "ENABLE_SCHEDULED_SCANS",
+        "SCAN_INTERVAL_MULTIPLIER",
+        "HEALTH_PORT",
+        "RATE_LIMIT_MAX",
+        "RATE_LIMIT_WINDOW_SECONDS",
+        "AUTH_RATE_LIMIT_MAX",
+        "AUTH_RATE_LIMIT_WINDOW_SECONDS",
+        "EXPENSIVE_RATE_LIMIT_MAX",
+        "EXPENSIVE_RATE_LIMIT_WINDOW_SECONDS",
+        "MAX_BODY_BYTES",
+        "RAW_ITEM_RETENTION_DAYS",
+        "JOB_RUN_RETENTION_DAYS"
+      ]
+    },
+
+    "lint": {
+      "dependsOn": ["^topo"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/eslint.config.mjs",
+        "$TURBO_ROOT$/packages/config/eslint/**"
+      ],
+      "outputLogs": "errors-only"
+    },
+
+    "typecheck": {
+      "dependsOn": ["^topo", "db:generate", "^db:generate"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "outputs": ["*.tsbuildinfo"],
+      "outputLogs": "errors-only"
+    },
+
+    "test": {
+      "dependsOn": ["^topo", "db:generate", "^db:generate"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "outputs": ["coverage/**"],
+      "env": ["VITEST_*", "TZ"],
+      "outputLogs": "new-only"
+    },
+
+    "test:e2e": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "env": ["PLAYWRIGHT_*", "BASE_URL"],
+      "passThroughEnv": ["DATABASE_URL", "REDIS_URL", "CI"],
+      "outputs": ["playwright-report/**", "test-results/**"]
+    },
+
+    "clean": {
+      "cache": false
+    }
+  }
+}

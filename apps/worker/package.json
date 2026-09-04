@@ -1,0 +1,48 @@
+{
+  "name": "@trendhunter/worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "TrendHunter background worker: collection, normalisation, scoring and AI jobs.",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf dist .turbo coverage *.tsbuildinfo",
+    "dev": "tsx watch --env-file-if-exists=../../.env src/main.ts",
+    "lint": "eslint .",
+    "start": "node dist/main.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@trendhunter/ai": "workspace:*",
+    "@trendhunter/clustering": "workspace:*",
+    "@trendhunter/connectors": "workspace:*",
+    "@trendhunter/content": "workspace:*",
+    "@trendhunter/database": "workspace:*",
+    "@trendhunter/embeddings": "workspace:*",
+    "@trendhunter/env": "workspace:*",
+    "@trendhunter/observability": "workspace:*",
+    "@trendhunter/ranking": "workspace:*",
+    "@trendhunter/shared": "workspace:*",
+    "@trendhunter/translation": "workspace:*",
+    "@trendhunter/types": "workspace:*",
+    "@trendhunter/validation": "workspace:*",
+    "bullmq": "catalog:",
+    "ioredis": "catalog:",
+    "pino": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@trendhunter/config": "workspace:*",
+    "@types/node": "catalog:",
+    "dotenv": "catalog:",
+    "eslint": "catalog:",
+    "pino-pretty": "catalog:",
+    "rimraf": "catalog:",
+    "tsup": "catalog:",
+    "tsx": "catalog:",
+    "vitest": "catalog:"
+  }
+}

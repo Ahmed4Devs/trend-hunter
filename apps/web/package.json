@@ -1,0 +1,46 @@
+{
+  "name": "@trendhunter/web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "TrendHunter Next.js application.",
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "clean": "rimraf .next .turbo coverage *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@trendhunter/types": "workspace:*",
+    "@trendhunter/shared": "workspace:*",
+    "@trendhunter/ui": "workspace:*",
+    "@trendhunter/validation": "workspace:*",
+    "@trendhunter/env": "workspace:*",
+    "better-auth": "catalog:",
+    "next": "catalog:next16",
+    "next-intl": "catalog:next16",
+    "next-themes": "catalog:next16",
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@tailwindcss/postcss": "catalog:next16",
+    "@trendhunter/config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:react19",
+    "@types/react-dom": "catalog:react19",
+    "babel-plugin-react-compiler": "catalog:next16",
+    "eslint": "catalog:",
+    "eslint-config-next": "catalog:next16",
+    "happy-dom": "catalog:",
+    "rimraf": "catalog:",
+    "tailwindcss": "catalog:next16",
+    "vitest": "catalog:"
+  }
+}

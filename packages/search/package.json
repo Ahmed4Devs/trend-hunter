@@ -1,0 +1,31 @@
+{
+  "name": "@trendhunter/search",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Full-text, semantic and hybrid search query builders.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "clean": "rimraf .turbo coverage *.tsbuildinfo",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@trendhunter/database": "workspace:*",
+    "@trendhunter/embeddings": "workspace:*",
+    "@trendhunter/shared": "workspace:*",
+    "@trendhunter/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@trendhunter/config": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "rimraf": "catalog:",
+    "vitest": "catalog:"
+  }
+}

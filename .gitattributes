@@ -1,0 +1,18 @@
+# Normalise line endings: the repository stores LF, checkouts get the platform
+# default. Without this, a Windows checkout rewrites every file and the diffs
+# become unreadable.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.pdf binary
+
+pnpm-lock.yaml linguist-generated=true -diff
+packages/database/src/generated/** linguist-generated=true
