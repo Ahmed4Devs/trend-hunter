@@ -59,10 +59,10 @@ export function buildApp(container: Container) {
     // exposed server lets any client forge its own address and defeat the
     // per-address rate limits.
     trustProxy: env.TRUST_PROXY,
-    disableRequestLogging: false,
-    // A URL longer than this is never legitimate here and is a cheap way to
-    // waste routing time.
-    maxParamLength: 200,
+    // A URL parameter longer than this is never legitimate here and is a cheap
+    // way to waste routing time. Set through `routerOptions`; the top-level
+    // form is deprecated in Fastify 5 and removed in 6.
+    routerOptions: { maxParamLength: 200 },
     ajv: { customOptions: { allErrors: false } },
   });
 

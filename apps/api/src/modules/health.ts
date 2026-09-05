@@ -1,5 +1,5 @@
 import { checkDatabaseHealth } from '@trendhunter/database';
-import { WORKER_HEARTBEAT_TTL_SECONDS } from '@trendhunter/shared';
+import { WORKER_HEARTBEAT_KEY, WORKER_HEARTBEAT_TTL_SECONDS } from '@trendhunter/shared';
 import { z } from 'zod';
 
 import { ok, successEnvelope } from '../http/envelope';
@@ -40,9 +40,6 @@ const readySchema = z.object({
   }),
   timestamp: z.iso.datetime(),
 });
-
-/** Redis key the worker refreshes to prove it is alive. */
-const WORKER_HEARTBEAT_KEY = 'trendhunter:worker:heartbeat';
 
 export const healthRoutes: RouteModule = (app) => {
   app.route({

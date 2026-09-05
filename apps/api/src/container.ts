@@ -7,6 +7,7 @@ import {
 import { createAuth, type Auth } from '@trendhunter/auth';
 import { ContentService, ThreadService } from '@trendhunter/content';
 import {
+  createAnalyticsRepository,
   createContentRepository,
   createDatabaseClient,
   createIngestionRepository,
@@ -16,6 +17,7 @@ import {
   createSavedRepository,
   createSourceRepository,
   createTopicRepository,
+  createUserRepository,
   type Database,
 } from '@trendhunter/database';
 import { EmbeddingService } from '@trendhunter/embeddings';
@@ -53,6 +55,8 @@ export interface Container {
     readonly saved: ReturnType<typeof createSavedRepository>;
     readonly operations: ReturnType<typeof createOperationsRepository>;
     readonly ingestion: ReturnType<typeof createIngestionRepository>;
+    readonly analytics: ReturnType<typeof createAnalyticsRepository>;
+    readonly users: ReturnType<typeof createUserRepository>;
   };
   readonly services: {
     readonly search: ReturnType<typeof createSearchService>;
@@ -121,6 +125,8 @@ export function createContainer(env: ApiEnvironment): Container {
     saved: createSavedRepository(database),
     operations: createOperationsRepository(database),
     ingestion: createIngestionRepository(database),
+    analytics: createAnalyticsRepository(database),
+    users: createUserRepository(database),
   };
 
   const translation = new TranslationService(llm);

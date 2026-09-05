@@ -28,7 +28,15 @@ import { z } from 'zod';
  * field not declared below cannot leak it — the field is dropped.
  */
 
-function registered<TSchema extends z.ZodType>(id: string, schema: TSchema): TSchema {
+/**
+ * Registers a schema under a name so the OpenAPI document `$ref`s it instead of
+ * inlining the same object into every operation.
+ *
+ * Exported because route modules that own a response shape register it too, and
+ * two copies of this helper is how duplicate ids eventually get registered
+ * without anyone noticing.
+ */
+export function registered<TSchema extends z.ZodType>(id: string, schema: TSchema): TSchema {
   z.globalRegistry.add(schema, { id });
   return schema;
 }
