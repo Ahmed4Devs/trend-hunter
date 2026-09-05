@@ -10,9 +10,11 @@ import {
   createManualPublicationBodySchema,
   createSavedItemBodySchema,
   idParamSchema,
+  idSchema,
   listManualPublicationsQuerySchema,
   listSavedItemsQuerySchema,
   publicHttpsUrlSchema,
+  savedItemKindSchema,
 } from '@trendhunter/validation';
 import { z } from 'zod';
 
@@ -62,6 +64,34 @@ const updateManualPublicationBodySchema = z
     publishedContent: boundedTextSchema(X_LONG_POST_CHARACTER_LIMIT * MAX_THREAD_LENGTH).optional(),
   })
   .refine((body) => Object.keys(body).length > 0, 'must change at least one field');
+
+/**
+ * The target of an unsave.
+ *
+ * Mirrors the create body's "exactly one identifier" rule rather than relaxing
+ * it: two identifiers would describe two different rows, and the repository
+ * matches on all four columns at once, so the request would silently delete
+ * nothing.
+ *
+ * Written out rather than derived from the create body with `.omit()`: that
+ * schema carries a refinement, and Zod refuses to omit from a refined object —
+ * at run time, on the first request, not at compile time.
+ */
+const unsaveTargetQuerySchema = z
+  .object({
+    kind: savedItemKindSchema,
+    postId: idSchema.optional(),
+    topicId: idSchema.optional(),
+    threadId: idSchema.optional(),
+    contentDraftId: idSchema.optional(),
+  })
+  .refine(
+    (query) =>
+      [query.postId, query.topicId, query.threadId, query.contentDraftId].filter(
+        (value) => value !== undefined,
+      ).length === 1,
+    { message: 'exactly one target identifier is required' },
+  );
 
 export const savedRoutes: RouteModule = (app) => {
   const { repositories } = app.container;
@@ -205,6 +235,36 @@ export const savedRoutes: RouteModule = (app) => {
       const session = currentUser(request);
       const removed = await repositories.saved.unsave(session.user.id, request.params.id);
       if (!removed) throw new NotFoundError('Saved item');
+      return reply.code(204).send(null);
+    },
+  });
+
+  app.route({
+    method: 'DELETE',
+    url: '/saved/target',
+    schema: {
+      operationId: 'deleteSavedItemByTarget',
+      tags: ['saved'],
+      summary: 'Unsave a post, topic, thread or draft by what it points at',
+      description:
+        'The counterpart of `POST /saved` for a toggle. A client that renders a post knows the post id but not the identifier of the saved row pointing at it, and making it search its own saved list to find one would be a round trip to learn something the server already knows. Answers 404 when nothing was saved for that target.',
+      querystring: unsaveTargetQuerySchema,
+      response: { ...noContentResponse, ...commonErrorResponses, ...notFoundResponse },
+    },
+    handler: async (request, reply) => {
+      const session = currentUser(request);
+      const query = request.query;
+
+      const removed = await repositories.saved.unsaveTarget({
+        userId: session.user.id,
+        kind: query.kind,
+        postId: query.postId ?? null,
+        topicId: query.topicId ?? null,
+        threadId: query.threadId ?? null,
+        contentDraftId: query.contentDraftId ?? null,
+      });
+      if (!removed) throw new NotFoundError('Saved item');
+
       return reply.code(204).send(null);
     },
   });

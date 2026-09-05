@@ -6,6 +6,9 @@
  * and the E2E tests type against the same shapes.
  */
 
+import type { ContentLanguage, SearchEntityKind, SearchMode } from './enums';
+import type { Comment, Post, Topic } from './domain';
+
 /** Machine-readable error codes. The HTTP status is derived from these. */
 export const API_ERROR_CODES = [
   'VALIDATION_ERROR',
@@ -84,4 +87,43 @@ export type SortDirection = 'asc' | 'desc';
 export interface SortParams<TField extends string = string> {
   readonly sortBy: TField;
   readonly sortDirection: SortDirection;
+}
+
+/**
+ * A ranked search hit.
+ *
+ * The resolved object is carried inline and typed as nullable per entity, so a
+ * client renders `result.topic` or `result.post` by looking at `entity` rather
+ * than by probing which field happens to be present.
+ */
+export interface SearchResult {
+  readonly id: string;
+  readonly entity: SearchEntityKind;
+  /** 0..1 fused score, comparable only within one result set. */
+  readonly score: number;
+  readonly keywordRank: number | null;
+  readonly semanticRank: number | null;
+  /** The matched fragment with the query terms marked, when the engine produced one. */
+  readonly headline: string | null;
+  readonly post: Post | null;
+  readonly topic: Topic | null;
+  readonly comment: Comment | null;
+}
+
+export interface SearchResponse {
+  readonly query: string;
+  readonly mode: SearchMode;
+  readonly language: ContentLanguage;
+  /**
+   * True when the vector arm was skipped because no query embedding could be
+   * produced, so the results are keyword-only. Reported rather than swallowed:
+   * a reader who searched for a paraphrase and got nothing needs to know why.
+   */
+  readonly degradedToKeyword: boolean;
+  readonly results: readonly SearchResult[];
+}
+
+export interface SearchSuggestion {
+  readonly value: string;
+  readonly kind: 'topic' | 'author';
 }
