@@ -384,13 +384,14 @@
       "LITERAL": "حرفي",
       "NATURAL": "طبيعي",
       "X_STYLE": "بأسلوب منصة إكس",
-      "EXPLANATORY": "تفسيري"
+      "PROFESSIONAL": "احترافي",
+      "SIMPLE_ARABIC": "عربية مبسّطة"
     },
     "terminology": {
       "label": "المصطلحات التقنية",
       "KEEP_COMMON_ENGLISH_TERMS": "إبقاء المصطلحات الإنجليزية الشائعة",
-      "TRANSLATE_EVERYTHING": "ترجمة كل شيء",
-      "KEEP_WITH_ARABIC_GLOSS": "إبقاؤها مع شرح عربي"
+      "ARABIC_WHEN_POSSIBLE": "تفضيل العربية حيثما تستقيم",
+      "FULL_ARABIC": "ترجمة كل المصطلحات"
     },
     "explain": "اشرح الاختيارات",
     "submit": "ترجم",

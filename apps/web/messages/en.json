@@ -384,13 +384,14 @@
       "LITERAL": "Literal",
       "NATURAL": "Natural",
       "X_STYLE": "X style",
-      "EXPLANATORY": "Explanatory"
+      "PROFESSIONAL": "Professional",
+      "SIMPLE_ARABIC": "Simple Arabic"
     },
     "terminology": {
       "label": "Technical terms",
       "KEEP_COMMON_ENGLISH_TERMS": "Keep common English terms",
-      "TRANSLATE_EVERYTHING": "Translate everything",
-      "KEEP_WITH_ARABIC_GLOSS": "Keep, with an Arabic gloss"
+      "ARABIC_WHEN_POSSIBLE": "Prefer Arabic where it reads well",
+      "FULL_ARABIC": "Translate every term"
     },
     "explain": "Explain the choices",
     "submit": "Translate",
