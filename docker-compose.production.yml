@@ -1,0 +1,225 @@
+# =============================================================================
+# TrendHunter — production stack
+# =============================================================================
+#   docker compose -f docker-compose.production.yml up -d --build
+#
+# Only Caddy publishes ports. PostgreSQL, Redis, the API and the web app are
+# reachable on the internal network and nowhere else, so a misconfigured
+# firewall cannot expose a database that was never meant to listen publicly.
+#
+# Every value comes from `.env` in this directory; see `.env.example`.
+# =============================================================================
+
+name: trendhunter-production
+
+x-app-environment: &app-environment
+  NODE_ENV: production
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+  REDIS_URL: ${REDIS_URL:?REDIS_URL is required}
+  BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET is required}
+  BETTER_AUTH_URL: ${BETTER_AUTH_URL:?BETTER_AUTH_URL is required}
+  APP_URL: ${APP_URL:?APP_URL is required}
+  API_URL: ${API_URL:?API_URL is required}
+  DATA_MODE: ${DATA_MODE:-mock}
+  AI_PROVIDER: ${AI_PROVIDER:-mock}
+  AI_MODEL: ${AI_MODEL:-trendhunter-mock-v1}
+  AI_BASE_URL: ${AI_BASE_URL:-}
+  LLM_API_KEY: ${LLM_API_KEY:-}
+  EMBEDDING_DIMENSIONS: ${EMBEDDING_DIMENSIONS:-768}
+  X_API_BEARER_TOKEN: ${X_API_BEARER_TOKEN:-}
+  REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID:-}
+  REDDIT_CLIENT_SECRET: ${REDDIT_CLIENT_SECRET:-}
+  GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+  ALLOW_PRIVATE_NETWORK_FETCH: "false"
+  ENABLE_DEMO_ACCOUNT: "false"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=und-x-icu --encoding=UTF8"
+      PGDATA: /var/lib/postgresql/data/pgdata
+      # Read by docker/postgres/production-init: the unprivileged role the
+      # application connects as. It is deliberately not the superuser the
+      # container is initialised with — the application creates tables through
+      # migrations and needs nothing beyond that.
+      APP_DB_USER: ${APP_DB_USER:?APP_DB_USER is required}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?APP_DB_PASSWORD is required}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/production-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    command:
+      - postgres
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "maintenance_work_mem=256MB"
+      - "-c"
+      - "work_mem=16MB"
+      # Every statement that reaches the log is one somebody has to read; a
+      # second is slow enough to be worth reading about.
+      - "-c"
+      - "log_min_duration_statement=1000"
+    networks: [internal]
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    command:
+      - redis-server
+      - "--requirepass"
+      - "${REDIS_PASSWORD:?REDIS_PASSWORD is required}"
+      - "--appendonly"
+      - "yes"
+      # BullMQ's keys are the job queue itself. Evicting one loses work
+      # silently, so the instance refuses writes instead when memory runs out.
+      - "--maxmemory-policy"
+      - "noeviction"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks: [internal]
+
+  # Runs to completion before the services start, so a deploy never serves
+  # traffic against a schema the code does not expect.
+  migrate:
+    build:
+      context: .
+      dockerfile: docker/migrate.Dockerfile
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    networks: [internal]
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      <<: *app-environment
+      PORT: 4000
+      HOST: 0.0.0.0
+      # Caddy terminates TLS and sets the forwarding headers; without this the
+      # rate limiter would key every request on the proxy's address.
+      TRUST_PROXY: "true"
+      ENABLE_API_DOCS: ${ENABLE_API_DOCS:-false}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-300}
+      RATE_LIMIT_WINDOW_SECONDS: ${RATE_LIMIT_WINDOW_SECONDS:-60}
+      AUTH_RATE_LIMIT_MAX: ${AUTH_RATE_LIMIT_MAX:-10}
+      EXPENSIVE_RATE_LIMIT_MAX: ${EXPENSIVE_RATE_LIMIT_MAX:-30}
+      MAX_BODY_BYTES: ${MAX_BODY_BYTES:-524288}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks: [internal]
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    restart: unless-stopped
+    environment:
+      <<: *app-environment
+      HEALTH_PORT: 4001
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-4}
+      ENABLE_SCHEDULED_SCANS: ${ENABLE_SCHEDULED_SCANS:-true}
+      SCAN_INTERVAL_MULTIPLIER: ${SCAN_INTERVAL_MULTIPLIER:-1}
+      RAW_ITEM_RETENTION_DAYS: ${RAW_ITEM_RETENTION_DAYS:-90}
+      JOB_RUN_RETENTION_DAYS: ${JOB_RUN_RETENTION_DAYS:-30}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks: [internal]
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      # Compiled into the browser bundle, so they are build arguments. Changing
+      # the public origin means rebuilding this image.
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:?NEXT_PUBLIC_APP_URL is required}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL is required}
+        NEXT_PUBLIC_DEFAULT_LOCALE: ${NEXT_PUBLIC_DEFAULT_LOCALE:-en}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_DEFAULT_LOCALE: ${NEXT_PUBLIC_DEFAULT_LOCALE:-en}
+      # Server Components reach the API over the internal network rather than
+      # back out through the proxy.
+      API_INTERNAL_URL: http://api:4000
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [internal]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?DOMAIN is required}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL is required}
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # Certificates and the ACME account key. Losing this volume means
+      # re-issuing every certificate, which rate limits will notice.
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - web
+      - api
+    networks: [internal]
+
+volumes:
+  postgres-data:
+    name: trendhunter-production-postgres
+  redis-data:
+    name: trendhunter-production-redis
+  caddy-data:
+    name: trendhunter-production-caddy-data
+  caddy-config:
+    name: trendhunter-production-caddy-config
+
+networks:
+  internal:
+    name: trendhunter-production
+    driver: bridge

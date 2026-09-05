@@ -1,0 +1,72 @@
+# =============================================================================
+# TrendHunter — reverse proxy
+# =============================================================================
+# One public origin. The web app and the API share it, which is what lets the
+# session cookie stay SameSite=Lax with no CORS exemption at all: a cross-origin
+# split would force SameSite=None, and a cookie that travels on cross-site
+# requests is a cookie that can be replayed by one.
+#
+# Caddy obtains and renews certificates automatically; nothing here needs a
+# certificate path.
+# =============================================================================
+
+{
+	email {$ACME_EMAIL}
+	# Neither service needs the client's TLS details, and the defaults are safe.
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	header {
+		# HSTS. Two years, including subdomains, and preload-eligible. Only
+		# switch this on once every subdomain is genuinely HTTPS-only —
+		# a browser that has seen it will refuse plain HTTP for that long.
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+
+		# The application is a private dashboard; there is no reason for another
+		# site to frame it, sniff its content types, or receive its referrer.
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+
+		# Nothing here uses a camera, a microphone or a location.
+		Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+
+		# Set by the origin, and not something a proxy should advertise.
+		-Server
+		-X-Powered-By
+	}
+
+	# Authentication and the REST surface, in that order — both are the API's.
+	# `handle` rather than `route` so the first matching block wins and the web
+	# app never sees an /api request.
+	handle /api/* {
+		reverse_proxy api:4000 {
+			# Upstream sees the real client and the real scheme, which is what
+			# the API's rate limiter keys on and what its redirects use.
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Real-IP {remote_host}
+
+			# A collection or a generation can legitimately take a while; the
+			# default read timeout would cut it off mid-response.
+			transport http {
+				read_timeout 120s
+				write_timeout 120s
+			}
+		}
+	}
+
+	# Everything else is the Next.js application, including its own assets and
+	# the WebSocket upgrade the router may use in future — `reverse_proxy`
+	# forwards upgrades without extra configuration.
+	handle {
+		reverse_proxy web:3000 {
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Real-IP {remote_host}
+		}
+	}
+}

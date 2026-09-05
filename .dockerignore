@@ -1,0 +1,25 @@
+# Everything the build context does not need. Keeping this tight is the
+# difference between a fast build and shipping the whole working tree into the
+# daemon on every change.
+
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+**/coverage
+**/*.tsbuildinfo
+**/test-results
+**/playwright-report
+
+.git
+.github
+backups
+docs
+
+# Never let a real environment file into an image layer.
+.env
+.env.*
+!.env.example
+!.env.development.example
+
+**/*.log
