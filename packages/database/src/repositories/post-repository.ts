@@ -1,5 +1,6 @@
 import { buildPaginationMeta, normalizePaginationParams, toSkipTake } from '@trendhunter/shared';
 import type {
+  Comment,
   ContentLanguage,
   Paginated,
   PaginationParams,
@@ -157,6 +158,47 @@ export function createPostRepository(client: PrismaClient) {
           pagination: buildPaginationMeta(pagination, totalItems),
         };
       });
+    },
+
+    /** Comments, optionally scoped to one post. */
+    async listComments(
+      options: {
+        postId?: string;
+        languages?: readonly ContentLanguage[];
+        pagination?: Partial<PaginationParams>;
+      } = {},
+    ): Promise<Paginated<Comment>> {
+      const pagination = normalizePaginationParams(options.pagination);
+      const { skip, take } = toSkipTake(pagination);
+      const where: Prisma.CommentWhereInput = {
+        ...(options.postId === undefined ? {} : { postId: options.postId }),
+        ...(options.languages && options.languages.length > 0
+          ? { language: { in: [...options.languages] } }
+          : {}),
+      };
+
+      return withDatabaseErrors('Comment', async () => {
+        const [rows, totalItems] = await client.$transaction([
+          client.comment.findMany({
+            where,
+            select: COMMENT_SELECT,
+            orderBy: [{ publishedAt: 'desc' }, { id: 'asc' }],
+            skip,
+            take,
+          }),
+          client.comment.count({ where }),
+        ]);
+        return {
+          items: rows.map(toComment),
+          pagination: buildPaginationMeta(pagination, totalItems),
+        };
+      });
+    },
+
+    async countCommentsInWindow(from: Date, to: Date): Promise<number> {
+      return withDatabaseErrors('Comment', () =>
+        client.comment.count({ where: { createdAt: { gte: from, lt: to } } }),
+      );
     },
 
     async findById(id: string): Promise<Post | null> {

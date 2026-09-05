@@ -20,6 +20,15 @@ import { roleFromSlug } from './config';
 /** Node's raw header bag, as Fastify exposes it. */
 export type RawHeaders = Record<string, string | string[] | undefined>;
 
+/**
+ * Converts Node's header bag into a `Headers` object.
+ *
+ * Re-exported so that services never import `better-auth` directly: the auth
+ * vendor stays behind this package, which is what makes replacing it a change
+ * to one package rather than to every service that mounts it.
+ */
+export { fromNodeHeaders };
+
 export interface SessionContext {
   readonly user: AuthenticatedUser;
   readonly sessionId: string;

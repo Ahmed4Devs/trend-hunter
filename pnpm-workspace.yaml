@@ -22,10 +22,12 @@ linkWorkspacePackages: false
 preferWorkspacePackages: true
 saveWorkspaceProtocol: rolling
 sharedWorkspaceLockfile: true
-# Required by the non-legacy `pnpm deploy` used in the production Dockerfiles:
-# it materialises workspace dependencies into a self-contained node_modules.
-injectWorkspacePackages: true
-dedupeInjectedDeps: true
+# Deliberately false. Injection *copies* workspace packages into node_modules,
+# so a newly added source file is invisible until the next install — which makes
+# the inner development loop wrong in a way that is very hard to diagnose.
+# Symlinks keep it instant. The production images do not need injection: the
+# services are bundled with tsup, which inlines workspace sources at build time.
+injectWorkspacePackages: false
 autoInstallPeers: true
 dedupePeerDependents: true
 # The TypeScript side-by-side arrangement (see docs/adr/0001-typescript-version.md)
