@@ -27,7 +27,7 @@ export function PaginationControls({ pagination }: { readonly pagination: Pagina
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-      <p className="text-muted-foreground text-sm">
+      <p className="text-sm text-muted-foreground">
         {t('summary', {
           page: format.number(pagination.page),
           total: format.number(pagination.totalItems),

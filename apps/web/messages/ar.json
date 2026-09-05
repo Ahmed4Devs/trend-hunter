@@ -271,5 +271,103 @@
       "collected": "جُمع {time}",
       "translate": "ترجمة"
     }
+  },
+  "topics": {
+    "title": "المواضيع",
+    "subtitle": "القصص التي جمّعها النظام مما تم رصده.",
+    "searchPlaceholder": "ابحث في المواضيع",
+    "searchLabel": "البحث في المواضيع",
+    "sort": {
+      "trendScore": "الأكثر تصاعداً",
+      "relevanceScore": "الأكثر صلة",
+      "arabicOpportunityScore": "أفضل فرصة عربية",
+      "postCount": "الأكثر منشورات",
+      "velocity": "الأسرع نمواً",
+      "firstDetectedAt": "الأحدث ظهوراً",
+      "lastDetectedAt": "الأحدث نشاطاً"
+    },
+    "classification": {
+      "label": "التصنيف",
+      "NORMAL": "عادي",
+      "EMERGING_TREND": "ناشئ",
+      "HIDDEN_GEM": "فرصة مخفية",
+      "SATURATED": "مشبع"
+    },
+    "posts": "{count, plural, =0 {لا منشورات} one {منشور واحد} two {منشوران} few {# منشورات} many {# منشوراً} other {# منشور}}",
+    "empty": "لا يوجد موضوع مطابق لعوامل التصفية هذه.",
+    "emptyHint": "تُفتح المواضيع عندما يرصد التجميع عدداً كافياً من المنشورات عن القصة نفسها.",
+    "tabs": {
+      "all": "الكل",
+      "emerging": "الناشئة",
+      "hiddenGems": "الفرص المخفية"
+    },
+    "detail": {
+      "trend": "درجة الاتجاه",
+      "relevance": "الصلة",
+      "opportunity": "الفرصة العربية",
+      "velocity": "سرعة النمو",
+      "history": "تاريخ الاتجاه",
+      "noHistory": "لم تُسجَّل أي لقطة لهذا الموضوع بعد.",
+      "posts": "منشورات هذا الموضوع",
+      "noPosts": "لا يوجد منشور مرتبط بهذا الموضوع.",
+      "sources": "أين يُناقش",
+      "languages": "توزيع اللغات",
+      "english": "منشورات إنجليزية",
+      "arabic": "منشورات عربية",
+      "firstSeen": "ظهر أول مرة {time}",
+      "lastSeen": "آخر نشاط {time}",
+      "why": "سبب هذا التصنيف",
+      "archive": "أرشفة هذا الموضوع",
+      "unarchive": "استعادة هذا الموضوع",
+      "components": "مكونات الدرجة",
+      "snapshotAt": "سُجّلت {time}"
+    },
+    "signals": {
+      "HIGH_VELOCITY": "يتصاعد بسرعة",
+      "LOW_VOLUME": "لا يزال صغيراً",
+      "RECENT_FIRST_DETECTION": "رُصد حديثاً",
+      "MULTI_SOURCE_CONFIRMATION": "ظهر في عدة مصادر",
+      "HIGH_RELEVANCE": "قريب من اهتماماتك",
+      "ARABIC_GAP": "تغطية عربية شحيحة",
+      "HIGH_SATURATION": "مغطى بكثافة بالفعل",
+      "STALE_ACTIVITY": "تباطأ النشاط",
+      "SINGLE_SOURCE_ONLY": "مصدر واحد فقط"
+    }
+  },
+  "sources": {
+    "title": "المصادر",
+    "subtitle": "من أين تأتي المنشورات، وكم مرة يُجمع كل مصدر.",
+    "enabled": "مُفعّل",
+    "disabled": "مُعطّل",
+    "toggle": "تفعيل أو تعطيل هذا المصدر",
+    "lastCollected": "آخر جمع {time}",
+    "neverCollected": "لم يُجمع بعد",
+    "interval": "كل {minutes} دقيقة",
+    "posts": "{count} منشور مجموع",
+    "config": {
+      "title": "الإعدادات",
+      "description": "ما الذي يستعلم عنه هذا الموصّل. لا تُعرض الأسرار أبداً.",
+      "save": "حفظ الإعدادات",
+      "saved": "تم حفظ الإعدادات.",
+      "key": "الإعداد",
+      "value": "القيمة",
+      "secret": "محفوظ في بيئة التشغيل",
+      "empty": "لا توجد إعدادات قابلة للتعديل لهذا المصدر."
+    },
+    "empty": "لم يتم إعداد أي مصدر.",
+    "interests": {
+      "title": "الاهتمامات",
+      "description": "ما تُقاس الصلة مقابله.",
+      "add": "إضافة اهتمام",
+      "name": "الاسم",
+      "keywords": "الكلمات المفتاحية",
+      "weight": "الوزن",
+      "keywordsHint": "مفصولة بفواصل.",
+      "empty": "لم يُحدَّد أي اهتمام بعد.",
+      "emptyHint": "تبقى درجات الصلة ثابتة حتى يوجد اهتمام واحد على الأقل.",
+      "created": "تمت إضافة الاهتمام.",
+      "deleted": "تمت إزالة الاهتمام.",
+      "delete": "إزالة هذا الاهتمام"
+    }
   }
 }

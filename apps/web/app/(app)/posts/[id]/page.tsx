@@ -41,9 +41,7 @@ export async function generateMetadata(props: {
   return { title: post.title ?? post.content.slice(0, 60) };
 }
 
-export default async function PostDetailPage(props: {
-  readonly params: Promise<{ id: string }>;
-}) {
+export default async function PostDetailPage(props: { readonly params: Promise<{ id: string }> }) {
   const { id } = await props.params;
   const post = await loadPost(id);
 
@@ -62,9 +60,9 @@ export default async function PostDetailPage(props: {
       <div className="flex flex-wrap items-center gap-2">
         <SourceBadge source={post.source} />
         {post.authorName === null ? null : (
-          <span className="text-muted-foreground text-sm">{post.authorName}</span>
+          <span className="text-sm text-muted-foreground">{post.authorName}</span>
         )}
-        <span className="text-muted-foreground text-sm">
+        <span className="text-sm text-muted-foreground">
           {format.dateTime(new Date(post.publishedAt), { dateStyle: 'medium', timeStyle: 'short' })}
         </span>
         <Badge variant="neutral">{post.language}</Badge>
@@ -108,9 +106,12 @@ export default async function PostDetailPage(props: {
             </CardHeader>
             <CardContent className="p-0 pb-2">
               {post.comments.length === 0 ? (
-                <EmptyState icon={<MessageSquareIcon className="size-5" />} title={t('noComments')} />
+                <EmptyState
+                  icon={<MessageSquareIcon className="size-5" />}
+                  title={t('noComments')}
+                />
               ) : (
-                <ul className="divide-border divide-y">
+                <ul className="divide-y divide-border">
                   {post.comments.map((comment) => (
                     <li key={comment.id} className="space-y-1.5 px-5 py-3">
                       <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -137,13 +138,13 @@ export default async function PostDetailPage(props: {
             </CardHeader>
             <CardContent className="space-y-4">
               {post.translations.length === 0 ? (
-                <p className="text-muted-foreground text-sm">{t('noTranslations')}</p>
+                <p className="text-sm text-muted-foreground">{t('noTranslations')}</p>
               ) : (
                 post.translations.map((translation) => (
                   <div key={translation.id} className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge variant="purple">{translation.mode}</Badge>
-                      <span className="text-muted-foreground text-xs">
+                      <span className="text-xs text-muted-foreground">
                         {translation.providerName}
                       </span>
                     </div>
@@ -177,7 +178,7 @@ export default async function PostDetailPage(props: {
               <dl className="grid grid-cols-2 gap-3">
                 {metrics.map((metric) => (
                   <div key={metric.labelKey}>
-                    <dt className="text-muted-foreground text-xs">{t(metric.labelKey)}</dt>
+                    <dt className="text-xs text-muted-foreground">{t(metric.labelKey)}</dt>
                     <dd className="tabular text-sm font-medium">{format.number(metric.value)}</dd>
                   </div>
                 ))}
@@ -192,7 +193,7 @@ export default async function PostDetailPage(props: {
               {post.relevanceBreakdown === null ||
               post.relevanceBreakdown.matchedKeywords.length === 0 ? null : (
                 <div className="space-y-2">
-                  <p className="text-muted-foreground text-xs">{t('breakdown')}</p>
+                  <p className="text-xs text-muted-foreground">{t('breakdown')}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {post.relevanceBreakdown.matchedKeywords.map((keyword) => (
                       <Badge key={keyword} variant="green">
@@ -203,7 +204,7 @@ export default async function PostDetailPage(props: {
                 </div>
               )}
 
-              <p className="text-muted-foreground text-xs">
+              <p className="text-xs text-muted-foreground">
                 {t('collected', { time: format.relativeTime(new Date(post.collectedAt)) })}
               </p>
             </CardContent>
@@ -215,14 +216,14 @@ export default async function PostDetailPage(props: {
             </CardHeader>
             <CardContent className="p-0 pb-2">
               {post.relatedPosts.length === 0 ? (
-                <p className="text-muted-foreground px-5 pb-3 text-sm">{t('noRelated')}</p>
+                <p className="px-5 pb-3 text-sm text-muted-foreground">{t('noRelated')}</p>
               ) : (
-                <ul className="divide-border divide-y">
+                <ul className="divide-y divide-border">
                   {post.relatedPosts.map((related) => (
                     <li key={related.id}>
                       <Link
                         href={`/posts/${related.id}`}
-                        className="hover:bg-muted/50 block space-y-1 px-5 py-3 transition-colors"
+                        className="block space-y-1 px-5 py-3 transition-colors hover:bg-muted/50"
                       >
                         <SourceBadge source={related.source} />
                         <span className="line-clamp-2 block text-sm">

@@ -271,5 +271,103 @@
       "collected": "Collected {time}",
       "translate": "Translate"
     }
+  },
+  "topics": {
+    "title": "Topics",
+    "subtitle": "Stories the pipeline has clustered from what it collected.",
+    "searchPlaceholder": "Search topics",
+    "searchLabel": "Search topics",
+    "sort": {
+      "trendScore": "Most trending",
+      "relevanceScore": "Most relevant",
+      "arabicOpportunityScore": "Best Arabic opportunity",
+      "postCount": "Most posts",
+      "velocity": "Fastest rising",
+      "firstDetectedAt": "Newest",
+      "lastDetectedAt": "Most recent activity"
+    },
+    "classification": {
+      "label": "Classification",
+      "NORMAL": "Normal",
+      "EMERGING_TREND": "Emerging",
+      "HIDDEN_GEM": "Hidden gem",
+      "SATURATED": "Saturated"
+    },
+    "posts": "{count, plural, =0 {no posts} one {# post} other {# posts}}",
+    "empty": "No topic matches these filters.",
+    "emptyHint": "Topics open once clustering has seen enough posts about the same story.",
+    "tabs": {
+      "all": "All",
+      "emerging": "Emerging",
+      "hiddenGems": "Hidden gems"
+    },
+    "detail": {
+      "trend": "Trend score",
+      "relevance": "Relevance",
+      "opportunity": "Arabic opportunity",
+      "velocity": "Velocity",
+      "history": "Trend history",
+      "noHistory": "No snapshot has been recorded for this topic yet.",
+      "posts": "Posts in this topic",
+      "noPosts": "No post is assigned to this topic.",
+      "sources": "Where it is being discussed",
+      "languages": "Language split",
+      "english": "English posts",
+      "arabic": "Arabic posts",
+      "firstSeen": "First seen {time}",
+      "lastSeen": "Last activity {time}",
+      "why": "Why it is classified this way",
+      "archive": "Archive this topic",
+      "unarchive": "Restore this topic",
+      "components": "Score components",
+      "snapshotAt": "Recorded {time}"
+    },
+    "signals": {
+      "HIGH_VELOCITY": "Rising quickly",
+      "LOW_VOLUME": "Still small",
+      "RECENT_FIRST_DETECTION": "Detected recently",
+      "MULTI_SOURCE_CONFIRMATION": "Seen on several sources",
+      "HIGH_RELEVANCE": "Close to your interests",
+      "ARABIC_GAP": "Little Arabic coverage",
+      "HIGH_SATURATION": "Heavily covered already",
+      "STALE_ACTIVITY": "Activity has slowed",
+      "SINGLE_SOURCE_ONLY": "Only one source"
+    }
+  },
+  "sources": {
+    "title": "Sources",
+    "subtitle": "Where posts come from, and how often each one is collected.",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "toggle": "Enable or disable this source",
+    "lastCollected": "Last collected {time}",
+    "neverCollected": "Never collected",
+    "interval": "Every {minutes} minutes",
+    "posts": "{count} posts collected",
+    "config": {
+      "title": "Configuration",
+      "description": "What this connector queries. Secrets are never shown.",
+      "save": "Save configuration",
+      "saved": "Configuration saved.",
+      "key": "Setting",
+      "value": "Value",
+      "secret": "Held in the environment",
+      "empty": "This source has no configurable settings."
+    },
+    "empty": "No source has been configured.",
+    "interests": {
+      "title": "Interests",
+      "description": "What relevance is scored against.",
+      "add": "Add an interest",
+      "name": "Name",
+      "keywords": "Keywords",
+      "weight": "Weight",
+      "keywordsHint": "Comma separated.",
+      "empty": "No interest has been defined yet.",
+      "emptyHint": "Relevance scores stay flat until at least one interest exists.",
+      "created": "Interest added.",
+      "deleted": "Interest removed.",
+      "delete": "Remove this interest"
+    }
   }
 }

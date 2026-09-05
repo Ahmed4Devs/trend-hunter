@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@trendhunter/ui';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@trendhunter/ui';
 
 import { useQueryState } from './use-query-state';
 

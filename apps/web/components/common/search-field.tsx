@@ -39,7 +39,7 @@ export function SearchField({ paramName = 'search', placeholder, label }: Search
     <div className="relative w-full sm:max-w-xs">
       <SearchIcon
         aria-hidden="true"
-        className="text-muted-foreground pointer-events-none absolute top-1/2 start-3 size-4 -translate-y-1/2"
+        className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
       />
       <Input
         type="search"

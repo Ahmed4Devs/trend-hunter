@@ -14,7 +14,10 @@ export interface QueryStateApi {
    * also resets the page, because staying on page 7 of a list that now has two
    * pages shows an empty table and looks like a bug.
    */
-  setParams: (next: Readonly<Record<string, string | null>>, options?: { resetPage?: boolean }) => void;
+  setParams: (
+    next: Readonly<Record<string, string | null>>,
+    options?: { resetPage?: boolean },
+  ) => void;
 }
 
 /**

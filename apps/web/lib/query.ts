@@ -73,14 +73,19 @@ export function csvEnumParam<TValue extends string>(
 }
 
 /** A free-text term, length-bounded so a pathological query string cannot be forwarded. */
-export function textParam(value: string | string[] | undefined, maxLength = 200): string | undefined {
+export function textParam(
+  value: string | string[] | undefined,
+  maxLength = 200,
+): string | undefined {
   const candidate = first(value)?.trim();
   if (candidate === undefined || candidate === '') return undefined;
   return candidate.slice(0, maxLength);
 }
 
 /** Serialises a filter set back into a query string, dropping empty values. */
-export function toQueryString(params: Readonly<Record<string, string | number | undefined>>): string {
+export function toQueryString(
+  params: Readonly<Record<string, string | number | undefined>>,
+): string {
   const search = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
     if (value === undefined || value === '') continue;
