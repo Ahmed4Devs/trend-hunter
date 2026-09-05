@@ -32,7 +32,10 @@ dedupePeerDependents: true
 # installs the TS 6 API under the `typescript` name, which trips a few advisory
 # peer ranges that are satisfied in practice.
 strictPeerDependencies: false
-verifyDepsBeforeRun: install
+# `warn` rather than `install`: a full install check on every `pnpm exec` is
+# too slow to sit in the inner loop, but a stale node_modules should still be
+# visible. CI runs `pnpm install --frozen-lockfile` explicitly.
+verifyDepsBeforeRun: warn
 
 # Large tarballs (next, @prisma/*, esbuild platform binaries) time out on slow
 # or throttled links with the defaults; these values make installs reliable

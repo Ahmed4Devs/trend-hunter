@@ -334,7 +334,7 @@ export interface JobRun {
   readonly id: string;
   readonly queue: string;
   readonly jobName: string;
-  readonly jobId: string | null;
+  readonly jobId: string;
   readonly scanRunId: string | null;
   readonly status: JobStatus;
   readonly attempt: number;

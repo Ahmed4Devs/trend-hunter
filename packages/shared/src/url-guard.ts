@@ -178,5 +178,51 @@ function isPrivateIpv6(address: string): boolean {
   const mapped = IPV4_IN_IPV6.exec(address);
   if (mapped?.[1]) return isPrivateIpv4(mapped[1]);
 
+  // The dotted form above only survives when the address never passed through a
+  // URL parser: `new URL('http://[::ffff:10.0.0.1]/')` re-serialises the host as
+  // `::ffff:a00:1`. Without recovering the IPv4 from the hextets, every RFC 1918
+  // address — and the cloud metadata endpoint — would walk straight through the
+  // guard written in its IPv4-mapped form.
+  const embedded = embeddedIpv4(address);
+  if (embedded !== null) return isPrivateIpv4(embedded);
+
   return false;
+}
+
+/** Expands an IPv6 address into its eight 16-bit groups; `null` when malformed. */
+function ipv6Groups(address: string): number[] | null {
+  const halves = address.split('::');
+  if (halves.length > 2) return null;
+
+  const toGroups = (part: string | undefined): number[] =>
+    part === undefined || part === '' ? [] : part.split(':').map((g) => Number.parseInt(g, 16));
+
+  const head = toGroups(halves[0]);
+  const tail = toGroups(halves[1]);
+  const padding = 8 - head.length - tail.length;
+  if (halves.length === 2 && padding < 0) return null;
+
+  const groups =
+    halves.length === 2 ? [...head, ...new Array<number>(padding).fill(0), ...tail] : head;
+
+  if (groups.length !== 8) return null;
+  if (groups.some((group) => !Number.isInteger(group) || group < 0 || group > 0xffff)) return null;
+  return groups;
+}
+
+/**
+ * The dotted IPv4 address embedded in an IPv4-mapped (`::ffff:0:0/96`) or the
+ * deprecated IPv4-compatible (`::/96`) address, or `null` for a native IPv6 one.
+ */
+function embeddedIpv4(address: string): string | null {
+  const groups = ipv6Groups(address);
+  if (!groups) return null;
+  if (groups.slice(0, 5).some((group) => group !== 0)) return null;
+
+  const marker = groups[5];
+  if (marker !== 0xffff && marker !== 0) return null;
+
+  const high = groups[6] ?? 0;
+  const low = groups[7] ?? 0;
+  return `${high >> 8}.${high & 0xff}.${low >> 8}.${low & 0xff}`;
 }
