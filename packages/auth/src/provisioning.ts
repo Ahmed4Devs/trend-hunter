@@ -1,5 +1,6 @@
 import type { Database } from '@trendhunter/database';
 import type { UserRole } from '@trendhunter/types';
+import { createLocalAccountIssuer } from 'better-auth/db';
 
 import type { Auth } from './auth';
 import { slugFromRole } from './config';
@@ -71,9 +72,12 @@ export async function provisionUser(
   await context.internalAdapter.createAccount({
     userId: user.id,
     providerId: 'credential',
-    // Added in Better Auth 1.7; the (issuer, accountId) pair is the account's
-    // unique key, and 'credential' is the issuer for an email/password login.
-    issuer: 'credential',
+    // Better Auth 1.7 added `issuer`, and sign-in matches on it exactly. It is
+    // not the provider id: `createLocalAccountIssuer` namespaces it, so the
+    // stored value is `local:credential`. Writing the bare provider id produces
+    // an account that looks complete in the database and is invisible to
+    // sign-in — which fails as "user not found", naming the wrong row entirely.
+    issuer: createLocalAccountIssuer('credential'),
     accountId: user.id,
     password: await context.password.hash(input.password),
   });

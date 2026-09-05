@@ -27,4 +27,15 @@ export default defineConfig({
   splitting: false,
   treeshake: true,
   noExternal: [/^@trendhunter\//],
+
+  // `pg` and a few other transitive CommonJS dependencies call `require()` for
+  // Node built-ins. Bundled into an ESM file there is no `require` in scope, and
+  // esbuild's shim throws "Dynamic require of \"events\" is not supported" —
+  // at start-up, in the container, not at build time. This puts a real one back.
+  banner: {
+    js: [
+      "import { createRequire as __trendhunterCreateRequire } from 'node:module';",
+      'const require = __trendhunterCreateRequire(import.meta.url);',
+    ].join('\n'),
+  },
 });
