@@ -1,0 +1,280 @@
+/* ---------------------------------------------------------------------------
+ * TrendHunter design tokens.
+ *
+ * Every colour a component may use is declared here once, as a semantic name.
+ * Components reference the name, never the value, which is what makes a single
+ * stylesheet able to serve both themes: `.dark` redefines the same names and
+ * nothing downstream changes.
+ *
+ * Tailwind v4 has no config file — `@theme inline` is what turns these custom
+ * properties into utilities, so `--color-card` is what makes `bg-card` exist.
+ * ------------------------------------------------------------------------ */
+
+@import 'tailwindcss';
+
+/* next-themes sets `class="dark"` on <html>. The default v4 dark variant keys
+ * off the OS preference instead, which would ignore an explicit choice. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Surfaces ------------------------------------------------------------- */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #20c980;
+
+  /* Brand ---------------------------------------------------------------- */
+  --primary: #20c980;
+  --primary-foreground: #05291b;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* Categorical accents. Named by role, not by the widget that uses them, so
+   * a chart series and a badge for the same concept stay the same colour. */
+  --accent-blue: #3b82f6;
+  --accent-green: #20c980;
+  --accent-orange: #f59e0b;
+  --accent-purple: #8b5cf6;
+  --accent-red: #ef4444;
+  --accent-slate: #64748b;
+
+  /* Per-source colours, so a source keeps one identity across the donut
+   * chart, the badges and the post list. */
+  --source-x: #0f172a;
+  --source-reddit: #f59e0b;
+  --source-hackernews: #f97316;
+  --source-rss: #8b5cf6;
+  --source-github: #3b82f6;
+  --source-other: #64748b;
+
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: #07111f;
+  --foreground: #f1f5f9;
+  --card: #0e1c2b;
+  --card-foreground: #f1f5f9;
+  --popover: #122235;
+  --popover-foreground: #f1f5f9;
+  --sidebar: #081421;
+  --sidebar-foreground: #f1f5f9;
+  --muted: #122235;
+  --muted-foreground: #94a3b8;
+  --border: #1d3246;
+  --input: #1d3246;
+  --ring: #20c980;
+
+  --primary: #20c980;
+  --primary-foreground: #042115;
+  --secondary: #122235;
+  --secondary-foreground: #f1f5f9;
+  --accent: #122235;
+  --accent-foreground: #f1f5f9;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --accent-blue: #3b82f6;
+  --accent-green: #20c980;
+  --accent-orange: #f59e0b;
+  --accent-purple: #8b5cf6;
+  --accent-red: #ef4444;
+  --accent-slate: #94a3b8;
+
+  /* X renders as near-black in light mode, which disappears on a dark
+   * surface; the mark keeps its identity, the swatch is lightened. */
+  --source-x: #e2e8f0;
+  --source-reddit: #f59e0b;
+  --source-hackernews: #fb923c;
+  --source-rss: #a78bfa;
+  --source-github: #60a5fa;
+  --source-other: #94a3b8;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-green: var(--accent-green);
+  --color-accent-orange: var(--accent-orange);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-red: var(--accent-red);
+  --color-accent-slate: var(--accent-slate);
+
+  --color-source-x: var(--source-x);
+  --color-source-reddit: var(--source-reddit);
+  --color-source-hackernews: var(--source-hackernews);
+  --color-source-rss: var(--source-rss);
+  --color-source-github: var(--source-github);
+  --color-source-other: var(--source-other);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Latin first, Arabic second: the Arabic face carries no Latin glyphs, so
+   * mixed strings — a topic title quoting an English product name — fall back
+   * correctly rather than rendering the Latin run in a substitute face. */
+  --font-sans: var(--font-inter), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Arabic needs more leading than Latin at the same size: the script has
+   * deeper descenders and stacked diacritics that collide at 1.5. */
+  [dir='rtl'] body {
+    line-height: 1.75;
+  }
+
+  /* Focus is never removed, only restyled. Keyboard navigation is a stated
+   * accessibility requirement, and an invisible focus ring fails it. */
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  /* Tabular figures stop a live-updating metric from shifting width as its
+   * digits change. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Latin digits and dates inside an RTL paragraph. */
+  .ltr-numeric {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Motion.
+ *
+ * Defined here rather than pulled from an animation plugin so that the whole
+ * vocabulary is six names, and so the reduced-motion opt-out below covers all
+ * of it in one place — a plugin's utilities would each need their own.
+ * ------------------------------------------------------------------------ */
+
+@keyframes th-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes th-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes th-pop-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+}
+
+@keyframes th-pop-out {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+}
+
+@keyframes th-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes th-slide-out {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@utility anim-fade-in {
+  animation: th-fade-in 150ms ease-out;
+}
+
+@utility anim-fade-out {
+  animation: th-fade-out 120ms ease-in;
+}
+
+/* For a centred, translate-positioned surface. The keyframes carry the
+ * centring transform, so scaling does not knock the dialog off centre. */
+@utility anim-pop-in {
+  animation: th-pop-in 150ms ease-out;
+}
+
+@utility anim-pop-out {
+  animation: th-pop-out 120ms ease-in;
+}
+
+@utility anim-slide-in {
+  animation: th-slide-in 130ms ease-out;
+}
+
+@utility anim-slide-out {
+  animation: th-slide-out 110ms ease-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
