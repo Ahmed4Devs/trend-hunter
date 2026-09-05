@@ -16,6 +16,7 @@ export * from './primitives/card';
 export * from './primitives/chart';
 export * from './primitives/checkbox';
 export * from './primitives/command';
+export * from './primitives/data-table';
 export * from './primitives/dialog';
 export * from './primitives/direction';
 export * from './primitives/dropdown-menu';

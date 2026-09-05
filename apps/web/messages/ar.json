@@ -202,5 +202,74 @@
       "lastHeartbeat": "آخر نبضة {time}",
       "neverSeen": "لم تُسجَّل أي نبضة"
     }
+  },
+  "pagination": {
+    "summary": "صفحة {page} · {total} إجمالاً",
+    "previous": "السابق",
+    "next": "التالي"
+  },
+  "filters": {
+    "anySource": "كل المصادر",
+    "anyLanguage": "كل اللغات",
+    "anyTopic": "كل المواضيع",
+    "anyStatus": "كل الحالات",
+    "source": "المصدر",
+    "language": "اللغة",
+    "status": "الحالة",
+    "sort": "الترتيب حسب",
+    "reset": "مسح عوامل التصفية"
+  },
+  "posts": {
+    "title": "المنشورات",
+    "subtitle": "كل ما تم جمعه، مرتباً حسب أهميته بالنسبة إليك.",
+    "searchPlaceholder": "ابحث في المنشورات",
+    "searchLabel": "البحث في المنشورات",
+    "columns": {
+      "source": "المصدر",
+      "author": "الكاتب",
+      "content": "المحتوى",
+      "language": "اللغة",
+      "topic": "الموضوع",
+      "engagement": "التفاعل",
+      "relevance": "الصلة",
+      "published": "تاريخ النشر",
+      "actions": "إجراءات"
+    },
+    "sort": {
+      "publishedAt": "الأحدث",
+      "relevanceScore": "الأكثر صلة",
+      "trendScore": "الأكثر تصاعداً",
+      "engagementScore": "الأكثر تفاعلاً",
+      "collectedAt": "الأحدث جمعاً"
+    },
+    "empty": "لا يوجد منشور مطابق لعوامل التصفية هذه.",
+    "emptyHint": "وسّع عوامل التصفية، أو شغّل مسحاً لجمع المزيد.",
+    "savedOnly": "المحفوظة فقط",
+    "unreadOnly": "غير المقروءة فقط",
+    "noTopic": "غير مصنّف",
+    "detail": {
+      "openOriginal": "فتح المنشور الأصلي",
+      "comments": "التعليقات",
+      "noComments": "لم تُجمع تعليقات لهذا المنشور.",
+      "related": "منشورات ذات صلة",
+      "noRelated": "لم يُجمع شيء مشابه بعد.",
+      "translations": "الترجمات",
+      "noTranslations": "لم تتم ترجمة هذا المنشور.",
+      "metrics": "التفاعل",
+      "likes": "الإعجابات",
+      "replies": "الردود",
+      "reposts": "إعادات النشر",
+      "views": "المشاهدات",
+      "relevance": "الصلة",
+      "trend": "الاتجاه",
+      "opportunity": "الفرصة العربية",
+      "breakdown": "سبب هذه الدرجة",
+      "markRead": "تعليم كمقروء",
+      "markUnread": "تعليم كغير مقروء",
+      "hide": "إخفاء هذا المنشور",
+      "unhide": "إلغاء الإخفاء",
+      "collected": "جُمع {time}",
+      "translate": "ترجمة"
+    }
   }
 }

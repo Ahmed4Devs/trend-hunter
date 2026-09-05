@@ -202,5 +202,74 @@
       "lastHeartbeat": "Last heartbeat {time}",
       "neverSeen": "No heartbeat recorded"
     }
+  },
+  "pagination": {
+    "summary": "Page {page} · {total} in total",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "filters": {
+    "anySource": "Any source",
+    "anyLanguage": "Any language",
+    "anyTopic": "Any topic",
+    "anyStatus": "Any status",
+    "source": "Source",
+    "language": "Language",
+    "status": "Status",
+    "sort": "Sort by",
+    "reset": "Clear filters"
+  },
+  "posts": {
+    "title": "Posts",
+    "subtitle": "Everything collected, ranked by how much it matters to you.",
+    "searchPlaceholder": "Search posts",
+    "searchLabel": "Search posts",
+    "columns": {
+      "source": "Source",
+      "author": "Author",
+      "content": "Content",
+      "language": "Language",
+      "topic": "Topic",
+      "engagement": "Engagement",
+      "relevance": "Relevance",
+      "published": "Published",
+      "actions": "Actions"
+    },
+    "sort": {
+      "publishedAt": "Newest",
+      "relevanceScore": "Most relevant",
+      "trendScore": "Most trending",
+      "engagementScore": "Most engagement",
+      "collectedAt": "Recently collected"
+    },
+    "empty": "No post matches these filters.",
+    "emptyHint": "Widen the filters, or run a scan to collect more.",
+    "savedOnly": "Saved only",
+    "unreadOnly": "Unread only",
+    "noTopic": "Not clustered",
+    "detail": {
+      "openOriginal": "Open the original",
+      "comments": "Comments",
+      "noComments": "No comments were collected for this post.",
+      "related": "Related posts",
+      "noRelated": "Nothing similar has been collected yet.",
+      "translations": "Translations",
+      "noTranslations": "This post has not been translated.",
+      "metrics": "Engagement",
+      "likes": "Likes",
+      "replies": "Replies",
+      "reposts": "Reposts",
+      "views": "Views",
+      "relevance": "Relevance",
+      "trend": "Trend",
+      "opportunity": "Arabic opportunity",
+      "breakdown": "Why this score",
+      "markRead": "Mark as read",
+      "markUnread": "Mark as unread",
+      "hide": "Hide this post",
+      "unhide": "Unhide",
+      "collected": "Collected {time}",
+      "translate": "Translate"
+    }
   }
 }
