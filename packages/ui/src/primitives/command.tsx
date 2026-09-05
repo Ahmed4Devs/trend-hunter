@@ -19,7 +19,7 @@ export function Command({ className, ...props }: React.ComponentProps<typeof Com
     <CommandPrimitive
       data-slot="command"
       className={cn(
-        'bg-popover text-popover-foreground flex size-full flex-col overflow-hidden rounded-lg',
+        'flex size-full flex-col overflow-hidden rounded-lg bg-popover text-popover-foreground',
         className,
       )}
       {...props}
@@ -48,7 +48,7 @@ export function CommandDialog({
             announced as "dialog" and nothing else. */}
         <DialogTitle className="sr-only">{title}</DialogTitle>
         <DialogDescription className="sr-only">{description}</DialogDescription>
-        <Command className="[&_[cmdk-input-wrapper]]:border-border [&_[cmdk-input-wrapper]]:border-b">
+        <Command className="[&_[cmdk-input-wrapper]]:border-b [&_[cmdk-input-wrapper]]:border-border">
           {children}
         </Command>
       </DialogContent>
@@ -62,11 +62,11 @@ export function CommandInput({
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
     <div className="flex items-center gap-2 px-4" cmdk-input-wrapper="">
-      <SearchIcon className="text-muted-foreground size-4 shrink-0" />
+      <SearchIcon className="size-4 shrink-0 text-muted-foreground" />
       <CommandPrimitive.Input
         data-slot="command-input"
         className={cn(
-          'placeholder:text-muted-foreground flex h-12 w-full bg-transparent text-sm outline-none disabled:opacity-50',
+          'flex h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground disabled:opacity-50',
           className,
         )}
         {...props}
@@ -92,7 +92,7 @@ export function CommandEmpty(props: React.ComponentProps<typeof CommandPrimitive
   return (
     <CommandPrimitive.Empty
       data-slot="command-empty"
-      className="text-muted-foreground py-8 text-center text-sm"
+      className="py-8 text-center text-sm text-muted-foreground"
       {...props}
     />
   );
@@ -107,7 +107,7 @@ export function CommandGroup({
       data-slot="command-group"
       className={cn(
         'overflow-hidden p-1 text-foreground',
-        '[&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium',
+        '[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground',
         className,
       )}
       {...props}
@@ -122,7 +122,7 @@ export function CommandSeparator({
   return (
     <CommandPrimitive.Separator
       data-slot="command-separator"
-      className={cn('bg-border -mx-1 h-px', className)}
+      className={cn('-mx-1 h-px bg-border', className)}
       {...props}
     />
   );

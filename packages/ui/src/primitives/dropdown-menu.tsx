@@ -23,8 +23,8 @@ export function DropdownMenuContent({
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         className={cn(
-          'bg-popover text-popover-foreground border-border z-50 min-w-[10rem] overflow-hidden rounded-lg border p-1 shadow-md',
-          'data-[state=open]:anim-slide-in data-[state=closed]:anim-slide-out',
+          'z-50 min-w-[10rem] overflow-hidden rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md',
+          'data-[state=closed]:anim-slide-out data-[state=open]:anim-slide-in',
           className,
         )}
         {...props}
@@ -109,7 +109,7 @@ export function DropdownMenuLabel({
   return (
     <DropdownMenuPrimitive.Label
       data-slot="dropdown-menu-label"
-      className={cn('text-muted-foreground px-2 py-1.5 text-xs font-medium', className)}
+      className={cn('px-2 py-1.5 text-xs font-medium text-muted-foreground', className)}
       {...props}
     />
   );
@@ -122,7 +122,7 @@ export function DropdownMenuSeparator({
   return (
     <DropdownMenuPrimitive.Separator
       data-slot="dropdown-menu-separator"
-      className={cn('bg-border -mx-1 my-1 h-px', className)}
+      className={cn('-mx-1 my-1 h-px bg-border', className)}
       {...props}
     />
   );
@@ -155,7 +155,7 @@ export function DropdownMenuSubContent({
       <DropdownMenuPrimitive.SubContent
         data-slot="dropdown-menu-sub-content"
         className={cn(
-          'bg-popover text-popover-foreground border-border z-50 min-w-[8rem] overflow-hidden rounded-lg border p-1 shadow-md',
+          'z-50 min-w-[8rem] overflow-hidden rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md',
           className,
         )}
         {...props}

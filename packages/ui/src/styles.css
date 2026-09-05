@@ -51,14 +51,29 @@
   --accent-red: #ef4444;
   --accent-slate: #64748b;
 
-  /* Per-source colours, so a source keeps one identity across the donut
-   * chart, the badges and the post list. */
-  --source-x: #0f172a;
-  --source-reddit: #f59e0b;
-  --source-hackernews: #f97316;
-  --source-rss: #8b5cf6;
-  --source-github: #3b82f6;
-  --source-other: #64748b;
+  /* Series colours.
+   *
+   * A validated categorical set, not the providers' own brand colours. Those
+   * were tried first and fail on measurement: X's near-black sits outside the
+   * lightness band, Reddit's and Hacker News's oranges are 9.6 apart in normal
+   * vision (the floor is 15), and Reddit against GitHub's blue collapses to 1.3
+   * under deuteranopia. Six slices nobody can tell apart is not identity.
+   *
+   * The order is fixed and a source keeps its slot regardless of rank, so a
+   * filter that removes a source never repaints the ones that remain. */
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
+  --chart-5: #e87ba4;
+  --chart-6: #4a3aa7;
+
+  --source-x: var(--chart-1);
+  --source-reddit: var(--chart-2);
+  --source-hackernews: var(--chart-3);
+  --source-rss: var(--chart-4);
+  --source-github: var(--chart-5);
+  --source-other: var(--chart-6);
 
   --radius: 0.75rem;
 }
@@ -94,14 +109,22 @@
   --accent-red: #ef4444;
   --accent-slate: #94a3b8;
 
-  /* X renders as near-black in light mode, which disappears on a dark
-   * surface; the mark keeps its identity, the swatch is lightened. */
-  --source-x: #e2e8f0;
-  --source-reddit: #f59e0b;
-  --source-hackernews: #fb923c;
-  --source-rss: #a78bfa;
-  --source-github: #60a5fa;
-  --source-other: #94a3b8;
+  /* The same six hues, re-stepped for the dark surface rather than flipped.
+   * An automatic lightening would push them out of the dark lightness band and
+   * back under the 3:1 contrast floor. */
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #d55181;
+  --chart-6: #9085e9;
+
+  --source-x: var(--chart-1);
+  --source-reddit: var(--chart-2);
+  --source-hackernews: var(--chart-3);
+  --source-rss: var(--chart-4);
+  --source-github: var(--chart-5);
+  --source-other: var(--chart-6);
 }
 
 @theme inline {
@@ -134,6 +157,13 @@
   --color-accent-purple: var(--accent-purple);
   --color-accent-red: var(--accent-red);
   --color-accent-slate: var(--accent-slate);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
 
   --color-source-x: var(--source-x);
   --color-source-reddit: var(--source-reddit);

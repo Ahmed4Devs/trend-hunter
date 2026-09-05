@@ -15,17 +15,19 @@
     "clean": "rimraf .next .turbo coverage *.tsbuildinfo"
   },
   "dependencies": {
-    "@trendhunter/types": "workspace:*",
+    "@trendhunter/env": "workspace:*",
     "@trendhunter/shared": "workspace:*",
+    "@trendhunter/types": "workspace:*",
     "@trendhunter/ui": "workspace:*",
     "@trendhunter/validation": "workspace:*",
-    "@trendhunter/env": "workspace:*",
     "better-auth": "catalog:",
+    "lucide-react": "catalog:ui",
     "next": "catalog:next16",
     "next-intl": "catalog:next16",
     "next-themes": "catalog:next16",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
+    "recharts": "catalog:ui",
     "zod": "catalog:"
   },
   "devDependencies": {

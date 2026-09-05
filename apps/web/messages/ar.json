@@ -1,0 +1,206 @@
+{
+  "app": {
+    "name": "تريند هنتر",
+    "tagline": "ذكاء المحتوى واكتشاف الاتجاهات"
+  },
+  "nav": {
+    "sectionMain": "نظرة عامة",
+    "sectionDiscover": "الاكتشاف",
+    "sectionCreate": "الإنشاء",
+    "sectionOperate": "التشغيل",
+    "dashboard": "لوحة المعلومات",
+    "topics": "المواضيع",
+    "posts": "المنشورات",
+    "sources": "المصادر",
+    "translations": "الترجمات",
+    "saved": "المحفوظات",
+    "reports": "التقارير",
+    "contentStudio": "استوديو المحتوى",
+    "threads": "السلاسل",
+    "scanHistory": "سجل عمليات المسح",
+    "settings": "الإعدادات",
+    "openMenu": "فتح قائمة التنقل",
+    "closeMenu": "إغلاق قائمة التنقل",
+    "collapse": "طي الشريط الجانبي",
+    "expand": "توسيع الشريط الجانبي"
+  },
+  "common": {
+    "loading": "جارٍ التحميل",
+    "close": "إغلاق",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "retry": "إعادة المحاولة",
+    "viewAll": "عرض الكل",
+    "search": "بحث",
+    "filter": "تصفية",
+    "clear": "مسح",
+    "apply": "تطبيق",
+    "none": "لا شيء",
+    "noResults": "لا توجد نتائج",
+    "error": "حدث خطأ ما",
+    "unknown": "غير معروف"
+  },
+  "theme": {
+    "label": "المظهر",
+    "toggle": "تغيير المظهر",
+    "light": "فاتح",
+    "dark": "داكن",
+    "system": "حسب النظام"
+  },
+  "locale": {
+    "label": "اللغة",
+    "change": "تغيير اللغة",
+    "en": "English",
+    "ar": "العربية"
+  },
+  "auth": {
+    "signIn": "تسجيل الدخول",
+    "signOut": "تسجيل الخروج",
+    "signInTitle": "تسجيل الدخول إلى تريند هنتر",
+    "signInSubtitle": "استخدم الحساب المخصص لك.",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "emailPlaceholder": "you@example.com",
+    "submit": "تسجيل الدخول",
+    "submitting": "جارٍ تسجيل الدخول",
+    "invalidCredentials": "البريد الإلكتروني وكلمة المرور غير مطابقين لأي حساب.",
+    "rateLimited": "محاولات كثيرة. انتظر قليلاً ثم أعد المحاولة.",
+    "unavailable": "الخدمة غير متاحة حالياً.",
+    "demoTitle": "الحساب التجريبي",
+    "demoHint": "يحتوي هذا النظام على حساب تجريبي جاهز.",
+    "useDemo": "تعبئة بيانات الحساب التجريبي",
+    "account": "الحساب",
+    "profile": "الملف الشخصي",
+    "role": "الدور",
+    "roleUser": "مستخدم",
+    "roleAdmin": "مدير"
+  },
+  "search": {
+    "placeholder": "ابحث في المواضيع والمنشورات والتعليقات والمصادر",
+    "open": "فتح البحث",
+    "title": "البحث",
+    "description": "ابحث في المواضيع والمنشورات والتعليقات والمصادر.",
+    "hint": "اكتب للبحث",
+    "modeKeyword": "الكلمات المفتاحية",
+    "modeSemantic": "الدلالي",
+    "modeHybrid": "المدمج",
+    "groupTopics": "المواضيع",
+    "groupPosts": "المنشورات",
+    "groupComments": "التعليقات",
+    "groupSources": "المصادر",
+    "empty": "لا توجد نتائج مطابقة."
+  },
+  "header": {
+    "notifications": "الإشعارات",
+    "noNotifications": "لا يوجد جديد",
+    "newScan": "مسح جديد",
+    "userMenu": "فتح قائمة الحساب"
+  },
+  "errors": {
+    "title": "حدث خطأ ما",
+    "description": "تعذّر عرض الصفحة. تم تسجيل العطل.",
+    "requestId": "المرجع: {id}",
+    "notFoundTitle": "غير موجود",
+    "notFoundDescription": "هذه الصفحة غير موجودة أو تمت إزالتها.",
+    "backToDashboard": "العودة إلى لوحة المعلومات",
+    "unreachableTitle": "الخدمة غير متاحة",
+    "unreachableDescription": "لم تستجب الواجهة البرمجية. قد تكون قيد التشغيل."
+  },
+  "dashboard": {
+    "title": "لوحة المعلومات",
+    "subtitle": "ما تم جمعه، وما يتصاعد، وما يستحق الكتابة عنه.",
+    "generatedAt": "آخر تحديث {time}",
+    "range": {
+      "label": "المدة",
+      "24h": "آخر ٢٤ ساعة",
+      "7d": "آخر ٧ أيام",
+      "30d": "آخر ٣٠ يوماً",
+      "90d": "آخر ٩٠ يوماً",
+      "short24h": "٢٤ س",
+      "short7d": "٧ ي",
+      "short30d": "٣٠ ي",
+      "short90d": "٩٠ ي"
+    },
+    "kpi": {
+      "newTopics": "مواضيع جديدة",
+      "newPosts": "منشورات جديدة",
+      "relevantIdeas": "أفكار ذات صلة",
+      "savedItems": "عناصر محفوظة",
+      "emergingTrends": "اتجاهات ناشئة",
+      "arabicOpportunities": "فرص عربية",
+      "noChange": "لا توجد مقارنة",
+      "versusPrevious": "مقارنة بالفترة السابقة"
+    },
+    "trending": {
+      "title": "المواضيع المتصاعدة",
+      "description": "مرتبة حسب درجة الاتجاه خلال المدة المحددة.",
+      "posts": "{count, plural, =0 {لا منشورات} one {منشور واحد} two {منشوران} few {# منشورات} many {# منشوراً} other {# منشور}}",
+      "score": "درجة الاتجاه {value}",
+      "sparkline": "تطور درجة الاتجاه للموضوع {name}",
+      "empty": "لم يتصاعد أي موضوع بعد.",
+      "emptyHint": "شغّل عملية مسح لجمع المنشورات، ثم يفتح التجميع المواضيع الأولى."
+    },
+    "sources": {
+      "title": "توزيع المصادر",
+      "description": "{count} منشور خلال المدة المحددة.",
+      "empty": "لم يُجمع أي شيء بعد.",
+      "table": "توزيع المصادر في جدول",
+      "source": "المصدر",
+      "posts": "المنشورات",
+      "share": "النسبة"
+    },
+    "recent": {
+      "title": "أحدث المنشورات",
+      "description": "آخر ما وصل من أي مصدر.",
+      "empty": "لم تُجمع أي منشورات بعد.",
+      "engagement": "التفاعل {value}",
+      "relevance": "الصلة {value}",
+      "save": "حفظ هذا المنشور",
+      "unsave": "إزالة من المحفوظات",
+      "saved": "محفوظ"
+    },
+    "activity": {
+      "title": "نظرة عامة على النشاط",
+      "description": "الجمع والمعالجة خلال المدة المحددة.",
+      "postsCollected": "منشورات مجموعة",
+      "relevantIdeas": "أفكار ذات صلة",
+      "topicsCreated": "مواضيع منشأة",
+      "translations": "ترجمات",
+      "empty": "لا يوجد نشاط في هذه المدة."
+    },
+    "quickActions": {
+      "title": "إجراءات سريعة",
+      "scanNow": "ابدأ مسحاً",
+      "translatePosts": "ترجمة المنشورات",
+      "saveToCollection": "مجموعات المحفوظات",
+      "generateReport": "إنشاء تقرير",
+      "createContent": "إنشاء محتوى"
+    },
+    "usage": {
+      "title": "استخدام الواجهات والنظام",
+      "description": "طلبات المزودين المسجلة هذا الشهر.",
+      "provider": "المزود",
+      "requests": "الطلبات",
+      "failures": "الإخفاقات",
+      "cost": "التكلفة التقديرية",
+      "quota": "{used}٪ من الحصة",
+      "noQuota": "بلا حصة",
+      "empty": "لم تُسجَّل أي طلبات للمزودين."
+    },
+    "health": {
+      "title": "حالة النظام",
+      "database": "قاعدة البيانات",
+      "redis": "ريديس",
+      "worker": "العامل",
+      "queueDepth": "مهام في الانتظار",
+      "failedJobs": "إخفاقات خلال ٢٤ ساعة",
+      "up": "يعمل",
+      "down": "متوقف",
+      "stale": "متأخر",
+      "lastHeartbeat": "آخر نبضة {time}",
+      "neverSeen": "لم تُسجَّل أي نبضة"
+    }
+  }
+}

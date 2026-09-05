@@ -34,14 +34,14 @@ export function EmptyState({
       {...props}
     >
       {icon === undefined ? null : (
-        <div className="bg-muted text-muted-foreground flex size-10 items-center justify-center rounded-full">
+        <div className="flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
           {icon}
         </div>
       )}
       <div className="space-y-1">
         <p className="text-sm font-medium">{title}</p>
         {description === undefined ? null : (
-          <p className="text-muted-foreground max-w-sm text-sm">{description}</p>
+          <p className="max-w-sm text-sm text-muted-foreground">{description}</p>
         )}
       </div>
       {action}

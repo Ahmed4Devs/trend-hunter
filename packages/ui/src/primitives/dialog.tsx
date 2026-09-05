@@ -20,7 +20,7 @@ export function DialogOverlay({
       data-slot="dialog-overlay"
       className={cn(
         'fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-[2px]',
-        'data-[state=open]:anim-fade-in data-[state=closed]:anim-fade-out',
+        'data-[state=closed]:anim-fade-out data-[state=open]:anim-fade-in',
         className,
       )}
       {...props}
@@ -54,9 +54,9 @@ export function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          'bg-card border-border fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2',
+          'fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 border-border bg-card',
           'gap-4 rounded-xl border p-6 shadow-lg',
-          'data-[state=open]:anim-pop-in data-[state=closed]:anim-pop-out',
+          'data-[state=closed]:anim-pop-out data-[state=open]:anim-pop-in',
           className,
         )}
         {...props}
@@ -121,7 +121,7 @@ export function DialogDescription({
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn('text-muted-foreground text-sm', className)}
+      className={cn('text-sm text-muted-foreground', className)}
       {...props}
     />
   );

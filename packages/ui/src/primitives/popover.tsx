@@ -22,8 +22,8 @@ export function PopoverContent({
         align={align}
         sideOffset={sideOffset}
         className={cn(
-          'bg-popover text-popover-foreground border-border z-50 w-72 rounded-lg border p-4 shadow-md outline-none',
-          'data-[state=open]:anim-slide-in data-[state=closed]:anim-slide-out',
+          'z-50 w-72 rounded-lg border border-border bg-popover p-4 text-popover-foreground shadow-md outline-none',
+          'data-[state=closed]:anim-slide-out data-[state=open]:anim-slide-in',
           className,
         )}
         {...props}

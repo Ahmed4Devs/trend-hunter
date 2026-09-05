@@ -1,26 +1,10 @@
-@import "tailwindcss";
+/* The application's only stylesheet.
+ *
+ * Tokens, primitives and utilities all come from the design system package, so
+ * there is exactly one definition of every colour and radius in the product.
+ * `@source` is needed because Tailwind v4 scans the importing project by
+ * default: without it, a class that only appears inside a package component
+ * would be scanned out of the bundle and the component would render unstyled. */
+@import '@trendhunter/ui/styles.css';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+@source '../../../packages/ui/src/**/*.{ts,tsx}';

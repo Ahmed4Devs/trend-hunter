@@ -1,0 +1,206 @@
+{
+  "app": {
+    "name": "TrendHunter",
+    "tagline": "Content intelligence and trend discovery"
+  },
+  "nav": {
+    "sectionMain": "Overview",
+    "sectionDiscover": "Discover",
+    "sectionCreate": "Create",
+    "sectionOperate": "Operate",
+    "dashboard": "Dashboard",
+    "topics": "Topics",
+    "posts": "Posts",
+    "sources": "Sources",
+    "translations": "Translations",
+    "saved": "Saved",
+    "reports": "Reports",
+    "contentStudio": "Content Studio",
+    "threads": "Threads",
+    "scanHistory": "Scan History",
+    "settings": "Settings",
+    "openMenu": "Open the navigation menu",
+    "closeMenu": "Close the navigation menu",
+    "collapse": "Collapse the sidebar",
+    "expand": "Expand the sidebar"
+  },
+  "common": {
+    "loading": "Loading",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "retry": "Try again",
+    "viewAll": "View all",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "apply": "Apply",
+    "none": "None",
+    "noResults": "No results",
+    "error": "Something went wrong",
+    "unknown": "Unknown"
+  },
+  "theme": {
+    "label": "Theme",
+    "toggle": "Change the theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "locale": {
+    "label": "Language",
+    "change": "Change the language",
+    "en": "English",
+    "ar": "العربية"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "signInTitle": "Sign in to TrendHunter",
+    "signInSubtitle": "Use the account provisioned for you.",
+    "email": "Email",
+    "password": "Password",
+    "emailPlaceholder": "you@example.com",
+    "submit": "Sign in",
+    "submitting": "Signing in",
+    "invalidCredentials": "That email and password do not match an account.",
+    "rateLimited": "Too many attempts. Wait a moment and try again.",
+    "unavailable": "The service is not reachable right now.",
+    "demoTitle": "Demo account",
+    "demoHint": "This deployment has a seeded demo account.",
+    "useDemo": "Fill in the demo account",
+    "account": "Account",
+    "profile": "Profile",
+    "role": "Role",
+    "roleUser": "User",
+    "roleAdmin": "Administrator"
+  },
+  "search": {
+    "placeholder": "Search topics, posts, comments and sources",
+    "open": "Open search",
+    "title": "Search",
+    "description": "Search across topics, posts, comments and sources.",
+    "hint": "Type to search",
+    "modeKeyword": "Keyword",
+    "modeSemantic": "Semantic",
+    "modeHybrid": "Hybrid",
+    "groupTopics": "Topics",
+    "groupPosts": "Posts",
+    "groupComments": "Comments",
+    "groupSources": "Sources",
+    "empty": "Nothing matched that search."
+  },
+  "header": {
+    "notifications": "Notifications",
+    "noNotifications": "Nothing new",
+    "newScan": "New scan",
+    "userMenu": "Open the account menu"
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "description": "The page could not be rendered. The failure has been logged.",
+    "requestId": "Reference: {id}",
+    "notFoundTitle": "Not found",
+    "notFoundDescription": "That page does not exist, or it was removed.",
+    "backToDashboard": "Back to the dashboard",
+    "unreachableTitle": "The service is unavailable",
+    "unreachableDescription": "The API did not answer. It may be starting up."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "What was collected, what is rising, and what is worth writing about.",
+    "generatedAt": "Updated {time}",
+    "range": {
+      "label": "Range",
+      "24h": "Last 24 hours",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "short24h": "24h",
+      "short7d": "7d",
+      "short30d": "30d",
+      "short90d": "90d"
+    },
+    "kpi": {
+      "newTopics": "New topics",
+      "newPosts": "New posts",
+      "relevantIdeas": "Relevant ideas",
+      "savedItems": "Saved items",
+      "emergingTrends": "Emerging trends",
+      "arabicOpportunities": "Arabic opportunities",
+      "noChange": "No comparison",
+      "versusPrevious": "vs. previous period"
+    },
+    "trending": {
+      "title": "Trending topics",
+      "description": "Ranked by trend score over the selected range.",
+      "posts": "{count, plural, =0 {no posts} one {# post} other {# posts}}",
+      "score": "Trend score {value}",
+      "sparkline": "Trend score over the range for {name}",
+      "empty": "No topic has trended yet.",
+      "emptyHint": "Run a scan to collect posts and let clustering open the first topics."
+    },
+    "sources": {
+      "title": "Source distribution",
+      "description": "{count} posts across the selected range.",
+      "empty": "Nothing has been collected yet.",
+      "table": "Source distribution as a table",
+      "source": "Source",
+      "posts": "Posts",
+      "share": "Share"
+    },
+    "recent": {
+      "title": "Recent posts",
+      "description": "The latest items to arrive from any source.",
+      "empty": "No posts have been collected yet.",
+      "engagement": "Engagement {value}",
+      "relevance": "Relevance {value}",
+      "save": "Save this post",
+      "unsave": "Remove from saved",
+      "saved": "Saved"
+    },
+    "activity": {
+      "title": "Activity overview",
+      "description": "Collection and processing over the selected range.",
+      "postsCollected": "Posts collected",
+      "relevantIdeas": "Relevant ideas",
+      "topicsCreated": "Topics created",
+      "translations": "Translations",
+      "empty": "There is no activity in this range."
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "scanNow": "Scan now",
+      "translatePosts": "Translate posts",
+      "saveToCollection": "Saved collections",
+      "generateReport": "Generate a report",
+      "createContent": "Create content"
+    },
+    "usage": {
+      "title": "API and system usage",
+      "description": "Provider calls recorded this month.",
+      "provider": "Provider",
+      "requests": "Requests",
+      "failures": "Failures",
+      "cost": "Estimated cost",
+      "quota": "{used}% of quota",
+      "noQuota": "No quota",
+      "empty": "No provider calls have been recorded."
+    },
+    "health": {
+      "title": "System health",
+      "database": "Database",
+      "redis": "Redis",
+      "worker": "Worker",
+      "queueDepth": "Queued jobs",
+      "failedJobs": "Failed in 24h",
+      "up": "Up",
+      "down": "Down",
+      "stale": "Stale",
+      "lastHeartbeat": "Last heartbeat {time}",
+      "neverSeen": "No heartbeat recorded"
+    }
+  }
+}

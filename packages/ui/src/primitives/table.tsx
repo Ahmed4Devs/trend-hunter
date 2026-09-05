@@ -24,7 +24,7 @@ export function TableHeader({ className, ...props }: React.ComponentProps<'thead
   return (
     <thead
       data-slot="table-header"
-      className={cn('[&_tr]:border-border [&_tr]:border-b', className)}
+      className={cn('[&_tr]:border-b [&_tr]:border-border', className)}
       {...props}
     />
   );
@@ -45,7 +45,7 @@ export function TableRow({ className, ...props }: React.ComponentProps<'tr'>) {
     <tr
       data-slot="table-row"
       className={cn(
-        'border-border hover:bg-muted/60 data-[state=selected]:bg-muted border-b transition-colors',
+        'border-b border-border transition-colors hover:bg-muted/60 data-[state=selected]:bg-muted',
         className,
       )}
       {...props}
@@ -58,7 +58,7 @@ export function TableHead({ className, ...props }: React.ComponentProps<'th'>) {
     <th
       data-slot="table-head"
       className={cn(
-        'text-muted-foreground h-10 px-3 text-start align-middle text-xs font-medium whitespace-nowrap',
+        'h-10 px-3 text-start align-middle text-xs font-medium whitespace-nowrap text-muted-foreground',
         className,
       )}
       {...props}
@@ -76,7 +76,7 @@ export function TableCaption({ className, ...props }: React.ComponentProps<'capt
   return (
     <caption
       data-slot="table-caption"
-      className={cn('text-muted-foreground mt-4 text-sm', className)}
+      className={cn('mt-4 text-sm text-muted-foreground', className)}
       {...props}
     />
   );

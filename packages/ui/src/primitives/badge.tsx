@@ -15,13 +15,13 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary/15 text-primary border-transparent',
+        default: 'border-transparent bg-primary/15 text-primary',
         neutral: 'border-border bg-muted text-muted-foreground',
-        blue: 'bg-accent-blue/15 text-accent-blue border-transparent',
-        green: 'bg-accent-green/15 text-accent-green border-transparent',
-        orange: 'bg-accent-orange/15 text-accent-orange border-transparent',
-        purple: 'bg-accent-purple/15 text-accent-purple border-transparent',
-        red: 'bg-accent-red/15 text-accent-red border-transparent',
+        blue: 'border-transparent bg-accent-blue/15 text-accent-blue',
+        green: 'border-transparent bg-accent-green/15 text-accent-green',
+        orange: 'border-transparent bg-accent-orange/15 text-accent-orange',
+        purple: 'border-transparent bg-accent-purple/15 text-accent-purple',
+        red: 'border-transparent bg-accent-red/15 text-accent-red',
         outline: 'border-border text-foreground',
       },
     },

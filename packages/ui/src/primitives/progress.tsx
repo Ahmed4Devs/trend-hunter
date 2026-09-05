@@ -22,12 +22,12 @@ export function Progress({ className, value, indicatorClassName, ...props }: Pro
     <ProgressPrimitive.Root
       data-slot="progress"
       value={value}
-      className={cn('bg-muted relative h-2 w-full overflow-hidden rounded-full', className)}
+      className={cn('relative h-2 w-full overflow-hidden rounded-full bg-muted', className)}
       {...props}
     >
       <ProgressPrimitive.Indicator
         data-slot="progress-indicator"
-        className={cn('bg-primary h-full w-full flex-1 transition-transform', indicatorClassName)}
+        className={cn('h-full w-full flex-1 bg-primary transition-transform', indicatorClassName)}
         style={{ transform: `translateX(${String(-100 + percent)}%)` }}
       />
     </ProgressPrimitive.Root>

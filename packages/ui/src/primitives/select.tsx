@@ -19,7 +19,7 @@ export function SelectTrigger({
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       className={cn(
-        'border-input bg-card flex h-9 w-full items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm shadow-xs',
+        'flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-card px-3 py-2 text-sm shadow-xs',
         'data-[placeholder]:text-muted-foreground',
         'disabled:cursor-not-allowed disabled:opacity-50',
         '[&>span]:line-clamp-1 [&>span]:text-start',
@@ -47,8 +47,8 @@ export function SelectContent({
         data-slot="select-content"
         position={position}
         className={cn(
-          'bg-popover text-popover-foreground border-border relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-lg border shadow-md',
-          'data-[state=open]:anim-slide-in data-[state=closed]:anim-slide-out',
+          'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-md',
+          'data-[state=closed]:anim-slide-out data-[state=open]:anim-slide-in',
           // Matching the trigger's width is what stops a long option from
           // making the list wider than the control that opened it.
           position === 'popper' && 'w-[var(--radix-select-trigger-width)]',
@@ -101,7 +101,7 @@ export function SelectLabel({
   return (
     <SelectPrimitive.Label
       data-slot="select-label"
-      className={cn('text-muted-foreground px-2 py-1.5 text-xs font-medium', className)}
+      className={cn('px-2 py-1.5 text-xs font-medium text-muted-foreground', className)}
       {...props}
     />
   );
@@ -114,7 +114,7 @@ export function SelectSeparator({
   return (
     <SelectPrimitive.Separator
       data-slot="select-separator"
-      className={cn('bg-border -mx-1 my-1 h-px', className)}
+      className={cn('-mx-1 my-1 h-px bg-border', className)}
       {...props}
     />
   );

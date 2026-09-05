@@ -19,7 +19,7 @@ export function Switch({ className, ...props }: React.ComponentProps<typeof Swit
     >
       <SwitchPrimitive.Thumb
         className={cn(
-          'bg-card pointer-events-none block size-4 rounded-full shadow-sm ring-0 transition-transform',
+          'pointer-events-none block size-4 rounded-full bg-card shadow-sm ring-0 transition-transform',
           // Logical translation: in Arabic the thumb has to travel the other
           // way, or "on" ends up on the side the reader reads from.
           'data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0',
