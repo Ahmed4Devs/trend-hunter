@@ -42,10 +42,7 @@ export function AppShell({ user, children }: AppShellProps) {
       </aside>
 
       <Dialog open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <DialogContent
-          closeLabel={common('close')}
-          className="start-0 top-0 h-full max-w-72 translate-x-0 translate-y-0 rounded-none bg-sidebar p-0 rtl:start-auto rtl:end-0"
-        >
+        <DialogContent variant="panel" closeLabel={common('close')} className="bg-sidebar p-0">
           <DialogTitle className="sr-only">{nav('openMenu')}</DialogTitle>
           <div className="flex h-full flex-col">
             <Brand />

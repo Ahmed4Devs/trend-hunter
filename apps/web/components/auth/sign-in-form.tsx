@@ -44,10 +44,25 @@ export function SignInForm() {
     setSubmitting(true);
     setError(null);
 
-    const result = await signIn.email({ email, password });
+    // A network failure rejects rather than resolving with `error`, and an
+    // unhandled rejection here would leave the button disabled with nothing on
+    // screen — the reader would conclude the password was wrong.
+    //
+    // The status is read off a narrow local shape rather than the client's own
+    // return type, which is inferred as `any` through the plugin chain and
+    // would make every field access unchecked.
+    let failure: { readonly status?: number } | null;
+    try {
+      const result: { error: { status?: number } | null } = await signIn.email({ email, password });
+      failure = result.error;
+    } catch {
+      setError(t('unavailable'));
+      setSubmitting(false);
+      return;
+    }
 
-    if (result.error !== null) {
-      setError(result.error.status === 429 ? t('rateLimited') : t('invalidCredentials'));
+    if (failure !== null) {
+      setError(failure.status === 429 ? t('rateLimited') : t('invalidCredentials'));
       setSubmitting(false);
       return;
     }

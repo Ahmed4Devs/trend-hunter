@@ -8,13 +8,20 @@ import { cn } from '../lib/cn';
  * A hairline border carries the edge in both themes, and the shadow is dropped
  * in dark mode: a shadow over a near-black background is invisible, so a dark
  * UI built on elevation shadows reads as one flat plane.
+ *
+ * `min-w-0` is load-bearing. A grid or flex item defaults to a minimum size of
+ * its own content, so a single truncated title — `truncate` sets
+ * `white-space: nowrap` — widens its whole track to the untruncated string and
+ * the page scrolls sideways on a phone. Cards are always laid out by a parent,
+ * so the floor belongs here rather than at each call site that happens to
+ * notice.
  */
 export function Card({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="card"
       className={cn(
-        'rounded-xl border border-border bg-card text-card-foreground shadow-sm dark:shadow-none',
+        'min-w-0 rounded-xl border border-border bg-card text-card-foreground shadow-sm dark:shadow-none',
         className,
       )}
       {...props}

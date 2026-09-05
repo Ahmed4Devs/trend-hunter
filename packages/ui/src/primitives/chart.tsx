@@ -53,7 +53,9 @@ export interface ChartFrameProps extends React.ComponentProps<'div'> {
 
 export function ChartFrame({ height = 260, className, children, ...props }: ChartFrameProps) {
   return (
-    <div className={cn('w-full', className)} style={{ height }} {...props}>
+    // `min-w-0` for the same reason cards carry it: a responsive container
+    // measures its parent, and a parent that sizes to content measures back.
+    <div className={cn('w-full min-w-0', className)} style={{ height }} {...props}>
       <ResponsiveContainer width="100%" height="100%">
         {children as React.ReactElement}
       </ResponsiveContainer>

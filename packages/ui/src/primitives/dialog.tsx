@@ -32,6 +32,17 @@ export interface DialogContentProps extends React.ComponentProps<typeof DialogPr
   /** Hides the corner close button for a dialog that must be answered. */
   readonly hideClose?: boolean;
   readonly closeLabel: string;
+  /**
+   * Where the surface sits.
+   *
+   * `center` is a dialog. `panel` is a full-height sheet against the inline
+   * start edge — a mobile navigation drawer. They need different positioning
+   * *and* different motion: the centred entrance animates a
+   * `translate(-50%, -50%)` transform, and applying that to a panel drags it
+   * away from the edge mid-animation, which leaves the element never settling
+   * and its links unclickable.
+   */
+  readonly variant?: 'center' | 'panel';
 }
 
 /**
@@ -46,6 +57,7 @@ export function DialogContent({
   children,
   hideClose = false,
   closeLabel,
+  variant = 'center',
   ...props
 }: DialogContentProps) {
   return (
@@ -53,10 +65,18 @@ export function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
+        data-variant={variant}
         className={cn(
-          'fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 border-border bg-card',
-          'gap-4 rounded-xl border p-6 shadow-lg',
-          'data-[state=closed]:anim-pop-out data-[state=open]:anim-pop-in',
+          'fixed z-50 border border-border bg-card shadow-lg',
+          variant === 'center' && [
+            'top-1/2 left-1/2 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2',
+            'gap-4 rounded-xl p-6',
+            'data-[state=closed]:anim-pop-out data-[state=open]:anim-pop-in',
+          ],
+          variant === 'panel' && [
+            'start-0 top-0 h-full w-72 max-w-[85vw] rounded-none border-s-0 border-e',
+            'data-[state=closed]:anim-fade-out data-[state=open]:anim-fade-in',
+          ],
           className,
         )}
         {...props}
