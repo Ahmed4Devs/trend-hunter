@@ -178,8 +178,18 @@ describe('ApiUsageRecorder', () => {
 
   it('accumulates estimated cost', () => {
     const recorder = new ApiUsageRecorder();
-    recorder.record({ provider: 'openai', operation: 'embed', success: true, estimatedCost: 0.002 });
-    recorder.record({ provider: 'openai', operation: 'embed', success: true, estimatedCost: 0.003 });
+    recorder.record({
+      provider: 'openai',
+      operation: 'embed',
+      success: true,
+      estimatedCost: 0.002,
+    });
+    recorder.record({
+      provider: 'openai',
+      operation: 'embed',
+      success: true,
+      estimatedCost: 0.003,
+    });
     const entry = recorder.drain()[0];
     expect(entry?.estimatedCost).toBeCloseTo(0.005, 6);
   });

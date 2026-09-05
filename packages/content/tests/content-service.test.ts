@@ -49,9 +49,7 @@ describe('ContentService.generateDraft', () => {
   });
 
   it('cuts a provider that overruns the budget and says that it did', async () => {
-    const service = new ContentService(
-      createFakeProvider({ constantContent: 'x'.repeat(5_000) }),
-    );
+    const service = new ContentService(createFakeProvider({ constantContent: 'x'.repeat(5_000) }));
     const draft = await service.generateDraft('SHORT_X_POST', ENGLISH_CONTEXT);
     expect(draft.characterCount).toBe(X_POST_CHARACTER_LIMIT);
     expect(draft.trimmed).toBe(true);

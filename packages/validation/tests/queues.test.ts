@@ -77,7 +77,8 @@ describe('normalizeJobPayloadSchema', () => {
   it('bounds the number of ids in one payload', () => {
     const ids = Array.from({ length: 201 }, (_, index) => `raw${index}`);
     expect(
-      normalizeJobPayloadSchema.safeParse({ scanRunId: 's1', source: 'X', rawItemIds: ids }).success,
+      normalizeJobPayloadSchema.safeParse({ scanRunId: 's1', source: 'X', rawItemIds: ids })
+        .success,
     ).toBe(false);
   });
 });
@@ -85,7 +86,8 @@ describe('normalizeJobPayloadSchema', () => {
 describe('embeddingsJobPayloadSchema', () => {
   it('requires at least one record overall', () => {
     expect(
-      embeddingsJobPayloadSchema.safeParse({ scanRunId: null, postIds: [], commentIds: [] }).success,
+      embeddingsJobPayloadSchema.safeParse({ scanRunId: null, postIds: [], commentIds: [] })
+        .success,
     ).toBe(false);
   });
 

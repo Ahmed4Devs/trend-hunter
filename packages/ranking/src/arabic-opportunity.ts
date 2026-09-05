@@ -1,8 +1,5 @@
 import { clamp01, clampScore, logNormalize, round } from '@trendhunter/shared';
-import type {
-  ArabicOpportunityBreakdown,
-  ArabicOpportunityComponents,
-} from '@trendhunter/types';
+import type { ArabicOpportunityBreakdown, ArabicOpportunityComponents } from '@trendhunter/types';
 
 import { ARABIC_OPPORTUNITY_TUNING, ARABIC_OPPORTUNITY_WEIGHTS } from './weights';
 

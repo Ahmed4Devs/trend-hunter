@@ -19,7 +19,13 @@ import type {
 
 import type { DraftOptions, DraftResult } from './content-service';
 import { generatePost } from './content-service';
-import { DEFAULT_HOOK_CANDIDATES, MAX_HOOK_CANDIDATES, generateHooks, pickStrongestHook, rankHooks } from './hooks';
+import {
+  DEFAULT_HOOK_CANDIDATES,
+  MAX_HOOK_CANDIDATES,
+  generateHooks,
+  pickStrongestHook,
+  rankHooks,
+} from './hooks';
 import { MAX_TITLE_CHARACTERS, THREAD_POST_CHARACTER_BUDGET, buildPrompt } from './prompts';
 import { callProvider, fitToBudget, parseGeneratedThread } from './provider-output';
 
@@ -175,7 +181,10 @@ export class ThreadService {
    * opening post is never left to whichever sentence the model happened to
    * emit first.
    */
-  async generateThread(context: GenerationContext, options: ThreadOptions = {}): Promise<ThreadResult> {
+  async generateThread(
+    context: GenerationContext,
+    options: ThreadOptions = {},
+  ): Promise<ThreadResult> {
     return this.build(context, options, {});
   }
 
@@ -315,7 +324,9 @@ export class ThreadService {
         count,
         language,
         tone,
-        directives: ['This hook opens a thread; the posts after it deliver on whatever it promises.'],
+        directives: [
+          'This hook opens a thread; the posts after it deliver on whatever it promises.',
+        ],
       });
       const pool = [fitted, ...candidates.map((candidate) => candidate.content)];
       return pickStrongestHook(pool, context)?.content ?? fitted;

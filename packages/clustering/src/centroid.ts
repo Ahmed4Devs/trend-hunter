@@ -55,7 +55,9 @@ export function addToCentroid(
   if (current.vector.length !== vector.length) return current;
 
   const count = current.count + 1;
-  const updated = current.vector.map((value, index) => value + ((vector[index] ?? 0) - value) / count);
+  const updated = current.vector.map(
+    (value, index) => value + ((vector[index] ?? 0) - value) / count,
+  );
   return { vector: updated, count };
 }
 
@@ -77,7 +79,9 @@ export function removeFromCentroid(
   if (current.count === 1) return EMPTY_CENTROID;
 
   const count = current.count - 1;
-  const updated = current.vector.map((value, index) => value + (value - (vector[index] ?? 0)) / count);
+  const updated = current.vector.map(
+    (value, index) => value + (value - (vector[index] ?? 0)) / count,
+  );
   return { vector: updated, count };
 }
 

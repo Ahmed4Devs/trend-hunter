@@ -90,7 +90,9 @@ export class XLiveConnector extends BaseConnector {
       url.searchParams.set('query', query);
       url.searchParams.set(
         'max_results',
-        String(Math.min(state.config.pageSize, Math.max(10, context.remaining(state.items.length)))),
+        String(
+          Math.min(state.config.pageSize, Math.max(10, context.remaining(state.items.length))),
+        ),
       );
       url.searchParams.set('tweet.fields', TWEET_FIELDS);
       url.searchParams.set('expansions', 'author_id');

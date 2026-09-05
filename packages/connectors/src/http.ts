@@ -242,10 +242,7 @@ export class HttpClient {
   async #backoff(attempt: number, retryAfter: string | null, signal?: AbortSignal): Promise<void> {
     const exponential = this.#options.baseRetryDelayMs * 2 ** (attempt - 1);
     const requested = parseRetryAfter(retryAfter);
-    const delayMs = Math.min(
-      this.#options.maxRetryDelayMs,
-      Math.max(exponential, requested ?? 0),
-    );
+    const delayMs = Math.min(this.#options.maxRetryDelayMs, Math.max(exponential, requested ?? 0));
     await this.#sleep(delayMs, signal);
   }
 }
@@ -362,7 +359,10 @@ function resolveLocation(location: string, base: URL, provider: string): string 
   try {
     return new URL(location, base).toString();
   } catch {
-    throw new UpstreamError(provider, `${describeUrl(base)} redirected to an unparseable location.`);
+    throw new UpstreamError(
+      provider,
+      `${describeUrl(base)} redirected to an unparseable location.`,
+    );
   }
 }
 
@@ -408,10 +408,7 @@ function summarizeIssues(issues: readonly { path: PropertyKey[]; message: string
  * Used when configuration is validated, so a bad feed URL is reported when it
  * is saved rather than during a scan.
  */
-export async function assertFetchable(
-  rawUrl: string,
-  allowPrivateNetworks: boolean,
-): Promise<URL> {
+export async function assertFetchable(rawUrl: string, allowPrivateNetworks: boolean): Promise<URL> {
   const { url } = await assertSafeUrl(rawUrl, { allowPrivateNetworks });
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
     throw new ValidationError('Only http and https URLs can be collected from.');

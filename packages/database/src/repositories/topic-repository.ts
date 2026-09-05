@@ -142,7 +142,10 @@ async function loadTopicExtras(
 
 export function createTopicRepository(client: PrismaClient) {
   return {
-    async list(options: TopicListOptions = {}, userId: string | null = null): Promise<Paginated<Topic>> {
+    async list(
+      options: TopicListOptions = {},
+      userId: string | null = null,
+    ): Promise<Paginated<Topic>> {
       const pagination = normalizePaginationParams(options.pagination);
       const { skip, take } = toSkipTake(pagination);
       const where = buildWhere(options.filters);

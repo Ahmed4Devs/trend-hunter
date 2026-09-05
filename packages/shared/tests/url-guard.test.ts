@@ -213,15 +213,19 @@ describe('assertSafeUrlShape — protocol, credentials and ports', () => {
 
 describe('assertSafeUrlShape — the development escape hatch', () => {
   it('allows private targets only when explicitly opted in', () => {
-    for (const url of ['http://localhost:8080/feed', 'http://127.0.0.1:8080/feed', 'http://[::1]/']) {
+    for (const url of [
+      'http://localhost:8080/feed',
+      'http://127.0.0.1:8080/feed',
+      'http://[::1]/',
+    ]) {
       expect(() => assertSafeUrlShape(url, { allowPrivateNetworks: true }), url).not.toThrow();
     }
   });
 
   it('still enforces protocol, credentials and ports when private networks are allowed', () => {
-    expect(() =>
-      assertSafeUrlShape('file:///etc/passwd', { allowPrivateNetworks: true }),
-    ).toThrow(ValidationError);
+    expect(() => assertSafeUrlShape('file:///etc/passwd', { allowPrivateNetworks: true })).toThrow(
+      ValidationError,
+    );
     expect(() =>
       assertSafeUrlShape('http://user:pass@localhost/', { allowPrivateNetworks: true }),
     ).toThrow(ValidationError);

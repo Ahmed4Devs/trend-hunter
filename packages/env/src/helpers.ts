@@ -88,7 +88,9 @@ export function looksLikeDevelopmentPlaceholder(value: string): boolean {
  * the documented development placeholders when `enforceProduction` is set.
  */
 export function secretSchema(options: { minLength: number; enforceProduction: boolean }) {
-  let schema = z.string().min(options.minLength, `must be at least ${options.minLength} characters`);
+  let schema = z
+    .string()
+    .min(options.minLength, `must be at least ${options.minLength} characters`);
   if (options.enforceProduction) {
     schema = schema.refine((value) => !looksLikeDevelopmentPlaceholder(value), {
       message:

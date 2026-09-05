@@ -2,11 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '@trendhunter/types';
 
-import {
-  buildPaginationMeta,
-  normalizePaginationParams,
-  toSkipTake,
-} from '../src/pagination';
+import { buildPaginationMeta, normalizePaginationParams, toSkipTake } from '../src/pagination';
 
 describe('normalizePaginationParams', () => {
   it('falls back to the documented defaults', () => {

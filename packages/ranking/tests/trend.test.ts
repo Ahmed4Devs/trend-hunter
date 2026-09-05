@@ -148,7 +148,9 @@ describe('calculateNovelty', () => {
   });
 
   it('decays more slowly than freshness, because a topic outlives a post', () => {
-    expect(calculateNovelty(hoursAgo(12), NOW)).toBeGreaterThan(calculateFreshness(hoursAgo(12), NOW));
+    expect(calculateNovelty(hoursAgo(12), NOW)).toBeGreaterThan(
+      calculateFreshness(hoursAgo(12), NOW),
+    );
   });
 
   it('treats a future detection time as brand new', () => {
@@ -217,7 +219,11 @@ describe('calculateSaturationPenalty', () => {
       }),
     ).toBeCloseTo(100, 10);
     expect(
-      calculateSaturationPenalty({ totalPostCount: 50_000, firstDetectedAt: daysAgo(90), now: NOW }),
+      calculateSaturationPenalty({
+        totalPostCount: 50_000,
+        firstDetectedAt: daysAgo(90),
+        now: NOW,
+      }),
     ).toBe(100);
   });
 

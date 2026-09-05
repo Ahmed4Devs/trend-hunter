@@ -101,7 +101,9 @@ describe('urlFromEnv', () => {
 
 describe('postgresUrlFromEnv and redisUrlFromEnv', () => {
   it('accept the documented schemes', () => {
-    expect(postgresUrlFromEnv.parse('postgres://u:p@db:5432/app')).toBe('postgres://u:p@db:5432/app');
+    expect(postgresUrlFromEnv.parse('postgres://u:p@db:5432/app')).toBe(
+      'postgres://u:p@db:5432/app',
+    );
     expect(postgresUrlFromEnv.parse('postgresql://u:p@db:5432/app')).toBe(
       'postgresql://u:p@db:5432/app',
     );
@@ -153,10 +155,12 @@ describe('secretSchema', () => {
 
   it('rejects a development placeholder only when production is enforced', () => {
     const placeholder = 'change_me_change_me_change_me_change_me';
-    expect(secretSchema({ minLength: 32, enforceProduction: true }).safeParse(placeholder).success)
-      .toBe(false);
-    expect(secretSchema({ minLength: 32, enforceProduction: false }).safeParse(placeholder).success)
-      .toBe(true);
+    expect(
+      secretSchema({ minLength: 32, enforceProduction: true }).safeParse(placeholder).success,
+    ).toBe(false);
+    expect(
+      secretSchema({ minLength: 32, enforceProduction: false }).safeParse(placeholder).success,
+    ).toBe(true);
   });
 
   it('never echoes the secret in the failure message', () => {

@@ -37,9 +37,7 @@ export interface JobContext<TPayload> {
 }
 
 /** The validated payload a given queue carries. */
-export type JobPayload<TQueue extends QueueName> = z.infer<
-  (typeof QUEUE_PAYLOAD_SCHEMAS)[TQueue]
->;
+export type JobPayload<TQueue extends QueueName> = z.infer<(typeof QUEUE_PAYLOAD_SCHEMAS)[TQueue]>;
 
 export type JobHandler<TQueue extends QueueName> = (
   context: JobContext<JobPayload<TQueue>>,

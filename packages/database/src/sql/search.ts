@@ -123,9 +123,7 @@ export async function keywordSearchPosts(
       )`
     : Prisma.sql`NULL`;
 
-  const rows = await client.$queryRaw<
-    { id: string; rank: number; headline: string | null }[]
-  >`
+  const rows = await client.$queryRaw<{ id: string; rank: number; headline: string | null }[]>`
     WITH q AS (SELECT websearch_to_tsquery(${config}::regconfig, ${options.query}) AS tsq)
     SELECT p."id" AS "id",
            ts_rank_cd('{0.1,0.2,0.4,1.0}'::float4[], p."search_vector", q.tsq, 32)::float8 AS "rank",

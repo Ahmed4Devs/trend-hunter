@@ -83,9 +83,7 @@ export class RedditMockConnector extends BaseConnector {
     const title = slot.topic
       ? phraseFor(random, slot, slot.topic.headlines.reddit)
       : (slot.tail?.title ?? '');
-    const selftext = slot.topic
-      ? random.pick(slot.topic.bodies)
-      : (slot.tail?.body ?? '');
+    const selftext = slot.topic ? random.pick(slot.topic.bodies) : (slot.tail?.body ?? '');
 
     const score = engagementFor(random, slot, { base: 1, ceiling: 6_500, exponent: 1.6 });
     const commentCount = Math.round(score * (0.05 + random.next() * 0.35));

@@ -98,7 +98,10 @@ export function createOperationsRepository(client: PrismaClient) {
 
     async finishScanRun(
       id: string,
-      outcome: { status: Extract<JobStatus, 'COMPLETED' | 'FAILED' | 'CANCELLED'>; failureReason?: string | null },
+      outcome: {
+        status: Extract<JobStatus, 'COMPLETED' | 'FAILED' | 'CANCELLED'>;
+        failureReason?: string | null;
+      },
     ): Promise<ScanRun> {
       return withDatabaseErrors('ScanRun', async () => {
         const existing = await client.scanRun.findUniqueOrThrow({
@@ -294,15 +297,17 @@ export function createOperationsRepository(client: PrismaClient) {
      * Aggregating on write keeps the table small enough to query directly for
      * the dashboard widget, instead of scanning a row per request.
      */
-    async recordApiUsage(entries: readonly {
-      provider: string;
-      operation: string;
-      requestCount: number;
-      successCount: number;
-      failureCount: number;
-      estimatedCost: number;
-      recordedAt: Date;
-    }[]): Promise<void> {
+    async recordApiUsage(
+      entries: readonly {
+        provider: string;
+        operation: string;
+        requestCount: number;
+        successCount: number;
+        failureCount: number;
+        estimatedCost: number;
+        recordedAt: Date;
+      }[],
+    ): Promise<void> {
       if (entries.length === 0) return;
 
       await withDatabaseErrors('ApiUsage', () =>
@@ -352,9 +357,7 @@ export function createOperationsRepository(client: PrismaClient) {
     },
 
     /** Usage totalled per provider and operation over a window. */
-    async summariseApiUsage(
-      since: Date,
-    ): Promise<
+    async summariseApiUsage(since: Date): Promise<
       {
         provider: string;
         operation: string;

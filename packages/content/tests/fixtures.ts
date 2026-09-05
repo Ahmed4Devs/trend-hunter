@@ -15,7 +15,8 @@ export const ENGLISH_CONTEXT: GenerationContext = {
 
 export const ARABIC_CONTEXT: GenerationContext = {
   topicName: 'وكلاء البرمجة المستقلون في بيئة الإنتاج',
-  topicSummary: 'ثلاثة فرق شغّلت وكلاء برمجة على مستودعاتها لمدة أسبوعين، واثنان منها خفّضا زمن المراجعة.',
+  topicSummary:
+    'ثلاثة فرق شغّلت وكلاء برمجة على مستودعاتها لمدة أسبوعين، واثنان منها خفّضا زمن المراجعة.',
   sourceExcerpts: ['خفضنا زمن المهمة من تسع دقائق إلى أربعين ثانية بعد تخزين فهرس المستودع.'],
   interests: ['وكلاء الذكاء الاصطناعي', 'أدوات المطورين'],
   arabicOpportunityScore: 94,

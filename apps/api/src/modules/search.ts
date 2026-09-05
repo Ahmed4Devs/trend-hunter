@@ -10,12 +10,7 @@ import { z } from 'zod';
 
 import { commonErrorResponses, ok, readonlyArray, successEnvelope } from '../http/envelope';
 import { currentUser, expensive, type RouteModule } from '../http/route';
-import {
-  commentSchema,
-  postSchema,
-  registered,
-  topicSchema,
-} from '../http/schemas';
+import { commentSchema, postSchema, registered, topicSchema } from '../http/schemas';
 
 /**
  * Search.

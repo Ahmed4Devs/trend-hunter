@@ -62,7 +62,6 @@ describe('queue producers', () => {
       since: null,
     });
 
-
     await producers.enqueueTranslation({
       userId: 'user_1',
       targetKind: 'POST',

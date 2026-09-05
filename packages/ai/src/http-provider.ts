@@ -147,9 +147,7 @@ export class HttpLlmProvider implements LlmProvider {
 
     const user = [
       buildContextPrompt(request),
-      request.maxCharacters === undefined
-        ? ''
-        : `Stay within ${request.maxCharacters} characters.`,
+      request.maxCharacters === undefined ? '' : `Stay within ${request.maxCharacters} characters.`,
       'Shape: {"title": string | null, "content": string}.',
     ]
       .filter((line) => line.length > 0)
@@ -232,7 +230,9 @@ export class HttpLlmProvider implements LlmProvider {
       [
         `Mode: ${request.mode}. Terminology preference: ${request.terminologyPreference}.`,
         preserve,
-        request.contextSummary === undefined ? '' : `Surrounding context: ${request.contextSummary}`,
+        request.contextSummary === undefined
+          ? ''
+          : `Surrounding context: ${request.contextSummary}`,
         'Shape: {"translatedText": string, "preservedTerms": string[], "explanation": string}.',
         '---',
         request.text,

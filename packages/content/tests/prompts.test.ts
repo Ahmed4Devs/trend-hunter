@@ -146,7 +146,11 @@ describe('buildPrompt', () => {
         ...Array.from({ length: 12 }, (_unused, index) => `Excerpt number ${index}.`),
         'x'.repeat(5_000),
       ],
-      interests: [...Array.from({ length: 20 }, (_unused, index) => `interest ${index}`), 'AI', 'ai'],
+      interests: [
+        ...Array.from({ length: 20 }, (_unused, index) => `interest ${index}`),
+        'AI',
+        'ai',
+      ],
     });
     expect(noisy.request.context.sourceExcerpts).toHaveLength(6);
     expect(noisy.request.context.interests).toHaveLength(8);

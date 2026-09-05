@@ -1,11 +1,5 @@
 {
   "extends": "@trendhunter/config/tsconfig/library.json",
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "src/generated"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "src/generated"]
 }

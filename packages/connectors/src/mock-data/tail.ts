@@ -400,7 +400,8 @@ export const TAIL_REPOSITORIES: readonly {
   {
     owner: 'stepwise-tools',
     name: 'webhook-inbox',
-    description: 'Durable webhook receiver with signature verification and a replayable dead letter queue.',
+    description:
+      'Durable webhook receiver with signature verification and a replayable dead letter queue.',
     language: 'Go',
     topics: ['webhooks', 'reliability', 'queue'],
   },

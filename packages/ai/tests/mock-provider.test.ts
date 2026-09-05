@@ -85,9 +85,7 @@ describe('MockLlmProvider.generate', () => {
   });
 
   it('builds a thread with the requested number of posts', async () => {
-    const result = await provider.generate(
-      generateRequest({ kind: 'X_THREAD', threadLength: 6 }),
-    );
+    const result = await provider.generate(generateRequest({ kind: 'X_THREAD', threadLength: 6 }));
     expect(isThread(result.value)).toBe(true);
     if (!isThread(result.value)) return;
     expect(result.value.posts).toHaveLength(6);
@@ -99,9 +97,7 @@ describe('MockLlmProvider.generate', () => {
   });
 
   it('produces thread posts that differ from one another', async () => {
-    const result = await provider.generate(
-      generateRequest({ kind: 'X_THREAD', threadLength: 5 }),
-    );
+    const result = await provider.generate(generateRequest({ kind: 'X_THREAD', threadLength: 5 }));
     if (!isThread(result.value)) return;
     const contents = result.value.posts.map((post) => post.content);
     expect(new Set(contents).size).toBe(contents.length);
@@ -160,7 +156,10 @@ describe('MockLlmProvider.translate', () => {
   });
 
   it('keeps fewer terms in English under FULL_ARABIC', async () => {
-    const keep = await provider.translate({ ...base, terminologyPreference: 'KEEP_COMMON_ENGLISH_TERMS' });
+    const keep = await provider.translate({
+      ...base,
+      terminologyPreference: 'KEEP_COMMON_ENGLISH_TERMS',
+    });
     const full = await provider.translate({ ...base, terminologyPreference: 'FULL_ARABIC' });
     expect(full.value.preservedTerms.length).toBeLessThanOrEqual(keep.value.preservedTerms.length);
   });

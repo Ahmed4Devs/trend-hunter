@@ -30,7 +30,7 @@ const PRISMA_ERROR_CODES = {
 /** Reads the column list Prisma attaches to a unique-constraint violation. */
 function conflictTarget(meta: unknown): string | null {
   if (typeof meta !== 'object' || meta === null || !('target' in meta)) return null;
-  const target = (meta).target;
+  const target = meta.target;
   if (Array.isArray(target)) {
     return target.filter((entry): entry is string => typeof entry === 'string').join(', ');
   }

@@ -62,7 +62,10 @@ export interface AiEnvironmentSlice {
 /** Maps a parsed environment onto {@link LlmProviderConfig}. */
 export function llmProviderConfigFromEnvironment(
   env: AiEnvironmentSlice,
-  deps: Pick<LlmProviderConfig, 'logger' | 'usageRecorder' | 'fetch' | 'pricing' | 'timeoutMs'> = {},
+  deps: Pick<
+    LlmProviderConfig,
+    'logger' | 'usageRecorder' | 'fetch' | 'pricing' | 'timeoutMs'
+  > = {},
 ): LlmProviderConfig {
   return {
     provider: env.AI_PROVIDER,

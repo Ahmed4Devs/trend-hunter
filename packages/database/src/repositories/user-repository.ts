@@ -11,7 +11,13 @@ import type {
 import type { PrismaClient } from '../client';
 import { type Prisma } from '../client';
 import { withDatabaseErrors } from '../errors';
-import { REPORT_SELECT, USER_SETTINGS_SELECT, toReport, toUserRole, toUserSettings } from '../mappers';
+import {
+  REPORT_SELECT,
+  USER_SETTINGS_SELECT,
+  toReport,
+  toUserRole,
+  toUserSettings,
+} from '../mappers';
 
 /**
  * User profile, preferences and generated reports.

@@ -1,9 +1,4 @@
-import type {
-  ContentDraftKind,
-  ContentLanguage,
-  SourceKind,
-  TranslationMode,
-} from './enums';
+import type { ContentDraftKind, ContentLanguage, SourceKind, TranslationMode } from './enums';
 
 /**
  * Background job contracts.

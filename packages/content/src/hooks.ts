@@ -333,7 +333,10 @@ export function scoreHook(hook: string, context: HookContext = {}): HookScoreBre
  * ties break on the shorter text and then on the text itself, so the ordering
  * is total and does not depend on the order candidates arrived in.
  */
-export function rankHooks(hooks: readonly string[], context: HookContext = {}): readonly ScoredHook[] {
+export function rankHooks(
+  hooks: readonly string[],
+  context: HookContext = {},
+): readonly ScoredHook[] {
   const seen = new Set<string>();
   const scored: ScoredHook[] = [];
   for (const hook of hooks) {

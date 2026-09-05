@@ -567,24 +567,24 @@ const FUNCTION_WORDS: readonly (readonly [string, string, PartOfSpeech])[] = [
  * table covers every English surface form that maps onto it.
  */
 export const SIMPLE_ARABIC_FORMS: Readonly<Record<string, string>> = {
-  'الشيفرة': 'الكود',
-  'العتاد': 'الأجهزة',
-  'معقد': 'صعب',
-  'الاستدلال': 'التشغيل',
+  الشيفرة: 'الكود',
+  العتاد: 'الأجهزة',
+  معقد: 'صعب',
+  الاستدلال: 'التشغيل',
   'زمن الاستجابة': 'سرعة الرد',
-  'الإيرادات': 'الأرباح',
-  'التبني': 'الاستخدام',
-  'الاستراتيجية': 'الخطة',
-  'القطاع': 'المجال',
+  الإيرادات: 'الأرباح',
+  التبني: 'الاستخدام',
+  الاستراتيجية: 'الخطة',
+  القطاع: 'المجال',
   'رأس المال الجريء': 'أموال المستثمرين',
   'تعلّم الآلة': 'تعليم الحاسوب',
   'التعلّم العميق': 'التعليم العميق للحاسوب',
-  'الأفضلية': 'الميزة',
-  'أفضلية': 'ميزة',
-  'مرجّح': 'محتمل',
-  'باهظ': 'غالي',
-  'هائل': 'كبير جداً',
-  'ضخم': 'كبير جداً',
+  الأفضلية: 'الميزة',
+  أفضلية: 'ميزة',
+  مرجّح: 'محتمل',
+  باهظ: 'غالي',
+  هائل: 'كبير جداً',
+  ضخم: 'كبير جداً',
   'اختبار أداء': 'قياس السرعة',
   'الحصة السوقية': 'نصيب الشركة من السوق',
   'وفقاً لما ذكرته': 'حسب',
@@ -595,7 +595,10 @@ function buildLexicon(): ReadonlyMap<string, LexiconEntry> {
   for (const [english, arabic, pos] of PHRASES) lexicon.set(english, { arabic, pos });
   for (const row of NOUNS) {
     const [english, arabic, plural] = row;
-    lexicon.set(english, plural === undefined ? { arabic, pos: 'noun' } : { arabic, pos: 'noun', plural });
+    lexicon.set(
+      english,
+      plural === undefined ? { arabic, pos: 'noun' } : { arabic, pos: 'noun', plural },
+    );
   }
   for (const [english, arabic] of VERBS) lexicon.set(english, { arabic, pos: 'verb' });
   for (const [english, arabic] of ADJECTIVES) lexicon.set(english, { arabic, pos: 'adjective' });
@@ -629,7 +632,8 @@ export const ARABIC_TO_ENGLISH: ReadonlyMap<string, string> = (() => {
   const reverse = new Map<string, string>();
   for (const [english, entry] of ENGLISH_TO_ARABIC) {
     if (!reverse.has(entry.arabic)) reverse.set(entry.arabic, english);
-    if (entry.plural !== undefined && !reverse.has(entry.plural)) reverse.set(entry.plural, english);
+    if (entry.plural !== undefined && !reverse.has(entry.plural))
+      reverse.set(entry.plural, english);
   }
   return reverse;
 })();

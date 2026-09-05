@@ -54,10 +54,15 @@ const rateLimitPlugin: FastifyPluginAsync<RateLimitOptions> = async (app, option
     keyGenerator,
     // The health and readiness probes must never be limited: a limiter that
     // rate-limits the probe takes the service out of rotation under load.
-    allowList: (request) => request.url.startsWith('/api/v1/health') || request.url.startsWith('/api/v1/ready'),
+    allowList: (request) =>
+      request.url.startsWith('/api/v1/health') || request.url.startsWith('/api/v1/ready'),
     // A limited client is told when to come back rather than being left to
     // guess and retry immediately.
-    addHeadersOnExceeding: { 'x-ratelimit-limit': true, 'x-ratelimit-remaining': true, 'x-ratelimit-reset': true },
+    addHeadersOnExceeding: {
+      'x-ratelimit-limit': true,
+      'x-ratelimit-remaining': true,
+      'x-ratelimit-reset': true,
+    },
     addHeaders: {
       'x-ratelimit-limit': true,
       'x-ratelimit-remaining': true,

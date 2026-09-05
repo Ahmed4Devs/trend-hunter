@@ -68,14 +68,16 @@ export function extractiveSummary(text: string, maxSentences: number): string {
     return { index, sentence, score: (total / lengthPenalty + positionBonus) * fragmentPenalty };
   });
 
-  return scored
-    .slice()
-    // Ties break on source order, so the result never depends on sort stability.
-    .sort((a, b) => b.score - a.score || a.index - b.index)
-    .slice(0, wanted)
-    .sort((a, b) => a.index - b.index)
-    .map((entry) => entry.sentence)
-    .join(' ');
+  return (
+    scored
+      .slice()
+      // Ties break on source order, so the result never depends on sort stability.
+      .sort((a, b) => b.score - a.score || a.index - b.index)
+      .slice(0, wanted)
+      .sort((a, b) => a.index - b.index)
+      .map((entry) => entry.sentence)
+      .join(' ')
+  );
 }
 
 export interface LabelScore {
@@ -121,8 +123,7 @@ export function scoreLabels(text: string, labels: readonly string[]): LabelScore
 
     const coverage = matched / labelTokens.length;
     const frequency = clamp01(Math.log1p(occurrences) / Math.log1p(LABEL_FREQUENCY_REFERENCE));
-    const confidence =
-      coverage * (LABEL_COVERAGE_SHARE + (1 - LABEL_COVERAGE_SHARE) * frequency);
+    const confidence = coverage * (LABEL_COVERAGE_SHARE + (1 - LABEL_COVERAGE_SHARE) * frequency);
     scored.push({ label, confidence: round(clamp01(confidence), 4) });
   }
 
@@ -166,16 +167,121 @@ const PREFIX_LENGTH = 4;
  * scripts are covered because a post mixing Arabic and English is the norm here.
  */
 const STOP_WORDS: ReadonlySet<string> = new Set([
-  'the', 'and', 'for', 'that', 'this', 'with', 'from', 'are', 'was', 'were', 'has', 'have',
-  'had', 'not', 'but', 'you', 'they', 'their', 'them', 'its', 'his', 'her', 'our', 'your',
-  'all', 'any', 'can', 'will', 'would', 'should', 'could', 'been', 'into', 'over', 'more',
-  'most', 'than', 'then', 'there', 'here', 'what', 'when', 'which', 'who', 'how', 'why',
-  'about', 'after', 'before', 'also', 'just', 'only', 'out', 'off', 'per', 'via', 'get',
-  'got', 'one', 'two', 'new', 'now', 'it', 'is', 'in', 'on', 'at', 'to', 'of', 'as', 'by',
-  'or', 'be', 'an', 'we', 'do', 'so', 'up', 'if', 'no',
-  'في', 'من', 'على', 'إلى', 'عن', 'مع', 'هذا', 'هذه', 'ذلك', 'التي', 'الذي', 'أن', 'إن',
-  'كان', 'كانت', 'لا', 'ما', 'لكن', 'أو', 'ثم', 'قد', 'كل', 'بعض', 'هو', 'هي', 'هم',
-  'بين', 'حول', 'بعد', 'قبل', 'أكثر', 'كما', 'حتى', 'لأن', 'لذلك',
+  'the',
+  'and',
+  'for',
+  'that',
+  'this',
+  'with',
+  'from',
+  'are',
+  'was',
+  'were',
+  'has',
+  'have',
+  'had',
+  'not',
+  'but',
+  'you',
+  'they',
+  'their',
+  'them',
+  'its',
+  'his',
+  'her',
+  'our',
+  'your',
+  'all',
+  'any',
+  'can',
+  'will',
+  'would',
+  'should',
+  'could',
+  'been',
+  'into',
+  'over',
+  'more',
+  'most',
+  'than',
+  'then',
+  'there',
+  'here',
+  'what',
+  'when',
+  'which',
+  'who',
+  'how',
+  'why',
+  'about',
+  'after',
+  'before',
+  'also',
+  'just',
+  'only',
+  'out',
+  'off',
+  'per',
+  'via',
+  'get',
+  'got',
+  'one',
+  'two',
+  'new',
+  'now',
+  'it',
+  'is',
+  'in',
+  'on',
+  'at',
+  'to',
+  'of',
+  'as',
+  'by',
+  'or',
+  'be',
+  'an',
+  'we',
+  'do',
+  'so',
+  'up',
+  'if',
+  'no',
+  'في',
+  'من',
+  'على',
+  'إلى',
+  'عن',
+  'مع',
+  'هذا',
+  'هذه',
+  'ذلك',
+  'التي',
+  'الذي',
+  'أن',
+  'إن',
+  'كان',
+  'كانت',
+  'لا',
+  'ما',
+  'لكن',
+  'أو',
+  'ثم',
+  'قد',
+  'كل',
+  'بعض',
+  'هو',
+  'هي',
+  'هم',
+  'بين',
+  'حول',
+  'بعد',
+  'قبل',
+  'أكثر',
+  'كما',
+  'حتى',
+  'لأن',
+  'لذلك',
 ]);
 
 /**

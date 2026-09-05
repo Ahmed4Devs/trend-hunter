@@ -1,4 +1,9 @@
-import type { ContentConnector, DataMode, NormalizationResult, SourceKind } from '@trendhunter/types';
+import type {
+  ContentConnector,
+  DataMode,
+  NormalizationResult,
+  SourceKind,
+} from '@trendhunter/types';
 import type { CollectedItem } from '@trendhunter/types';
 import { assertNever, UpstreamError } from '@trendhunter/shared';
 import type { Logger } from '@trendhunter/observability';

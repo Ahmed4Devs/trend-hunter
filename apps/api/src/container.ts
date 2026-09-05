@@ -133,7 +133,10 @@ export function createContainer(env: ApiEnvironment): Container {
   const services = {
     search: createSearchService({ database, embeddings }),
     translation,
-    threadTranslator: new ThreadTranslatorService({ provider: llm, translationService: translation }),
+    threadTranslator: new ThreadTranslatorService({
+      provider: llm,
+      translationService: translation,
+    }),
     content: new ContentService(llm),
     threads: new ThreadService(llm),
     embeddings,

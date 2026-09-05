@@ -189,7 +189,9 @@ describe('bucketStarts', () => {
     for (const range of RANGES) {
       const window = windowForRange(range, new Date('2026-03-15T00:00:00Z'));
       const buckets = bucketStarts(window, ANALYTICS_RANGE_BUCKET_HOURS[range]);
-      expect(buckets.length).toBe(ANALYTICS_RANGE_HOURS[range] / ANALYTICS_RANGE_BUCKET_HOURS[range]);
+      expect(buckets.length).toBe(
+        ANALYTICS_RANGE_HOURS[range] / ANALYTICS_RANGE_BUCKET_HOURS[range],
+      );
     }
   });
 });

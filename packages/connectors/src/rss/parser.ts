@@ -209,8 +209,7 @@ function splitName(raw: string): { name: string; prefix: string } {
   return { name: lowered.slice(colon + 1), prefix: lowered.slice(0, colon) };
 }
 
-const ATTRIBUTE_PATTERN =
-  /([^\s=/>]+)\s*(?:=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'`=<>]+)))?/g;
+const ATTRIBUTE_PATTERN = /([^\s=/>]+)\s*(?:=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'`=<>]+)))?/g;
 
 function parseAttributes(body: string, maxAttributes: number): Record<string, string> {
   const attributes: Record<string, string> = {};

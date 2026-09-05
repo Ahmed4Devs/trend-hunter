@@ -35,7 +35,10 @@ export async function withTiming<T>(
   const timer = startTimer();
   try {
     const result = await fn();
-    logger.debug({ ...context, operation, durationMs: timer.elapsedMs() }, `${operation} completed`);
+    logger.debug(
+      { ...context, operation, durationMs: timer.elapsedMs() },
+      `${operation} completed`,
+    );
     return result;
   } catch (error) {
     logger.error(

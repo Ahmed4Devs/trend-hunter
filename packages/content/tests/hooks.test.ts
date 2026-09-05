@@ -49,14 +49,17 @@ describe('scoreHook', () => {
     expect(scoreHook('Why did the migration fail?').curiosityGap).toBeGreaterThan(
       scoreHook('The migration failed on Tuesday.').curiosityGap,
     );
-    expect(scoreHook('The catch nobody mentions: the agent never reads the diff.').curiosityGap)
-      .toBeGreaterThan(0);
+    expect(
+      scoreHook('The catch nobody mentions: the agent never reads the diff.').curiosityGap,
+    ).toBeGreaterThan(0);
   });
 
   it('scores length on a window, penalising both extremes', () => {
     expect(scoreHook('Too short.').length).toBe(0);
     expect(scoreHook('a'.repeat(400)).length).toBe(0);
-    expect(scoreHook('Coding agents opened forty pull requests in a single week.').length).toBe(100);
+    expect(scoreHook('Coding agents opened forty pull requests in a single week.').length).toBe(
+      100,
+    );
   });
 
   it('is anchored to the topic: naming it raises specificity', () => {

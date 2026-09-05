@@ -41,9 +41,7 @@ export const generatedThreadSchema = z.object({
 export const classificationResultSchema = z.object({
   label: nonEmptyText,
   confidence: z.number().min(0).max(1),
-  matchedLabels: z.array(
-    z.object({ label: nonEmptyText, confidence: z.number().min(0).max(1) }),
-  ),
+  matchedLabels: z.array(z.object({ label: nonEmptyText, confidence: z.number().min(0).max(1) })),
 });
 
 export const translationOutputSchema = z.object({
@@ -102,9 +100,7 @@ export const llmTranslationPayloadSchema = z.object({
 
 /** OpenAI-compatible `POST /chat/completions` response. */
 export const chatCompletionResponseSchema = z.object({
-  choices: z
-    .array(z.object({ message: z.object({ content: z.string() }) }))
-    .min(1),
+  choices: z.array(z.object({ message: z.object({ content: z.string() }) })).min(1),
   usage: z
     .object({
       prompt_tokens: z.number().int().nonnegative().optional(),
@@ -117,7 +113,12 @@ export const chatCompletionResponseSchema = z.object({
 /** OpenAI-compatible `POST /embeddings` response. */
 export const embeddingsResponseSchema = z.object({
   data: z
-    .array(z.object({ index: z.number().int().nonnegative().optional(), embedding: z.array(z.number()) }))
+    .array(
+      z.object({
+        index: z.number().int().nonnegative().optional(),
+        embedding: z.array(z.number()),
+      }),
+    )
     .min(1),
   model: z.string().optional(),
   usage: z

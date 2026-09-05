@@ -95,9 +95,7 @@ describe('calculateArabicOpportunity — the product’s worked example', () => 
       sourceAuthority: 80,
     });
     expect(covered.components.arabicScarcity).toBe(0);
-    expect(covered.arabicOpportunityScore).toBeLessThan(
-      workedExample.arabicOpportunityScore - 25,
-    );
+    expect(covered.arabicOpportunityScore).toBeLessThan(workedExample.arabicOpportunityScore - 25);
     expect(covered.arabicOpportunityScore).toBeCloseTo(65, 1);
   });
 });
@@ -139,7 +137,8 @@ describe('calculateArabicOpportunity', () => {
     const early =
       calculateArabicOpportunity(opportunityInput({ englishPostCount: 20 })).components
         .englishVolume -
-      calculateArabicOpportunity(opportunityInput({ englishPostCount: 4 })).components.englishVolume;
+      calculateArabicOpportunity(opportunityInput({ englishPostCount: 4 })).components
+        .englishVolume;
     const late =
       calculateArabicOpportunity(opportunityInput({ englishPostCount: 5_000 })).components
         .englishVolume -
@@ -163,7 +162,12 @@ describe('calculateArabicOpportunity', () => {
 
   it('clamps out-of-range modulators', () => {
     const result = calculateArabicOpportunity(
-      opportunityInput({ velocity: 500, relevance: -50, freshness: Number.NaN, sourceAuthority: 900 }),
+      opportunityInput({
+        velocity: 500,
+        relevance: -50,
+        freshness: Number.NaN,
+        sourceAuthority: 900,
+      }),
     );
     expect(result.components.velocity).toBe(100);
     expect(result.components.relevance).toBe(0);

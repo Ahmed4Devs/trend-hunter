@@ -181,9 +181,7 @@ export function createInterestRepository(client: PrismaClient) {
     },
 
     /** Text used to build an interest's centroid embedding. */
-    async loadEmbeddingSources(
-      userId: string,
-    ): Promise<{ id: string; text: string }[]> {
+    async loadEmbeddingSources(userId: string): Promise<{ id: string; text: string }[]> {
       return withDatabaseErrors('Interest', async () => {
         const rows = await client.interest.findMany({
           where: { userId, enabled: true },

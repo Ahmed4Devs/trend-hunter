@@ -16,7 +16,10 @@
     "./eslint/react": "./eslint/react.js",
     "./package.json": "./package.json"
   },
-  "files": ["tsconfig", "eslint"],
+  "files": [
+    "tsconfig",
+    "eslint"
+  ],
   "dependencies": {
     "@eslint/js": "catalog:",
     "eslint-config-prettier": "catalog:",

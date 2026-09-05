@@ -155,9 +155,7 @@ export function hoursOutsideWindow(at: Date, from: Date, to: Date): number {
     return Number.POSITIVE_INFINITY;
   }
   if (instant >= start && instant <= end) return 0;
-  return instant < start
-    ? hoursBetween(at, new Date(start))
-    : hoursBetween(new Date(end), at);
+  return instant < start ? hoursBetween(at, new Date(start)) : hoursBetween(new Date(end), at);
 }
 
 /**
@@ -258,7 +256,11 @@ export function calculateSimilarity(
   const tokenOverlap = scoreTokens(postProfile, topicProfile);
   const entityOverlap = scoreEntities(postProfile, topicProfile);
 
-  const hoursApart = hoursOutsideWindow(post.publishedAt, topic.firstDetectedAt, topic.lastDetectedAt);
+  const hoursApart = hoursOutsideWindow(
+    post.publishedAt,
+    topic.firstDetectedAt,
+    topic.lastDetectedAt,
+  );
   const proximity = timeProximity(hoursApart);
 
   const textualScore = combineTextual([

@@ -1,5 +1,17 @@
-import { LlmProviderError, MAX_THREAD_LENGTH, MIN_THREAD_LENGTH, ValidationError, X_POST_CHARACTER_LIMIT, characterCount } from '@trendhunter/shared';
-import type { GenerateRequest, GeneratedPost, GeneratedThread, LlmResult } from '@trendhunter/types';
+import {
+  LlmProviderError,
+  MAX_THREAD_LENGTH,
+  MIN_THREAD_LENGTH,
+  ValidationError,
+  X_POST_CHARACTER_LIMIT,
+  characterCount,
+} from '@trendhunter/shared';
+import type {
+  GenerateRequest,
+  GeneratedPost,
+  GeneratedThread,
+  LlmResult,
+} from '@trendhunter/types';
 import { describe, expect, it } from 'vitest';
 
 import { scoreHook } from '../src/hooks';
@@ -134,7 +146,10 @@ describe('ThreadService.threadFromPost', () => {
   it('expands a post into a thread built on the post text', async () => {
     const provider = createFakeProvider();
     const thread = await new ThreadService(provider).threadFromPost(
-      { content: 'Coding agents opened 40 pull requests and broke one migration.', context: ENGLISH_CONTEXT },
+      {
+        content: 'Coding agents opened 40 pull requests and broke one migration.',
+        context: ENGLISH_CONTEXT,
+      },
       { hookCandidates: 0 },
     );
 

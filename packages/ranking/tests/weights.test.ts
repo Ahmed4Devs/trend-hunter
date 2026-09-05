@@ -98,9 +98,7 @@ describe('tuning constants', () => {
   it('use references that make the log and decay curves meaningful', () => {
     expect(TREND_TUNING.velocityReferenceGrowth).toBeGreaterThan(1);
     expect(TREND_TUNING.freshnessHalfLifeHours).toBeGreaterThan(0);
-    expect(TREND_TUNING.noveltyHalfLifeHours).toBeGreaterThan(
-      TREND_TUNING.freshnessHalfLifeHours,
-    );
+    expect(TREND_TUNING.noveltyHalfLifeHours).toBeGreaterThan(TREND_TUNING.freshnessHalfLifeHours);
     expect(TREND_TUNING.crossSourceReferenceCount).toBeGreaterThanOrEqual(2);
     expect(TREND_TUNING.saturationPostReference).toBeGreaterThan(0);
     expect(TREND_TUNING.saturationAgeReferenceDays).toBeGreaterThan(0);

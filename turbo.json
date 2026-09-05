@@ -11,10 +11,7 @@
     ".nvmrc",
     "packages/config/tsconfig/*.json"
   ],
-  "globalEnv": [
-    "NODE_ENV",
-    "CI"
-  ],
+  "globalEnv": ["NODE_ENV", "CI"],
   "globalPassThroughEnv": [
     "PATH",
     "HOME",
@@ -35,65 +32,29 @@
   },
   "tasks": {
     "topo": {
-      "dependsOn": [
-        "^topo"
-      ]
+      "dependsOn": ["^topo"]
     },
     "db:generate": {
-      "inputs": [
-        "prisma/schema.prisma",
-        "prisma.config.ts"
-      ],
-      "outputs": [
-        "src/generated/**"
-      ],
+      "inputs": ["prisma/schema.prisma", "prisma.config.ts"],
+      "outputs": ["src/generated/**"],
       "cache": true,
-      "env": [
-        "PRISMA_*"
-      ],
-      "passThroughEnv": [
-        "DATABASE_URL"
-      ]
+      "env": ["PRISMA_*"],
+      "passThroughEnv": ["DATABASE_URL"]
     },
     "build": {
-      "dependsOn": [
-        "^build",
-        "db:generate"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "!**/*.test.ts",
-        "!**/*.test.tsx",
-        "!**/*.md",
-        "!e2e/**"
-      ],
-      "outputs": [
-        "dist/**",
-        ".next/**",
-        "!.next/cache/**"
-      ],
-      "env": [
-        "NEXT_PUBLIC_*",
-        "ANALYZE"
-      ],
-      "passThroughEnv": [
-        "DATABASE_URL",
-        "REDIS_URL"
-      ],
+      "dependsOn": ["^build", "db:generate"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.test.ts", "!**/*.test.tsx", "!**/*.md", "!e2e/**"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "env": ["NEXT_PUBLIC_*", "ANALYZE"],
+      "passThroughEnv": ["DATABASE_URL", "REDIS_URL"],
       "outputLogs": "new-only"
     },
     "dev": {
-      "dependsOn": [
-        "^db:generate"
-      ],
+      "dependsOn": ["^db:generate"],
       "cache": false,
       "persistent": true,
       "interruptible": true,
-      "env": [
-        "NEXT_PUBLIC_*",
-        "PORT",
-        "HOST"
-      ],
+      "env": ["NEXT_PUBLIC_*", "PORT", "HOST"],
       "passThroughEnv": [
         "DATABASE_URL",
         "REDIS_URL",
@@ -133,9 +94,7 @@
       ]
     },
     "lint": {
-      "dependsOn": [
-        "^topo"
-      ],
+      "dependsOn": ["^topo"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/eslint.config.mjs",
@@ -144,63 +103,25 @@
       "outputLogs": "errors-only"
     },
     "typecheck": {
-      "dependsOn": [
-        "^topo",
-        "db:generate",
-        "^db:generate"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "!**/*.md"
-      ],
-      "outputs": [
-        "*.tsbuildinfo"
-      ],
+      "dependsOn": ["^topo", "db:generate", "^db:generate"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "outputs": ["*.tsbuildinfo"],
       "outputLogs": "errors-only"
     },
     "test": {
-      "dependsOn": [
-        "^topo",
-        "db:generate",
-        "^db:generate"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "!**/*.md"
-      ],
-      "outputs": [
-        "coverage/**"
-      ],
-      "env": [
-        "VITEST_*",
-        "TZ"
-      ],
+      "dependsOn": ["^topo", "db:generate", "^db:generate"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "outputs": ["coverage/**"],
+      "env": ["VITEST_*", "TZ"],
       "outputLogs": "new-only",
-      "passThroughEnv": [
-        "DATABASE_URL",
-        "REDIS_URL"
-      ]
+      "passThroughEnv": ["DATABASE_URL", "REDIS_URL"]
     },
     "test:e2e": {
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "cache": false,
-      "env": [
-        "PLAYWRIGHT_*",
-        "E2E_*",
-        "NEXT_PUBLIC_*"
-      ],
-      "passThroughEnv": [
-        "DATABASE_URL",
-        "REDIS_URL",
-        "API_INTERNAL_URL",
-        "CI"
-      ],
-      "outputs": [
-        "playwright-report/**",
-        "test-results/**"
-      ]
+      "env": ["PLAYWRIGHT_*", "E2E_*", "NEXT_PUBLIC_*"],
+      "passThroughEnv": ["DATABASE_URL", "REDIS_URL", "API_INTERNAL_URL", "CI"],
+      "outputs": ["playwright-report/**", "test-results/**"]
     },
     "clean": {
       "cache": false

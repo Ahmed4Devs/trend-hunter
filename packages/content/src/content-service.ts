@@ -389,7 +389,10 @@ function expansionTarget(draft: DraftResult): {
       : EXPANSION_KIND[draft.kind];
   const ceiling = characterBudgetFor(kind) ?? X_LONG_POST_CHARACTER_LIMIT;
   const target = clamp(
-    Math.max(draft.characterCount + MIN_EXPANSION_ROOM, Math.round(draft.characterCount * EXPAND_FACTOR)),
+    Math.max(
+      draft.characterCount + MIN_EXPANSION_ROOM,
+      Math.round(draft.characterCount * EXPAND_FACTOR),
+    ),
     1,
     ceiling,
   );

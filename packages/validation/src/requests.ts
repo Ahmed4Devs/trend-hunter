@@ -194,7 +194,10 @@ export const sourceConfigBodySchema = z.discriminatedUnion('kind', [
   }),
   z.object({
     kind: z.literal('HACKERNEWS'),
-    stories: z.array(z.enum(['top', 'new', 'best', 'show', 'ask'])).min(1).default(['top']),
+    stories: z
+      .array(z.enum(['top', 'new', 'best', 'show', 'ask']))
+      .min(1)
+      .default(['top']),
     minScore: z.coerce.number().int().min(0).max(10_000).default(0),
   }),
   z.object({
@@ -237,10 +240,9 @@ export const createInterestBodySchema = z.object({
   keywords: z.array(interestKeywordInputSchema).max(100).default([]),
 });
 
-export const updateInterestBodySchema = createInterestBodySchema.partial().refine(
-  (body) => Object.keys(body).length > 0,
-  'must change at least one field',
-);
+export const updateInterestBodySchema = createInterestBodySchema
+  .partial()
+  .refine((body) => Object.keys(body).length > 0, 'must change at least one field');
 
 // ---------------------------------------------------------------------------
 // Search
@@ -279,7 +281,8 @@ export const createTranslationBodySchema = z
     explain: z.boolean().default(false),
   })
   .refine(
-    (body) => (body.targetKind === 'FREEFORM' ? body.text !== undefined : body.targetId !== undefined),
+    (body) =>
+      body.targetKind === 'FREEFORM' ? body.text !== undefined : body.targetId !== undefined,
     { message: 'targetId is required unless targetKind is FREEFORM, which requires text' },
   );
 
@@ -305,12 +308,7 @@ export const generateContentBodySchema = z
     language: contentLanguageSchema.default('EN'),
     tone: contentToneSchema.default('NEUTRAL'),
     maxCharacters: z.coerce.number().int().min(50).max(X_LONG_POST_CHARACTER_LIMIT).optional(),
-    threadLength: z.coerce
-      .number()
-      .int()
-      .min(MIN_THREAD_LENGTH)
-      .max(MAX_THREAD_LENGTH)
-      .optional(),
+    threadLength: z.coerce.number().int().min(MIN_THREAD_LENGTH).max(MAX_THREAD_LENGTH).optional(),
     instructions: boundedTextSchema(500, { allowEmpty: true }).optional(),
   })
   .refine((body) => body.topicId !== undefined || body.postId !== undefined, {
@@ -464,12 +462,7 @@ export const listReportsQuerySchema = paginationQuerySchema.extend({
  */
 export const createScanBodySchema = z.object({
   sources: z.array(sourceKindSchema).min(1).max(SOURCE_KINDS.length).optional(),
-  limit: z.coerce
-    .number()
-    .int()
-    .min(1)
-    .max(MAX_COLLECT_LIMIT)
-    .default(DEFAULT_COLLECT_LIMIT),
+  limit: z.coerce.number().int().min(1).max(MAX_COLLECT_LIMIT).default(DEFAULT_COLLECT_LIMIT),
 });
 
 export const listScansQuerySchema = paginationQuerySchema.extend({

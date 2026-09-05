@@ -234,7 +234,12 @@ describeWithDatabase('database integration', () => {
     it('accepts websearch syntax without raising a syntax error', async () => {
       // to_tsquery would throw on every one of these; websearch_to_tsquery is
       // the only parser safe to hand a raw search box to.
-      for (const query of ['"agent framework"', 'agents -kubernetes', 'openai or anthropic', 'a &']) {
+      for (const query of [
+        '"agent framework"',
+        'agents -kubernetes',
+        'openai or anthropic',
+        'a &',
+      ]) {
         await expect(
           keywordSearchPosts(db, { query, language: 'EN', limit: 3 }),
         ).resolves.toBeDefined();

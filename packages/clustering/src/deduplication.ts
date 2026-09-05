@@ -80,16 +80,27 @@ export function findExactDuplicate(
     .filter((candidate) => candidate.contentHash === post.contentHash)
     .sort(compareRecords)[0];
   if (byHash) {
-    return { candidate: byHash, reason: 'CONTENT_HASH', similarity: 1, hoursApart: hoursApart(post, byHash) };
+    return {
+      candidate: byHash,
+      reason: 'CONTENT_HASH',
+      similarity: 1,
+      hoursApart: hoursApart(post, byHash),
+    };
   }
 
   const byUrl = others
     .filter(
-      (candidate) => candidate.canonicalUrl.length > 0 && candidate.canonicalUrl === post.canonicalUrl,
+      (candidate) =>
+        candidate.canonicalUrl.length > 0 && candidate.canonicalUrl === post.canonicalUrl,
     )
     .sort(compareRecords)[0];
   if (byUrl) {
-    return { candidate: byUrl, reason: 'CANONICAL_URL', similarity: 1, hoursApart: hoursApart(post, byUrl) };
+    return {
+      candidate: byUrl,
+      reason: 'CANONICAL_URL',
+      similarity: 1,
+      hoursApart: hoursApart(post, byUrl),
+    };
   }
 
   return null;
@@ -134,9 +145,7 @@ export function findNearDuplicate(
     });
   }
 
-  matches.sort(
-    (a, b) => b.similarity - a.similarity || compareRecords(a.candidate, b.candidate),
-  );
+  matches.sort((a, b) => b.similarity - a.similarity || compareRecords(a.candidate, b.candidate));
   return matches[0] ?? null;
 }
 

@@ -82,9 +82,7 @@ export function createIngestionRepository(client: PrismaClient) {
       });
     },
 
-    async findRawItems(
-      ids: readonly string[],
-    ): Promise<
+    async findRawItems(ids: readonly string[]): Promise<
       {
         id: string;
         source: SourceKind;
@@ -180,7 +178,9 @@ export function createIngestionRepository(client: PrismaClient) {
               });
 
         const rows = await client.post.findMany({
-          where: { OR: posts.map((post) => ({ source: post.source, sourcePostId: post.sourcePostId })) },
+          where: {
+            OR: posts.map((post) => ({ source: post.source, sourcePostId: post.sourcePostId })),
+          },
           select: { id: true },
         });
 
@@ -319,9 +319,7 @@ export function createIngestionRepository(client: PrismaClient) {
     },
 
     /** Loads the fields the clustering engine compares, plus the embedding. */
-    async loadPostsForClustering(
-      ids: readonly string[],
-    ): Promise<
+    async loadPostsForClustering(ids: readonly string[]): Promise<
       {
         id: string;
         title: string | null;

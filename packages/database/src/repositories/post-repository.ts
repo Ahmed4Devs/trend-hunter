@@ -40,11 +40,7 @@ import {
  * source embedding first: that keeps a 768-float vector out of the Node process
  * entirely and lets PostgreSQL use the HNSW index directly.
  */
-async function findRelatedPosts(
-  client: PrismaClient,
-  id: string,
-  limit: number,
-): Promise<Post[]> {
+async function findRelatedPosts(client: PrismaClient, id: string, limit: number): Promise<Post[]> {
   const bounded = Math.max(1, Math.min(20, Math.trunc(limit)));
   const rows = await client.$queryRaw<{ related_id: string }[]>`
     SELECT other."id" AS "related_id"
@@ -123,7 +119,8 @@ function buildWhere(filters: PostListFilters = {}): Prisma.PostWhereInput {
   }
   if (filters.minRelevance !== undefined) where.relevanceScore = { gte: filters.minRelevance };
   if (filters.minTrend !== undefined) where.trendScore = { gte: filters.minTrend };
-  if (filters.minOpportunity !== undefined) where.opportunityScore = { gte: filters.minOpportunity };
+  if (filters.minOpportunity !== undefined)
+    where.opportunityScore = { gte: filters.minOpportunity };
 
   return where;
 }
@@ -246,7 +243,7 @@ export function createPostRepository(client: PrismaClient) {
           relevanceBreakdown: toPostRelevanceBreakdown(row),
           rawMetadata:
             typeof payload === 'object' && payload !== null && !Array.isArray(payload)
-              ? (payload)
+              ? payload
               : null,
           comments: comments.map(toComment),
           relatedPosts,
@@ -320,9 +317,7 @@ export function createPostRepository(client: PrismaClient) {
       );
     },
 
-    async countBySource(
-      since?: Date,
-    ): Promise<{ source: SourceKind; count: number }[]> {
+    async countBySource(since?: Date): Promise<{ source: SourceKind; count: number }[]> {
       return withDatabaseErrors('Post', async () => {
         const grouped = await client.post.groupBy({
           by: ['source'],

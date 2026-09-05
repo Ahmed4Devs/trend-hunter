@@ -18,7 +18,6 @@ import {
   T0,
   topicFromPost,
   UNRELATED_POST,
-  
 } from './fixtures';
 
 const [X_POST, REDDIT_POST, HN_POST, RSS_POST] = OPENAI_LAUNCH_POSTS;

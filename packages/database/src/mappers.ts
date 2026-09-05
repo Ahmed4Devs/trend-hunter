@@ -59,7 +59,10 @@ function isoOrNull(value: Date | null): IsoDateTime | null {
  * historical fact rather than a guarantee. Callers that need certainty parse
  * with Zod; callers that only display it tolerate `null`.
  */
-function jsonAs<T>(value: Prisma.JsonValue | null, guard: (input: unknown) => input is T): T | null {
+function jsonAs<T>(
+  value: Prisma.JsonValue | null,
+  guard: (input: unknown) => input is T,
+): T | null {
   if (value === null) return null;
   return guard(value) ? value : null;
 }
@@ -96,7 +99,8 @@ function isSignalExplanations(value: unknown): value is TopicSignalExplanation[]
   return (
     Array.isArray(value) &&
     value.every(
-      (entry) => typeof entry === 'object' && entry !== null && 'reason' in entry && 'detail' in entry,
+      (entry) =>
+        typeof entry === 'object' && entry !== null && 'reason' in entry && 'detail' in entry,
     )
   );
 }
@@ -502,7 +506,9 @@ export const CONTENT_DRAFT_SELECT = {
   updatedAt: true,
 } as const satisfies Prisma.ContentDraftSelect;
 
-export type ContentDraftRow = Prisma.ContentDraftGetPayload<{ select: typeof CONTENT_DRAFT_SELECT }>;
+export type ContentDraftRow = Prisma.ContentDraftGetPayload<{
+  select: typeof CONTENT_DRAFT_SELECT;
+}>;
 
 export function toContentDraft(row: ContentDraftRow): ContentDraft {
   return {
@@ -717,7 +723,7 @@ export function toReport(row: ReportRow): Report {
     rangeTo: iso(row.rangeTo),
     filters:
       typeof row.filters === 'object' && row.filters !== null && !Array.isArray(row.filters)
-        ? (row.filters)
+        ? row.filters
         : {},
     payload: row.payload,
     generatedAt: iso(row.generatedAt),
@@ -738,7 +744,9 @@ export const USER_SETTINGS_SELECT = {
   updatedAt: true,
 } as const satisfies Prisma.UserSettingsSelect;
 
-export type UserSettingsRow = Prisma.UserSettingsGetPayload<{ select: typeof USER_SETTINGS_SELECT }>;
+export type UserSettingsRow = Prisma.UserSettingsGetPayload<{
+  select: typeof USER_SETTINGS_SELECT;
+}>;
 
 export function toUserSettings(row: UserSettingsRow): UserSettings {
   return {

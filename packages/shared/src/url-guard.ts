@@ -147,7 +147,10 @@ export function isPrivateAddress(address: string): boolean {
 
 function isPrivateIpv4(address: string): boolean {
   const parts = address.split('.').map((part) => Number.parseInt(part, 10));
-  if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) {
+  if (
+    parts.length !== 4 ||
+    parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)
+  ) {
     return true;
   }
   const [a = 0, b = 0] = parts;

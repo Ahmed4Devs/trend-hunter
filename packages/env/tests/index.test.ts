@@ -154,7 +154,10 @@ describe('loadWebEnvironment', () => {
 
   it('is not subject to the production secret rules, because it holds no secrets', () => {
     expect(() =>
-      loadWebEnvironment({ NODE_ENV: 'production', NEXT_PUBLIC_APP_URL: 'https://app.example.com' }),
+      loadWebEnvironment({
+        NODE_ENV: 'production',
+        NEXT_PUBLIC_APP_URL: 'https://app.example.com',
+      }),
     ).not.toThrow();
   });
 });

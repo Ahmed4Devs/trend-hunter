@@ -68,7 +68,9 @@ const errorHandlerPlugin: FastifyPluginAsync = (app) => {
       }
       return reply
         .code(400)
-        .send(errorBody('VALIDATION_ERROR', 'The request payload is invalid.', { details, requestId }));
+        .send(
+          errorBody('VALIDATION_ERROR', 'The request payload is invalid.', { details, requestId }),
+        );
     }
 
     // 2. Response serialisation. This is always a bug in this codebase — the

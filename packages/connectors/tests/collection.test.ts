@@ -41,9 +41,7 @@ function factoryOptions(overrides: Record<string, unknown> = {}) {
 const SOURCES: SourceKind[] = ['X', 'REDDIT', 'HACKERNEWS', 'RSS', 'GITHUB'];
 
 async function collectAll(seed?: string): Promise<Map<SourceKind, CollectedItem[]>> {
-  const connectors = createAllConnectors(
-    factoryOptions(seed === undefined ? {} : { seed }),
-  );
+  const connectors = createAllConnectors(factoryOptions(seed === undefined ? {} : { seed }));
   const collected = new Map<SourceKind, CollectedItem[]>();
   for (const [source, connector] of connectors) {
     const result = await connector.collect({ limit: 60, config: {} });
@@ -185,9 +183,9 @@ describe('createConnector in live mode', () => {
     // Building every connector must succeed even with nothing configured.
     expect(connectors.size).toBe(5);
 
-    await expect(
-      connectors.get('X')?.collect({ limit: 5, config: {} }),
-    ).rejects.toBeInstanceOf(UpstreamError);
+    await expect(connectors.get('X')?.collect({ limit: 5, config: {} })).rejects.toBeInstanceOf(
+      UpstreamError,
+    );
     await expect(
       connectors.get('REDDIT')?.collect({ limit: 5, config: {} }),
     ).rejects.toBeInstanceOf(UpstreamError);

@@ -28,10 +28,10 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-trendhunter}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-trendhunter_dev}
       # Deterministic collation so ORDER BY behaves the same everywhere.
-      POSTGRES_INITDB_ARGS: '--locale-provider=icu --icu-locale=und-x-icu --encoding=UTF8'
+      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=und-x-icu --encoding=UTF8"
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
       # Runs once, on an empty data directory, before the server accepts
@@ -39,20 +39,20 @@ services:
       - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test:
-        ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-trendhunter} -d ${POSTGRES_DB:-trendhunter}']
+        ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-trendhunter} -d ${POSTGRES_DB:-trendhunter}"]
       interval: 5s
       timeout: 5s
       retries: 20
       start_period: 15s
     command:
       - postgres
-      - '-c'
-      - 'max_connections=100'
+      - "-c"
+      - "max_connections=100"
       # HNSW index builds are memory hungry; the default 4MB makes them crawl.
-      - '-c'
-      - 'maintenance_work_mem=256MB'
-      - '-c'
-      - 'work_mem=16MB'
+      - "-c"
+      - "maintenance_work_mem=256MB"
+      - "-c"
+      - "work_mem=16MB"
     networks:
       - trendhunter
 
@@ -61,18 +61,18 @@ services:
     container_name: trendhunter-redis
     restart: unless-stopped
     ports:
-      - '127.0.0.1:${REDIS_PORT:-6379}:6379'
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     volumes:
       - redis-data:/data
     command:
       - redis-server
-      - '--appendonly'
-      - 'yes'
+      - "--appendonly"
+      - "yes"
       # BullMQ needs its keys to survive; never evict them under pressure.
-      - '--maxmemory-policy'
-      - 'noeviction'
+      - "--maxmemory-policy"
+      - "noeviction"
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 20

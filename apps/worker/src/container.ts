@@ -135,7 +135,10 @@ export function createWorkerContainer(env: WorkerEnvironment): WorkerContainer {
   const services = {
     embeddings,
     translation,
-    threadTranslator: new ThreadTranslatorService({ provider: llm, translationService: translation }),
+    threadTranslator: new ThreadTranslatorService({
+      provider: llm,
+      translationService: translation,
+    }),
     content: new ContentService(llm),
     threads: new ThreadService(llm),
   };

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import type { TopicSignalReason, TrendScoreBreakdown, TrendScoreComponents } from '@trendhunter/types';
+import type {
+  TopicSignalReason,
+  TrendScoreBreakdown,
+  TrendScoreComponents,
+} from '@trendhunter/types';
 
-import {
-  classifyTopic,
-  growthPercentage,
-  type ClassificationInput,
-} from '../src/classification';
+import { classifyTopic, growthPercentage, type ClassificationInput } from '../src/classification';
 import { CLASSIFICATION_THRESHOLDS } from '../src/weights';
 
 const { emerging, hiddenGem, saturated } = CLASSIFICATION_THRESHOLDS;
@@ -199,11 +199,7 @@ describe('classifyTopic — EMERGING_TREND', () => {
   it('omits the multi-source reason when only one source has the story', () => {
     const single = { ...EMERGING, distinctSourceCount: 1 };
     expect(classifyTopic(single).classification).toBe('EMERGING_TREND');
-    expect(reasonsOf(single)).toEqual([
-      'HIGH_VELOCITY',
-      'LOW_VOLUME',
-      'RECENT_FIRST_DETECTION',
-    ]);
+    expect(reasonsOf(single)).toEqual(['HIGH_VELOCITY', 'LOW_VOLUME', 'RECENT_FIRST_DETECTION']);
   });
 
   it('accepts values exactly on every threshold', () => {
@@ -234,9 +230,7 @@ describe('classifyTopic — EMERGING_TREND', () => {
   });
 
   it('is refused for a high-velocity topic that is already large', () => {
-    expect(
-      classifyTopic({ ...EMERGING, totalPostCount: 500 }).classification,
-    ).toBe('NORMAL');
+    expect(classifyTopic({ ...EMERGING, totalPostCount: 500 }).classification).toBe('NORMAL');
   });
 });
 

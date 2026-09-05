@@ -161,11 +161,10 @@ export class MockLlmProvider implements LlmProvider {
     const scored = scoreLabels(request.text, request.labels);
     const best = scored[0];
 
-    const value = parseLlmResponse(
-      classificationResultSchema,
-      toClassification(best, scored),
-      { provider: this.name, operation: 'classify' },
-    );
+    const value = parseLlmResponse(classificationResultSchema, toClassification(best, scored), {
+      provider: this.name,
+      operation: 'classify',
+    });
     return Promise.resolve({
       value,
       meta: this.#meta(seed, request.text, value.label),
@@ -290,7 +289,11 @@ function toClassification(
   return { label: best.label, confidence: best.confidence, matchedLabels: [...scored] };
 }
 
-function toTranslation(draft: { text: string; preservedTerms: readonly string[]; explanation: string }) {
+function toTranslation(draft: {
+  text: string;
+  preservedTerms: readonly string[];
+  explanation: string;
+}) {
   return {
     translatedText: draft.text,
     preservedTerms: [...new Set(draft.preservedTerms)],

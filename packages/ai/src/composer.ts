@@ -302,10 +302,7 @@ const ARABIC: CopyBank = {
       'الآلية أهم من الإعلان: القيد تغيّر، وبالتالي سيتغيّر السلوك.',
       'اتبع الحافز وسيكتب باقي القصة نفسه.',
     ],
-    ENTHUSIASTIC: [
-      'هذا أكثر ما أثار اهتمامي هذا الأسبوع.',
-      'متحمّس فعلاً لما سيأتي بعد هذا.',
-    ],
+    ENTHUSIASTIC: ['هذا أكثر ما أثار اهتمامي هذا الأسبوع.', 'متحمّس فعلاً لما سيأتي بعد هذا.'],
     CONTRARIAN: [
       'الجميع ينظر إلى العرض التوضيحي، والخلل الحقيقي في الطبقة التي تحته.',
       'الإجماع هنا مبكر وصاخب وغالباً خاطئ.',
@@ -417,13 +414,17 @@ export function composePost(input: ComposeInput): ComposedPost {
     blocks.push({ text: input.rng.pick(bank.summaryLead), priority: 3 });
   } else if (angle === 'idea') {
     const excerpt = excerpts[0];
-    if (excerpt) blocks.push({ text: fill(input.rng.pick(bank.evidence), { topic, excerpt }), priority: 1 });
+    if (excerpt)
+      blocks.push({ text: fill(input.rng.pick(bank.evidence), { topic, excerpt }), priority: 1 });
     blocks.push({ text: input.rng.pick(bank.ideaFormats), priority: 2 });
   } else {
     const framings = pickDistinct(input.rng, bank.evidence, Math.max(1, excerpts.length));
     excerpts.forEach((excerpt, index) => {
       const framing = framings[index % framings.length] ?? bank.evidence[0];
-      blocks.push({ text: fill(framing, { topic, excerpt }), priority: index === 0 ? 1 : 4 + index });
+      blocks.push({
+        text: fill(framing, { topic, excerpt }),
+        priority: index === 0 ? 1 : 4 + index,
+      });
     });
     blocks.push({ text: input.rng.pick(bank.stance[input.tone]), priority: 2 });
   }
@@ -453,17 +454,15 @@ export function composeThread(input: ComposeInput & { threadLength?: number }): 
   const topic = normalizeWhitespace(input.context.topicName) || 'this topic';
   const total = clampThreadLength(input.threadLength);
   const excerpts = prepareExcerpts(input.context, input.rng);
-  const postLimit = Math.min(
-    input.maxCharacters ?? X_POST_CHARACTER_LIMIT,
-    X_POST_CHARACTER_LIMIT,
-  );
+  const postLimit = Math.min(input.maxCharacters ?? X_POST_CHARACTER_LIMIT, X_POST_CHARACTER_LIMIT);
   const bodyLimit = Math.max(1, postLimit - THREAD_COUNTER_RESERVED_CHARACTERS);
 
   const bodies: string[] = [];
   bodies.push(
-    [fill(input.rng.pick(bank.hooks[ANGLE_BY_KIND[input.kind]]), { topic }), input.rng.pick(bank.threadOpeners)].join(
-      ' ',
-    ),
+    [
+      fill(input.rng.pick(bank.hooks[ANGLE_BY_KIND[input.kind]]), { topic }),
+      input.rng.pick(bank.threadOpeners),
+    ].join(' '),
   );
 
   for (let position = 1; position < total - 1; position += 1) {
@@ -477,9 +476,7 @@ export function composeThread(input: ComposeInput & { threadLength?: number }): 
 
   // The counter is prefixed after fitting, against a body budget that already
   // reserves room for it, so no post can overflow once numbered.
-  const posts = bodies.map(
-    (body, index) => `${index + 1}/${total} ${fitToLimit(body, bodyLimit)}`,
-  );
+  const posts = bodies.map((body, index) => `${index + 1}/${total} ${fitToLimit(body, bodyLimit)}`);
 
   return { title: fitToLimit(fill(input.rng.pick(bank.titles), { topic }), 120), posts };
 }
@@ -507,7 +504,8 @@ function threadBody(position: number, context: ThreadBodyInput): string {
     return `${step} ${fill(input.rng.pick(bank.evidence), { topic, excerpt })}`;
   }
 
-  const interest = input.context.interests[(position - 1) % Math.max(1, input.context.interests.length)];
+  const interest =
+    input.context.interests[(position - 1) % Math.max(1, input.context.interests.length)];
   if (interest !== undefined) {
     return `${step} ${fill(input.rng.pick(bank.interest), { topic, interest })}`;
   }

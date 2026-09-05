@@ -263,8 +263,12 @@ describe('the worker schema', () => {
 
   it('bounds its scheduling knobs', () => {
     expect(
-      worker.safeParse({ NODE_ENV: 'development', DATABASE_URL, REDIS_URL, WORKER_CONCURRENCY: '65' })
-        .success,
+      worker.safeParse({
+        NODE_ENV: 'development',
+        DATABASE_URL,
+        REDIS_URL,
+        WORKER_CONCURRENCY: '65',
+      }).success,
     ).toBe(false);
     expect(
       worker.safeParse({

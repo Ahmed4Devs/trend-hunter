@@ -181,7 +181,7 @@ function emitTokens(
   const window = Math.max(MAX_PHRASE_WORDS, longestKey(preserved));
   let pendingDefinite = false;
 
-  for (let index = 0; index < chunks.length; ) {
+  for (let index = 0; index < chunks.length;) {
     const matched = matchLongest(chunks, index, window, preserved);
     if (!matched) {
       index += 1;
@@ -254,7 +254,12 @@ function matchLongest(
     if (entry) {
       return {
         length,
-        token: { text: entry.arabic, kind: entry.pos, definite: isDefinite(entry.arabic), trailing: '' },
+        token: {
+          text: entry.arabic,
+          kind: entry.pos,
+          definite: isDefinite(entry.arabic),
+          trailing: '',
+        },
         dropped: false,
         definiteRequest: false,
         construct: false,
@@ -381,7 +386,12 @@ function repairWordOrder(tokens: readonly EmittedToken[]): EmittedToken[] {
     const next = tokens[index + 1];
     if (!current) continue;
 
-    if (current.kind === 'adjective' && next !== undefined && isNounLike(next) && !current.text.includes(' ')) {
+    if (
+      current.kind === 'adjective' &&
+      next !== undefined &&
+      isNounLike(next) &&
+      !current.text.includes(' ')
+    ) {
       const adjective: EmittedToken = {
         ...current,
         text: next.definite ? makeDefinite(current.text) : current.text,
@@ -477,9 +487,12 @@ function joinSentences(sentences: readonly string[], style: ModeStyle, rng: Rng)
     return connector === undefined ? sentence : `${connector} ${sentence}`;
   });
 
-  const opener = style.openers.length > 0 ? style.openers[rng.int(style.openers.length)] : undefined;
+  const opener =
+    style.openers.length > 0 ? style.openers[rng.int(style.openers.length)] : undefined;
   const body = decorated.join(style.sentenceSeparator);
-  return attachConjunction(opener === undefined ? body : `${opener}${style.sentenceSeparator}${body}`);
+  return attachConjunction(
+    opener === undefined ? body : `${opener}${style.sentenceSeparator}${body}`,
+  );
 }
 
 const SENTENCE_INITIAL_CONNECTORS: ReadonlySet<string> = new Set([

@@ -51,9 +51,7 @@ export function createAnalyticsRepository(client: PrismaClient) {
       const previous = previousWindow(current);
 
       return withDatabaseErrors('Dashboard', async () => {
-        const rows = await client.$queryRaw<
-          Record<KpiKey | `previous_${KpiKey}`, bigint>[]
-        >`
+        const rows = await client.$queryRaw<Record<KpiKey | `previous_${KpiKey}`, bigint>[]>`
           SELECT
             (SELECT COUNT(*) FROM "topics"
                WHERE "created_at" >= ${current.from} AND "created_at" < ${current.to})
@@ -149,7 +147,10 @@ export function createAnalyticsRepository(client: PrismaClient) {
         if (topics.length === 0) return [];
 
         const snapshots = await client.trendSnapshot.findMany({
-          where: { topicId: { in: topics.map((topic) => topic.id) }, recordedAt: { gte: window.from } },
+          where: {
+            topicId: { in: topics.map((topic) => topic.id) },
+            recordedAt: { gte: window.from },
+          },
           select: { topicId: true, trendScore: true, postCount: true, recordedAt: true },
           orderBy: { recordedAt: 'asc' },
         });
@@ -181,7 +182,10 @@ export function createAnalyticsRepository(client: PrismaClient) {
       });
     },
 
-    async loadSourceDistribution(range: AnalyticsRange, now: Date): Promise<SourceDistributionSlice[]> {
+    async loadSourceDistribution(
+      range: AnalyticsRange,
+      now: Date,
+    ): Promise<SourceDistributionSlice[]> {
       const window = windowForRange(range, now);
       return withDatabaseErrors('Dashboard', async () => {
         const grouped = await client.post.groupBy({
@@ -268,7 +272,9 @@ export function createAnalyticsRepository(client: PrismaClient) {
 
     /** Total posts held, for the source-distribution card's caption. */
     async countPosts(): Promise<number> {
-      return withDatabaseErrors('Dashboard', () => client.post.count({ where: { isHidden: false } }));
+      return withDatabaseErrors('Dashboard', () =>
+        client.post.count({ where: { isHidden: false } }),
+      );
     },
 
     /** A bucketed count for one report kind, over an explicit range. */
@@ -279,8 +285,7 @@ export function createAnalyticsRepository(client: PrismaClient) {
       bucketHours: number;
     }): Promise<{ label: string; value: number }[]> {
       // The table name is chosen from a closed set here, never from a request.
-      const timestampColumn =
-        input.table === 'posts' ? 'collected_at' : 'created_at';
+      const timestampColumn = input.table === 'posts' ? 'collected_at' : 'created_at';
       const interval = `${String(Math.max(1, input.bucketHours))} hours`;
 
       return withDatabaseErrors('Report', async () => {

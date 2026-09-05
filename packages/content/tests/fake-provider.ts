@@ -104,8 +104,7 @@ export function createFakeProvider(options: FakeProviderOptions = {}): FakeProvi
         const target = options.threadPostLength ?? 200;
         const posts: GeneratedPost[] = [];
         for (let index = 0; index < length; index += 1) {
-          const content =
-            options.constantContent ?? buildText(seed + index * 31, target, words);
+          const content = options.constantContent ?? buildText(seed + index * 31, target, words);
           posts.push({ title: null, content, characterCount: characterCount(content) });
         }
         return Promise.resolve({ value: { title: 'Fake thread', posts }, meta });

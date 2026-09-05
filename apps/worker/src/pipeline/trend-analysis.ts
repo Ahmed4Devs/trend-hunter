@@ -31,9 +31,7 @@ export async function processTrendAnalysisJob(
   const { repositories } = container;
 
   const topicIds =
-    payload.topicIds.length > 0
-      ? payload.topicIds
-      : await repositories.topics.listActiveIds(500);
+    payload.topicIds.length > 0 ? payload.topicIds : await repositories.topics.listActiveIds(500);
 
   if (topicIds.length === 0) {
     logger.info('no topics to evaluate');
@@ -157,5 +155,8 @@ function provisionalVelocityFor(stats: {
 function freshnessFor(lastPostAt: Date | null, now: Date): number {
   if (lastPostAt === null) return 0;
   const ageHours = Math.max(0, (now.getTime() - lastPostAt.getTime()) / 3_600_000);
-  return Math.min(100, Math.max(0, Math.pow(2, -ageHours / TREND_TUNING.freshnessHalfLifeHours) * 100));
+  return Math.min(
+    100,
+    Math.max(0, Math.pow(2, -ageHours / TREND_TUNING.freshnessHalfLifeHours) * 100),
+  );
 }

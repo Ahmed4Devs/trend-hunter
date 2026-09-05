@@ -116,10 +116,7 @@ export async function registerSchedules(container: WorkerContainer): Promise<Sch
       },
     );
 
-    logger.info(
-      { source: source.kind, everyMinutes: minutes },
-      'registered scheduled collection',
-    );
+    logger.info({ source: source.kind, everyMinutes: minutes }, 'registered scheduled collection');
   }
 
   return { close: () => closeAll(opened) };

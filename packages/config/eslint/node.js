@@ -27,8 +27,7 @@ export function createNodeConfig({ tsconfigRootDir }) {
           {
             object: 'process',
             property: 'env',
-            message:
-              'Read configuration through @trendhunter/env so it is validated and typed.',
+            message: 'Read configuration through @trendhunter/env so it is validated and typed.',
           },
         ],
         'no-restricted-globals': [

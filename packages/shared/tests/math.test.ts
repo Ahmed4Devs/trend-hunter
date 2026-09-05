@@ -273,7 +273,12 @@ describe('vector helpers', () => {
   });
 
   it('averages vectors element-wise', () => {
-    expect(centroid([[1, 2], [3, 4]])).toEqual([2, 3]);
+    expect(
+      centroid([
+        [1, 2],
+        [3, 4],
+      ]),
+    ).toEqual([2, 3]);
   });
 
   it('returns an empty centroid for no vectors', () => {

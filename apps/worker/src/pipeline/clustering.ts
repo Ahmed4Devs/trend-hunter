@@ -71,9 +71,7 @@ export async function processClusteringJob(
     centroids.set(candidate.id, { vector: candidate.embedding, count: 1 });
   }
 
-  const ordered = [...posts].sort(
-    (a, b) => a.publishedAt.getTime() - b.publishedAt.getTime(),
-  );
+  const ordered = [...posts].sort((a, b) => a.publishedAt.getTime() - b.publishedAt.getTime());
 
   const touchedTopicIds = new Set<string>();
   let created = 0;
@@ -174,7 +172,8 @@ export async function processClusteringJob(
         ...existing,
         embedding: centroid.vector,
         postCount: existing.postCount + 1,
-        lastDetectedAt: publishedAt > existing.lastDetectedAt ? publishedAt : existing.lastDetectedAt,
+        lastDetectedAt:
+          publishedAt > existing.lastDetectedAt ? publishedAt : existing.lastDetectedAt,
       });
     }
 

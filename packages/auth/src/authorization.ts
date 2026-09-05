@@ -125,7 +125,6 @@ export function toAuthenticatedUser(user: {
     image: user.image ?? null,
     role: roleFromSlug(user.role),
     emailVerified: user.emailVerified,
-    createdAt:
-      typeof user.createdAt === 'string' ? user.createdAt : user.createdAt.toISOString(),
+    createdAt: typeof user.createdAt === 'string' ? user.createdAt : user.createdAt.toISOString(),
   };
 }

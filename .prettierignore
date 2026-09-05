@@ -5,6 +5,15 @@ build/
 .turbo/
 coverage/
 pnpm-lock.yaml
-packages/database/generated/
+# The Prisma client is generated into the package's own `src`, not a top-level
+# `generated/`. Formatting it produces a diff that `pnpm db:generate` undoes on
+# the next run, so the repository is dirty until someone reformats it again.
+packages/database/src/generated/
 apps/web/public/
+
+# Playwright's own output: a saved session, traces and reports. All git-ignored,
+# and none of it is source.
+apps/web/playwright/
+apps/web/test-results/
+apps/web/playwright-report/
 *.md

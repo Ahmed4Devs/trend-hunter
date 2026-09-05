@@ -11,12 +11,7 @@ import {
 } from '@trendhunter/database';
 import type { EmbeddingService } from '@trendhunter/embeddings';
 import { detectLanguage, MAX_SEARCH_QUERY_LENGTH, ValidationError } from '@trendhunter/shared';
-import type {
-  ContentLanguage,
-  SearchEntityKind,
-  SearchMode,
-  SourceKind,
-} from '@trendhunter/types';
+import type { ContentLanguage, SearchEntityKind, SearchMode, SourceKind } from '@trendhunter/types';
 
 import { normalizeArabicForSearch } from './arabic';
 

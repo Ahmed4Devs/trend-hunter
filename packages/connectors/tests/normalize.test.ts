@@ -179,7 +179,9 @@ describe('normalizeRssItem', () => {
   });
 
   it('rejects an entry with no link', () => {
-    expect(expectRejection(normalizeRssItem(item('RSS', { ...payload, link: '   ' })))).toBeTruthy();
+    expect(
+      expectRejection(normalizeRssItem(item('RSS', { ...payload, link: '   ' }))),
+    ).toBeTruthy();
   });
 });
 
@@ -273,7 +275,9 @@ describe('normalizeRedditItem', () => {
 
   it('rejects a malformed payload without throwing', () => {
     expect(() => normalizeRedditItem(item('REDDIT', { kind: 'submission' }))).not.toThrow();
-    expect(expectRejection(normalizeRedditItem(item('REDDIT', { kind: 'submission' })))).toBeTruthy();
+    expect(
+      expectRejection(normalizeRedditItem(item('REDDIT', { kind: 'submission' }))),
+    ).toBeTruthy();
   });
 });
 

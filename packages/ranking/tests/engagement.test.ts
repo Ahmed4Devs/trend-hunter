@@ -117,7 +117,8 @@ describe('calculateEngagementScore', () => {
   });
 
   it('is logarithmic: the same ten likes are worth far less on a popular post', () => {
-    const firstTen = calculateEngagementScore(counters({ likes: 10 })) - calculateEngagementScore(ZERO);
+    const firstTen =
+      calculateEngagementScore(counters({ likes: 10 })) - calculateEngagementScore(ZERO);
     const thousandthTen =
       calculateEngagementScore(counters({ likes: 1_010 })) -
       calculateEngagementScore(counters({ likes: 1_000 }));

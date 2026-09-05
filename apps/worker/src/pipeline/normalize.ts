@@ -2,11 +2,7 @@ import { normalizeItemsForSource } from '@trendhunter/connectors';
 import { calculateEngagementScore } from '@trendhunter/ranking';
 import { buildNormalizedSearchFields } from '@trendhunter/search';
 import { detectLanguage, MAX_IDS_PER_JOB } from '@trendhunter/shared';
-import {
-  QUEUE_NAMES,
-  type CollectedItem,
-  type NormalizeJobPayload,
-} from '@trendhunter/types';
+import { QUEUE_NAMES, type CollectedItem, type NormalizeJobPayload } from '@trendhunter/types';
 
 import type { JobContext } from '../runtime/processor';
 import { enqueue } from '../runtime/queues';
@@ -32,9 +28,7 @@ import { chunked } from './collect';
  * `(source, source_item_id)` catches re-collection, and a content-hash lookup
  * catches the same story republished under a different id.
  */
-export async function processNormalizeJob(
-  context: JobContext<NormalizeJobPayload>,
-): Promise<void> {
+export async function processNormalizeJob(context: JobContext<NormalizeJobPayload>): Promise<void> {
   const { payload, logger, container } = context;
   const { repositories } = container;
 
@@ -52,9 +46,7 @@ export async function processNormalizeJob(
     sourceItemId: row.sourceItemId,
     payload: (row.payload ?? {}) as Record<string, unknown>,
     kind: row.kind === 'COMMENT' ? 'comment' : 'post',
-    ...(row.parentSourceItemId === null
-      ? {}
-      : { parentSourceItemId: row.parentSourceItemId }),
+    ...(row.parentSourceItemId === null ? {} : { parentSourceItemId: row.parentSourceItemId }),
     collectedAt: row.collectedAt,
   }));
 

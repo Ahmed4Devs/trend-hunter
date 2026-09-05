@@ -176,7 +176,14 @@ const SOURCES = [
     authorityWeight: 0.6,
     scanIntervalMinutes: 10,
     config: {
-      subreddits: ['MachineLearning', 'SaaS', 'startups', 'devops', 'ExperiencedDevs', 'artificial'],
+      subreddits: [
+        'MachineLearning',
+        'SaaS',
+        'startups',
+        'devops',
+        'ExperiencedDevs',
+        'artificial',
+      ],
       includeComments: true,
       commentLimit: 20,
     },
@@ -353,9 +360,7 @@ async function seed(): Promise<void> {
     }
   }
   const keywordCount = INTERESTS.reduce((total, interest) => total + interest.keywords.length, 0);
-  console.log(
-    `  interests: ${String(INTERESTS.length)} with ${String(keywordCount)} keywords`,
-  );
+  console.log(`  interests: ${String(INTERESTS.length)} with ${String(keywordCount)} keywords`);
 
   console.log('');
   console.log('Seed complete. Sign in with:');

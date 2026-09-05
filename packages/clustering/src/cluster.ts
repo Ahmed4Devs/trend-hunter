@@ -1,6 +1,11 @@
 import { round } from '@trendhunter/shared';
 
-import type { ClusterablePost, ClusterableTopic, ClusterProfile, SimilarityResult } from './similarity';
+import type {
+  ClusterablePost,
+  ClusterableTopic,
+  ClusterProfile,
+  SimilarityResult,
+} from './similarity';
 import { buildPostProfile, calculateSimilarity } from './similarity';
 import { deriveTopicName } from './topic-naming';
 import type { DerivedTopicName } from './topic-naming';
@@ -132,7 +137,8 @@ function createDecision(
   closestCandidate: ScoredTopicCandidate | null,
   options: ClusterOptions,
 ): CreateTopicDecision {
-  const nameOptions = options.maxNameLength === undefined ? {} : { maxLength: options.maxNameLength };
+  const nameOptions =
+    options.maxNameLength === undefined ? {} : { maxLength: options.maxNameLength };
   return {
     kind: 'CREATE_TOPIC',
     reason,
@@ -175,7 +181,12 @@ export function assignToTopic(
       (candidate) => !candidate.withinTimeGap && candidate.similarity.textualScore >= threshold,
     );
     const closest = ranked[0] ?? null;
-    return createDecision(post, blockedByTime ? 'TIME_GAP_EXCEEDED' : 'BELOW_THRESHOLD', closest, options);
+    return createDecision(
+      post,
+      blockedByTime ? 'TIME_GAP_EXCEEDED' : 'BELOW_THRESHOLD',
+      closest,
+      options,
+    );
   }
 
   // Everything within the stickiness margin of the leader is treated as tied,

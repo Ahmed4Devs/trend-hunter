@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  calculateRelevance,
-  type InterestInput,
-  type RelevanceInput,
-} from '../src/relevance';
+import { calculateRelevance, type InterestInput, type RelevanceInput } from '../src/relevance';
 import { RELEVANCE_TUNING } from '../src/weights';
 
 const EMBEDDING = [0.1, 0.5, -0.3, 0.8];
@@ -153,7 +149,9 @@ describe('keyword scoring', () => {
         interests: [interest({ weight: 9, keywords: [{ keyword: 'AI agents', weight: 9 }] })],
       }),
     );
-    const normal = calculateRelevance(relevanceInput({ title: 'AI agents', interests: [interest()] }));
+    const normal = calculateRelevance(
+      relevanceInput({ title: 'AI agents', interests: [interest()] }),
+    );
     expect(overWeighted.components.keyword).toBe(normal.components.keyword);
   });
 
@@ -330,7 +328,8 @@ describe('semantic scoring', () => {
 describe('source quality', () => {
   it('passes the configured authority weight straight through, clamped', () => {
     const sourceQualityFor = (weight: number): number =>
-      calculateRelevance(relevanceInput({ sourceAuthorityWeight: weight })).components.sourceQuality;
+      calculateRelevance(relevanceInput({ sourceAuthorityWeight: weight })).components
+        .sourceQuality;
     expect(sourceQualityFor(0.7)).toBe(70);
     expect(sourceQualityFor(5)).toBe(100);
     expect(sourceQualityFor(-1)).toBe(0);
@@ -347,9 +346,9 @@ describe('AI classification and weight renormalisation', () => {
     expect(
       calculateRelevance(relevanceInput({ aiConfidence: 0.42 })).components.aiClassification,
     ).toBe(42);
-    expect(calculateRelevance(relevanceInput({ aiConfidence: 9 })).components.aiClassification).toBe(
-      100,
-    );
+    expect(
+      calculateRelevance(relevanceInput({ aiConfidence: 9 })).components.aiClassification,
+    ).toBe(100);
     expect(
       calculateRelevance(relevanceInput({ aiConfidence: -1 })).components.aiClassification,
     ).toBe(0);

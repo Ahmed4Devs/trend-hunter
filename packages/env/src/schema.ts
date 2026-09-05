@@ -29,7 +29,9 @@ const logLevelSchema = z
   .default('info');
 
 const dataModeSchema = z.enum(['mock', 'live']).default('mock');
-const aiProviderSchema = z.enum(['mock', 'openai', 'anthropic', 'openai-compatible']).default('mock');
+const aiProviderSchema = z
+  .enum(['mock', 'openai', 'anthropic', 'openai-compatible'])
+  .default('mock');
 
 /**
  * Builds the schemas for a given target environment.

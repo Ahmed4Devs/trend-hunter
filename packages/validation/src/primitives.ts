@@ -64,8 +64,7 @@ export const dateRangeSchema = z
   })
   .refine(
     (range) =>
-      new Date(range.to).getTime() - new Date(range.from).getTime() <=
-      366 * 24 * 60 * 60 * 1000,
+      new Date(range.to).getTime() - new Date(range.from).getTime() <= 366 * 24 * 60 * 60 * 1000,
     { message: 'range must not exceed one year', path: ['to'] },
   );
 
@@ -108,6 +107,25 @@ export function csvEnumQuerySchema<const T extends readonly [string, ...string[]
 }
 
 /**
+ * Control characters, in two flavours.
+ *
+ * Declared here rather than inline because the `eslint-disable` each one needs
+ * has to sit on the line directly above the pattern - and a formatter is free
+ * to move an expression onto a different line than the comment meant to cover
+ * it, which turns the directive into an unused-directive error and leaves the
+ * rule unsuppressed. A named constant cannot drift away from its comment.
+ *
+ * `CONTROL_CHARS` is all of them: a search query has no use for any.
+ * `CONTROL_CHARS_KEEPING_WHITESPACE` spares tab, newline and carriage
+ * return, because stored free text legitimately contains line breaks.
+ */
+// eslint-disable-next-line no-control-regex -- matching control characters is the point
+const CONTROL_CHARS = /[\u0000-\u001F\u007F-\u009F]/gu;
+
+// eslint-disable-next-line no-control-regex -- matching control characters is the point
+const CONTROL_CHARS_KEEPING_WHITESPACE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/gu;
+
+/**
  * Free-text search input.
  *
  * Bounded in length, stripped of control characters, and non-empty after
@@ -120,8 +138,7 @@ export const searchQuerySchema = z
   .trim()
   .min(1, 'must not be empty')
   .max(MAX_SEARCH_QUERY_LENGTH)
-  // eslint-disable-next-line no-control-regex -- deliberately matching controls
-  .transform((value) => value.replace(/[\u0000-\u001F\u007F-\u009F]/gu, ' ').replace(/\s+/gu, ' ').trim())
+  .transform((value) => value.replace(CONTROL_CHARS, ' ').replace(/\s+/gu, ' ').trim())
   .refine((value) => value.length > 0, 'must not be empty');
 
 /** Free-text a user types and we store: bounded, trimmed, control-free. */
@@ -129,8 +146,7 @@ export function boundedTextSchema(maxLength: number, options?: { allowEmpty?: bo
   const base = z
     .string()
     .max(maxLength, `must be at most ${maxLength} characters`)
-    // eslint-disable-next-line no-control-regex -- deliberately matching controls
-    .transform((value) => value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/gu, ''))
+    .transform((value) => value.replace(CONTROL_CHARS_KEEPING_WHITESPACE, ''))
     .transform((value) => value.trim());
   return options?.allowEmpty === true ? base : base.pipe(z.string().min(1, 'must not be empty'));
 }

@@ -68,7 +68,9 @@ export class XMockConnector extends BaseConnector {
     // Reach shifts the whole distribution rather than multiplying the draw, so
     // a small account occasionally out-performs a large one, as they do.
     const reachFactor = 0.4 + Math.log10(author.reach) / 6;
-    const likes = Math.round(engagementFor(random, slot, { base: 2, ceiling: 24_000 }) * reachFactor);
+    const likes = Math.round(
+      engagementFor(random, slot, { base: 2, ceiling: 24_000 }) * reachFactor,
+    );
 
     return this.item(context, {
       sourceItemId: id,

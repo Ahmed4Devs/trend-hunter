@@ -1,11 +1,5 @@
 import type { AnalyticsRange, ReportKind, SourceKind } from './enums';
-import type {
-  IsoDateTime,
-  Post,
-  SourceDistributionSlice,
-  Topic,
-  TrendSnapshot,
-} from './domain';
+import type { IsoDateTime, Post, SourceDistributionSlice, Topic, TrendSnapshot } from './domain';
 
 /**
  * Read models for the dashboard, analytics and reporting surfaces.
