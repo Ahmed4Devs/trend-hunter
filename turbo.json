@@ -5,14 +5,16 @@
   "noUpdateNotifier": true,
   "cacheMaxSize": "5GB",
   "cacheMaxAge": "14d",
-
   "globalDependencies": [
     "pnpm-lock.yaml",
     "pnpm-workspace.yaml",
     ".nvmrc",
     "packages/config/tsconfig/*.json"
   ],
-  "globalEnv": ["NODE_ENV", "CI"],
+  "globalEnv": [
+    "NODE_ENV",
+    "CI"
+  ],
   "globalPassThroughEnv": [
     "PATH",
     "HOME",
@@ -25,29 +27,39 @@
     "TMP",
     "npm_config_user_agent"
   ],
-
   "futureFlags": {
     "pruneIncludesGlobalFiles": true,
     "affectedUsingTaskInputs": true,
     "watchUsingTaskInputs": true,
     "strictTaskEntrypointSelection": true
   },
-
   "tasks": {
     "topo": {
-      "dependsOn": ["^topo"]
+      "dependsOn": [
+        "^topo"
+      ]
     },
-
     "db:generate": {
-      "inputs": ["prisma/schema.prisma", "prisma.config.ts"],
-      "outputs": ["src/generated/**"],
+      "inputs": [
+        "prisma/schema.prisma",
+        "prisma.config.ts"
+      ],
+      "outputs": [
+        "src/generated/**"
+      ],
       "cache": true,
-      "env": ["PRISMA_*"],
-      "passThroughEnv": ["DATABASE_URL"]
+      "env": [
+        "PRISMA_*"
+      ],
+      "passThroughEnv": [
+        "DATABASE_URL"
+      ]
     },
-
     "build": {
-      "dependsOn": ["^build", "db:generate"],
+      "dependsOn": [
+        "^build",
+        "db:generate"
+      ],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.test.ts",
@@ -55,18 +67,33 @@
         "!**/*.md",
         "!e2e/**"
       ],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
-      "env": ["NEXT_PUBLIC_*", "ANALYZE"],
-      "passThroughEnv": ["DATABASE_URL", "REDIS_URL"],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**"
+      ],
+      "env": [
+        "NEXT_PUBLIC_*",
+        "ANALYZE"
+      ],
+      "passThroughEnv": [
+        "DATABASE_URL",
+        "REDIS_URL"
+      ],
       "outputLogs": "new-only"
     },
-
     "dev": {
-      "dependsOn": ["^db:generate"],
+      "dependsOn": [
+        "^db:generate"
+      ],
       "cache": false,
       "persistent": true,
       "interruptible": true,
-      "env": ["NEXT_PUBLIC_*", "PORT", "HOST"],
+      "env": [
+        "NEXT_PUBLIC_*",
+        "PORT",
+        "HOST"
+      ],
       "passThroughEnv": [
         "DATABASE_URL",
         "REDIS_URL",
@@ -105,9 +132,10 @@
         "JOB_RUN_RETENTION_DAYS"
       ]
     },
-
     "lint": {
-      "dependsOn": ["^topo"],
+      "dependsOn": [
+        "^topo"
+      ],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/eslint.config.mjs",
@@ -115,30 +143,63 @@
       ],
       "outputLogs": "errors-only"
     },
-
     "typecheck": {
-      "dependsOn": ["^topo", "db:generate", "^db:generate"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
-      "outputs": ["*.tsbuildinfo"],
+      "dependsOn": [
+        "^topo",
+        "db:generate",
+        "^db:generate"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md"
+      ],
+      "outputs": [
+        "*.tsbuildinfo"
+      ],
       "outputLogs": "errors-only"
     },
-
     "test": {
-      "dependsOn": ["^topo", "db:generate", "^db:generate"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
-      "outputs": ["coverage/**"],
-      "env": ["VITEST_*", "TZ"],
-      "outputLogs": "new-only"
+      "dependsOn": [
+        "^topo",
+        "db:generate",
+        "^db:generate"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md"
+      ],
+      "outputs": [
+        "coverage/**"
+      ],
+      "env": [
+        "VITEST_*",
+        "TZ"
+      ],
+      "outputLogs": "new-only",
+      "passThroughEnv": [
+        "DATABASE_URL",
+        "REDIS_URL"
+      ]
     },
-
     "test:e2e": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "cache": false,
-      "env": ["PLAYWRIGHT_*", "BASE_URL"],
-      "passThroughEnv": ["DATABASE_URL", "REDIS_URL", "CI"],
-      "outputs": ["playwright-report/**", "test-results/**"]
+      "env": [
+        "PLAYWRIGHT_*",
+        "BASE_URL"
+      ],
+      "passThroughEnv": [
+        "DATABASE_URL",
+        "REDIS_URL",
+        "CI"
+      ],
+      "outputs": [
+        "playwright-report/**",
+        "test-results/**"
+      ]
     },
-
     "clean": {
       "cache": false
     }

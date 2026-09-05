@@ -200,7 +200,8 @@ describe('angle rotation', () => {
   it('visits every angle before repeating', () => {
     const seen = new Set<string>();
     let angle = nextAngle(null);
-    for (let index = 0; index < REGENERATION_ANGLES.length; index += 1) {
+    // One step per angle: the cycle must visit all of them before repeating.
+    for (const _ of REGENERATION_ANGLES) {
       seen.add(angle);
       angle = nextAngle(angle);
     }
