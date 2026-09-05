@@ -25,11 +25,13 @@
     "@trendhunter/env": "workspace:*",
     "@trendhunter/observability": "workspace:*",
     "@trendhunter/ranking": "workspace:*",
+    "@trendhunter/search": "workspace:*",
     "@trendhunter/shared": "workspace:*",
     "@trendhunter/translation": "workspace:*",
     "@trendhunter/types": "workspace:*",
     "@trendhunter/validation": "workspace:*",
     "bullmq": "catalog:",
+    "close-with-grace": "catalog:",
     "ioredis": "catalog:",
     "pino": "catalog:",
     "zod": "catalog:"

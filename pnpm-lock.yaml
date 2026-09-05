@@ -490,6 +490,9 @@ importers:
       '@trendhunter/ranking':
         specifier: workspace:*
         version: link:../../packages/ranking
+      '@trendhunter/search':
+        specifier: workspace:*
+        version: link:../../packages/search
       '@trendhunter/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -505,6 +508,9 @@ importers:
       bullmq:
         specifier: 'catalog:'
         version: 6.3.4(ioredis@5.9.0)(pg@8.23.0)
+      close-with-grace:
+        specifier: 'catalog:'
+        version: 2.2.0
       ioredis:
         specifier: 'catalog:'
         version: 5.9.0
@@ -916,6 +922,40 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 5.0.0(@types/node@26.4.1)(happy-dom@20.14.0)(vite@8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.0))
+
+  packages/seed:
+    dependencies:
+      '@trendhunter/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@trendhunter/database':
+        specifier: workspace:*
+        version: link:../database
+      '@trendhunter/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@trendhunter/types':
+        specifier: workspace:*
+        version: link:../types
+      dotenv:
+        specifier: 'catalog:'
+        version: 17.4.2
+    devDependencies:
+      '@trendhunter/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.4.1
+      eslint:
+        specifier: 'catalog:'
+        version: 10.10.0(jiti@2.7.0)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      tsx:
+        specifier: 'catalog:'
+        version: 4.23.13
 
   packages/shared:
     dependencies:
