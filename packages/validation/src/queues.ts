@@ -21,7 +21,8 @@ import {
 const idArraySchema = z.array(idSchema).max(MAX_IDS_PER_JOB);
 
 export const collectJobPayloadSchema = z.object({
-  scanRunId: idSchema,
+  // Nullable: a scheduled collection has no scan run until the worker opens one.
+  scanRunId: idSchema.nullable(),
   sourceId: idSchema,
   source: z.enum(SOURCE_KINDS),
   limit: z.number().int().min(1).max(MAX_COLLECT_LIMIT),
@@ -82,11 +83,11 @@ export const maintenanceJobPayloadSchema = z.object({
 
 /** Maps a queue name to the schema that validates its payload. */
 export const QUEUE_PAYLOAD_SCHEMAS = {
-  'collect:x': collectJobPayloadSchema,
-  'collect:reddit': collectJobPayloadSchema,
-  'collect:hackernews': collectJobPayloadSchema,
-  'collect:rss': collectJobPayloadSchema,
-  'collect:github': collectJobPayloadSchema,
+  'collect-x': collectJobPayloadSchema,
+  'collect-reddit': collectJobPayloadSchema,
+  'collect-hackernews': collectJobPayloadSchema,
+  'collect-rss': collectJobPayloadSchema,
+  'collect-github': collectJobPayloadSchema,
   normalize: normalizeJobPayloadSchema,
   embeddings: embeddingsJobPayloadSchema,
   clustering: clusteringJobPayloadSchema,

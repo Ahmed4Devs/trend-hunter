@@ -44,6 +44,16 @@ export const CACHE_TTL_SECONDS = {
   systemHealth: 15,
 } as const;
 
+/**
+ * Redis key the worker refreshes to prove it is processing.
+ *
+ * Declared here rather than as a literal in each service because the writer and
+ * the two readers are in different packages: a typo, or a change of format from
+ * epoch milliseconds to an ISO string, would make the readiness probe report a
+ * healthy worker as permanently down with nothing failing to indicate why.
+ */
+export const WORKER_HEARTBEAT_KEY = 'trendhunter:worker:heartbeat';
+
 /** How long a worker heartbeat stays valid before the worker is "stale". */
 export const WORKER_HEARTBEAT_TTL_SECONDS = 90;
 export const WORKER_HEARTBEAT_INTERVAL_SECONDS = 30;
