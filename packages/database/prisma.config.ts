@@ -26,10 +26,14 @@ export default defineConfig({
 
   migrations: {
     path: 'prisma/migrations',
+    // The seed lives in its own package because it composes persistence with
+    // authentication, and this package must not depend on the auth package —
+    // that would be a cycle, since auth depends on this one.
+    //
     // tsx, not `node --experimental-strip-types`: the seed imports workspace
     // packages through pnpm symlinks, and Node refuses to strip types inside
     // node_modules.
-    seed: 'tsx prisma/seed.ts',
+    seed: 'pnpm --filter @trendhunter/seed run seed',
   },
 
   datasource: {

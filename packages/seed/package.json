@@ -1,0 +1,31 @@
+{
+  "name": "@trendhunter/seed",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Database seeding. Composes persistence and authentication, which is why it is its own package.",
+  "exports": {
+    ".": "./src/seed.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "clean": "rimraf .turbo *.tsbuildinfo",
+    "lint": "eslint .",
+    "seed": "tsx src/seed.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@trendhunter/auth": "workspace:*",
+    "@trendhunter/database": "workspace:*",
+    "@trendhunter/shared": "workspace:*",
+    "@trendhunter/types": "workspace:*",
+    "dotenv": "catalog:"
+  },
+  "devDependencies": {
+    "@trendhunter/config": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "rimraf": "catalog:",
+    "tsx": "catalog:"
+  }
+}
