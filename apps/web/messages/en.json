@@ -454,5 +454,98 @@
       "delete": "Remove this record",
       "open": "Open the published post"
     }
+  },
+  "content": {
+    "title": "Content Studio",
+    "subtitle": "Turn a topic into something you can actually post.",
+    "generate": "Generate",
+    "generating": "Generating",
+    "generateTitle": "New draft",
+    "generateDescription": "Pick a topic and an angle. The draft is yours to edit afterwards.",
+    "topic": "Topic",
+    "topicPlaceholder": "Choose a topic",
+    "instructions": "Extra instructions",
+    "instructionsPlaceholder": "Anything the model should know",
+    "kind": {
+      "label": "Kind",
+      "SHORT_X_POST": "Short X post",
+      "LONG_X_POST": "Long X post",
+      "X_THREAD": "X thread",
+      "EDUCATIONAL_POST": "Educational post",
+      "OPINION_POST": "Opinion post",
+      "BUSINESS_ANGLE": "Business angle",
+      "DEVELOPER_ANGLE": "Developer angle",
+      "SAUDI_MARKET_ANGLE": "Saudi market angle",
+      "SUMMARY": "Summary",
+      "HOOK": "Hook",
+      "CONTENT_IDEA": "Content idea"
+    },
+    "tone": {
+      "label": "Tone",
+      "NEUTRAL": "Neutral",
+      "FRIENDLY": "Friendly",
+      "AUTHORITATIVE": "Authoritative",
+      "ANALYTICAL": "Analytical",
+      "ENTHUSIASTIC": "Enthusiastic",
+      "CONTRARIAN": "Contrarian"
+    },
+    "language": {
+      "label": "Language",
+      "EN": "English",
+      "AR": "Arabic",
+      "OTHER": "Other"
+    },
+    "status": {
+      "label": "Status",
+      "DRAFT": "Draft",
+      "READY": "Ready",
+      "PUBLISHED": "Published",
+      "ARCHIVED": "Archived"
+    },
+    "characters": "{count} characters",
+    "overLimit": "Over the limit for this kind",
+    "empty": "No draft has been generated yet.",
+    "emptyHint": "Pick a topic above and generate one.",
+    "created": "Draft generated.",
+    "updated": "Draft saved.",
+    "deleted": "Draft removed.",
+    "delete": "Remove this draft",
+    "edit": "Edit",
+    "save": "Save",
+    "rewrite": "Rewrite",
+    "regenerate": "Regenerate",
+    "rewritten": "Rewritten.",
+    "copy": "Copy the draft",
+    "copied": "Copied.",
+    "noTopics": "Generate a draft once clustering has opened at least one topic.",
+    "recordPublication": "Record as published",
+    "recorded": "Recorded as published."
+  },
+  "threads": {
+    "title": "Threads",
+    "subtitle": "A topic told as a sequence of posts, each within the limit.",
+    "create": "New thread",
+    "creating": "Building the thread",
+    "createDescription": "Built from one topic, in order, with a hook and a conclusion.",
+    "length": "Posts",
+    "title_": "Title",
+    "empty": "No thread has been built yet.",
+    "emptyHint": "Pick a topic and build one.",
+    "created": "Thread created.",
+    "deleted": "Thread removed.",
+    "delete": "Remove this thread",
+    "translate": "Translate the whole thread",
+    "translated": "Thread translated.",
+    "post": "Post {position}",
+    "characters": "{count} characters",
+    "copyAll": "Copy the whole thread",
+    "copied": "Copied.",
+    "status": {
+      "label": "Status",
+      "DRAFT": "Draft",
+      "READY": "Ready",
+      "PUBLISHED": "Published",
+      "ARCHIVED": "Archived"
+    }
   }
 }

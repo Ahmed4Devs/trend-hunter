@@ -454,5 +454,98 @@
       "delete": "إزالة هذا السجل",
       "open": "فتح المنشور"
     }
+  },
+  "content": {
+    "title": "استوديو المحتوى",
+    "subtitle": "حوّل موضوعاً إلى نص جاهز للنشر.",
+    "generate": "إنشاء",
+    "generating": "جارٍ الإنشاء",
+    "generateTitle": "مسودة جديدة",
+    "generateDescription": "اختر موضوعاً وزاوية. المسودة ملكك بعد ذلك، عدّلها كما تشاء.",
+    "topic": "الموضوع",
+    "topicPlaceholder": "اختر موضوعاً",
+    "instructions": "تعليمات إضافية",
+    "instructionsPlaceholder": "أي شيء ينبغي أن يعرفه النموذج",
+    "kind": {
+      "label": "النوع",
+      "SHORT_X_POST": "منشور قصير",
+      "LONG_X_POST": "منشور طويل",
+      "X_THREAD": "سلسلة منشورات",
+      "EDUCATIONAL_POST": "منشور تعليمي",
+      "OPINION_POST": "منشور رأي",
+      "BUSINESS_ANGLE": "زاوية الأعمال",
+      "DEVELOPER_ANGLE": "زاوية المطورين",
+      "SAUDI_MARKET_ANGLE": "زاوية السوق السعودي",
+      "SUMMARY": "ملخص",
+      "HOOK": "مقدمة جاذبة",
+      "CONTENT_IDEA": "فكرة محتوى"
+    },
+    "tone": {
+      "label": "النبرة",
+      "NEUTRAL": "محايدة",
+      "FRIENDLY": "ودّية",
+      "AUTHORITATIVE": "موثوقة",
+      "ANALYTICAL": "تحليلية",
+      "ENTHUSIASTIC": "متحمسة",
+      "CONTRARIAN": "مخالفة"
+    },
+    "language": {
+      "label": "اللغة",
+      "EN": "الإنجليزية",
+      "AR": "العربية",
+      "OTHER": "أخرى"
+    },
+    "status": {
+      "label": "الحالة",
+      "DRAFT": "مسودة",
+      "READY": "جاهزة",
+      "PUBLISHED": "منشورة",
+      "ARCHIVED": "مؤرشفة"
+    },
+    "characters": "{count} حرفاً",
+    "overLimit": "تجاوز الحد المسموح لهذا النوع",
+    "empty": "لم تُنشأ أي مسودة بعد.",
+    "emptyHint": "اختر موضوعاً أعلاه وأنشئ واحدة.",
+    "created": "تم إنشاء المسودة.",
+    "updated": "تم حفظ المسودة.",
+    "deleted": "تمت إزالة المسودة.",
+    "delete": "إزالة هذه المسودة",
+    "edit": "تعديل",
+    "save": "حفظ",
+    "rewrite": "إعادة صياغة",
+    "regenerate": "إعادة إنشاء",
+    "rewritten": "تمت إعادة الصياغة.",
+    "copy": "نسخ المسودة",
+    "copied": "تم النسخ.",
+    "noTopics": "يمكنك إنشاء مسودة بعد أن يفتح التجميع موضوعاً واحداً على الأقل.",
+    "recordPublication": "تسجيل كمنشور",
+    "recorded": "تم التسجيل كمنشور."
+  },
+  "threads": {
+    "title": "السلاسل",
+    "subtitle": "موضوع يُروى كسلسلة منشورات، كل منها ضمن الحد المسموح.",
+    "create": "سلسلة جديدة",
+    "creating": "جارٍ بناء السلسلة",
+    "createDescription": "تُبنى من موضوع واحد، بترتيب، بمقدمة وخاتمة.",
+    "length": "عدد المنشورات",
+    "title_": "العنوان",
+    "empty": "لم تُبنَ أي سلسلة بعد.",
+    "emptyHint": "اختر موضوعاً وابنِ واحدة.",
+    "created": "تم إنشاء السلسلة.",
+    "deleted": "تمت إزالة السلسلة.",
+    "delete": "إزالة هذه السلسلة",
+    "translate": "ترجمة السلسلة كاملة",
+    "translated": "تمت ترجمة السلسلة.",
+    "post": "منشور {position}",
+    "characters": "{count} حرفاً",
+    "copyAll": "نسخ السلسلة كاملة",
+    "copied": "تم النسخ.",
+    "status": {
+      "label": "الحالة",
+      "DRAFT": "مسودة",
+      "READY": "جاهزة",
+      "PUBLISHED": "منشورة",
+      "ARCHIVED": "مؤرشفة"
+    }
   }
 }
