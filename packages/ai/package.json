@@ -20,7 +20,6 @@
     "@trendhunter/observability": "workspace:*",
     "@trendhunter/shared": "workspace:*",
     "@trendhunter/types": "workspace:*",
-    "@trendhunter/validation": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {
