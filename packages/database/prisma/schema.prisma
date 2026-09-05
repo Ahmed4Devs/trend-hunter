@@ -798,7 +798,9 @@ model JobRun {
   id            String    @id @default(cuid())
   queue         String
   jobName       String    @map("job_name")
-  jobId         String?   @map("job_id")
+  /// BullMQ job id. Required: the (queue, jobId, attempt) key is what makes
+  /// a retry record its own row instead of overwriting the failure before it.
+  jobId         String    @map("job_id")
   scanRunId     String?   @map("scan_run_id")
   status        JobStatus @default(PENDING)
   attempt       Int       @default(1)

@@ -28,6 +28,7 @@
     "@prisma/client": "catalog:",
     "@trendhunter/env": "workspace:*",
     "@trendhunter/observability": "workspace:*",
+    "@trendhunter/ranking": "workspace:*",
     "@trendhunter/shared": "workspace:*",
     "@trendhunter/types": "workspace:*"
   },
