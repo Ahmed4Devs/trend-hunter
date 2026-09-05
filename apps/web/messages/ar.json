@@ -547,5 +547,108 @@
       "PUBLISHED": "منشورة",
       "ARCHIVED": "مؤرشفة"
     }
+  },
+  "reports": {
+    "title": "التقارير",
+    "subtitle": "إجابات تجميعية عن فترة تختارها.",
+    "generate": "إنشاء تقرير",
+    "generating": "جارٍ الإنشاء",
+    "from": "من",
+    "to": "إلى",
+    "kind": {
+      "label": "التقرير",
+      "POSTS_COLLECTED": "المنشورات المجموعة",
+      "TOPICS_DETECTED": "المواضيع المرصودة",
+      "SOURCE_DISTRIBUTION": "توزيع المصادر",
+      "TREND_GROWTH": "نمو الاتجاهات",
+      "TOP_CATEGORIES": "أبرز الفئات",
+      "ARABIC_OPPORTUNITIES": "الفرص العربية",
+      "TRANSLATION_ACTIVITY": "نشاط الترجمة",
+      "CONTENT_GENERATION": "المحتوى المُنشأ",
+      "SCAN_HISTORY": "سجل المسح"
+    },
+    "total": "الإجمالي",
+    "series": "عبر الزمن",
+    "breakdown": "حسب الفئة",
+    "range": "من {from} إلى {to}",
+    "generatedAt": "أُنشئ {time}",
+    "noData": "لا توجد بيانات لهذا التقرير في تلك الفترة.",
+    "created": "تم إنشاء التقرير.",
+    "deleted": "تمت إزالة التقرير.",
+    "delete": "إزالة هذا التقرير",
+    "empty": "لم يُنشأ أي تقرير بعد.",
+    "emptyHint": "اختر تقريراً وفترة من الأعلى."
+  },
+  "scans": {
+    "title": "سجل عمليات المسح",
+    "subtitle": "كل عملية جمع، وما وجدته، وما أخفق فيها.",
+    "status": {
+      "label": "الحالة",
+      "PENDING": "قيد الانتظار",
+      "RUNNING": "قيد التنفيذ",
+      "COMPLETED": "مكتملة",
+      "FAILED": "فاشلة",
+      "CANCELLED": "ملغاة"
+    },
+    "trigger": {
+      "MANUAL": "يدوي",
+      "SCHEDULED": "مجدول",
+      "SYSTEM": "نظام"
+    },
+    "collected": "مجموع",
+    "stored": "مخزّن",
+    "duplicates": "مكرر",
+    "posts": "منشورات",
+    "comments": "تعليقات",
+    "topics": "مواضيع",
+    "duration": "المدة",
+    "started": "بدأت {time}",
+    "failure": "سبب الإخفاق",
+    "empty": "لم تُنفّذ أي عملية مسح بعد.",
+    "emptyHint": "ابدأ واحدة من زر «مسح جديد».",
+    "jobs": {
+      "title": "المهام",
+      "queue": "الطابور",
+      "attempt": "المحاولة {current} من {max}",
+      "empty": "لم تُسجَّل أي مهمة لهذه العملية بعد."
+    },
+    "openScan": "فتح هذه العملية"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "subtitle": "كيف يتصرف النظام معك.",
+    "tabs": {
+      "preferences": "التفضيلات",
+      "profile": "الملف الشخصي"
+    },
+    "preferences": {
+      "title": "التفضيلات",
+      "description": "القيم الافتراضية المطبّقة حيثما لم تختر غير ذلك.",
+      "locale": "لغة الواجهة",
+      "theme": "المظهر",
+      "translationMode": "أسلوب الترجمة الافتراضي",
+      "terminology": "التعامل الافتراضي مع المصطلحات التقنية",
+      "analyticsRange": "المدة الافتراضية للوحة",
+      "aiClassification": "استخدام النموذج لتصنيف المواضيع",
+      "emailNotifications": "إشعارات البريد الإلكتروني",
+      "emergingAlerts": "نبّهني عن الاتجاهات الناشئة",
+      "arabicAlerts": "نبّهني عن الفرص العربية",
+      "saved": "تم حفظ التفضيلات."
+    },
+    "profile": {
+      "title": "الملف الشخصي",
+      "description": "كيف تظهر داخل النظام.",
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "emailNote": "تغيير البريد الإلكتروني غير مدعوم في هذا الإصدار.",
+      "image": "رابط الصورة الرمزية",
+      "saved": "تم حفظ الملف الشخصي.",
+      "save": "حفظ"
+    },
+    "theme": {
+      "LIGHT": "فاتح",
+      "DARK": "داكن",
+      "SYSTEM": "حسب النظام"
+    }
   }
 }

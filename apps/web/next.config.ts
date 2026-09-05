@@ -14,11 +14,10 @@ const nextConfig: NextConfig = {
   // `X-Powered-By` advertises the framework and version to anyone scanning.
   poweredByHeader: false,
 
-  // Off while the route tree is still being built out: it validates every
-  // `Link` target against the routes that exist, which would make the
-  // navigation component uncompilable until the last page it points at lands.
-  // Turned on in the hardening pass, once the tree is complete.
-  typedRoutes: false,
+  // Every `Link` target and `router.push` is checked against the routes that
+  // actually exist, so a renamed segment fails the build rather than becoming a
+  // 404 someone finds later.
+  typedRoutes: true,
 
   experimental: {
     // Barrel files: importing one icon from lucide-react would otherwise pull

@@ -547,5 +547,108 @@
       "PUBLISHED": "Published",
       "ARCHIVED": "Archived"
     }
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Aggregate answers over a period you choose.",
+    "generate": "Generate a report",
+    "generating": "Generating",
+    "from": "From",
+    "to": "To",
+    "kind": {
+      "label": "Report",
+      "POSTS_COLLECTED": "Posts collected",
+      "TOPICS_DETECTED": "Topics detected",
+      "SOURCE_DISTRIBUTION": "Source distribution",
+      "TREND_GROWTH": "Trend growth",
+      "TOP_CATEGORIES": "Top categories",
+      "ARABIC_OPPORTUNITIES": "Arabic opportunities",
+      "TRANSLATION_ACTIVITY": "Translation activity",
+      "CONTENT_GENERATION": "Content generated",
+      "SCAN_HISTORY": "Scan history"
+    },
+    "total": "Total",
+    "series": "Over time",
+    "breakdown": "By category",
+    "range": "{from} to {to}",
+    "generatedAt": "Generated {time}",
+    "noData": "This report has no data for that period.",
+    "created": "Report generated.",
+    "deleted": "Report removed.",
+    "delete": "Remove this report",
+    "empty": "No report has been generated yet.",
+    "emptyHint": "Pick a report and a period above."
+  },
+  "scans": {
+    "title": "Scan history",
+    "subtitle": "Every collection run, what it found, and what failed.",
+    "status": {
+      "label": "Status",
+      "PENDING": "Pending",
+      "RUNNING": "Running",
+      "COMPLETED": "Completed",
+      "FAILED": "Failed",
+      "CANCELLED": "Cancelled"
+    },
+    "trigger": {
+      "MANUAL": "Manual",
+      "SCHEDULED": "Scheduled",
+      "SYSTEM": "System"
+    },
+    "collected": "Collected",
+    "stored": "Stored",
+    "duplicates": "Duplicates",
+    "posts": "Posts",
+    "comments": "Comments",
+    "topics": "Topics",
+    "duration": "Duration",
+    "started": "Started {time}",
+    "failure": "Failure",
+    "empty": "No scan has run yet.",
+    "emptyHint": "Start one with the New scan button.",
+    "jobs": {
+      "title": "Jobs",
+      "queue": "Queue",
+      "attempt": "Attempt {current} of {max}",
+      "empty": "No job has been recorded for this scan yet."
+    },
+    "openScan": "Open this scan"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "How the product behaves for you.",
+    "tabs": {
+      "preferences": "Preferences",
+      "profile": "Profile"
+    },
+    "preferences": {
+      "title": "Preferences",
+      "description": "Defaults applied wherever you do not choose otherwise.",
+      "locale": "Interface language",
+      "theme": "Theme",
+      "translationMode": "Default translation mode",
+      "terminology": "Default handling of technical terms",
+      "analyticsRange": "Default dashboard range",
+      "aiClassification": "Use the model to classify topics",
+      "emailNotifications": "Email notifications",
+      "emergingAlerts": "Alert me about emerging trends",
+      "arabicAlerts": "Alert me about Arabic opportunities",
+      "saved": "Preferences saved."
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "How you appear in the product.",
+      "name": "Name",
+      "email": "Email",
+      "emailNote": "Changing the email address is not supported in this version.",
+      "image": "Avatar URL",
+      "saved": "Profile saved.",
+      "save": "Save"
+    },
+    "theme": {
+      "LIGHT": "Light",
+      "DARK": "Dark",
+      "SYSTEM": "System"
+    }
   }
 }
