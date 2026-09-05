@@ -41,7 +41,10 @@ export function createIngestionRepository(client: PrismaClient) {
       items: readonly {
         source: SourceKind;
         sourceItemId: string;
-        payload: Prisma.InputJsonValue;
+        // The provider's response, stored verbatim; cast at this boundary.
+        payload: Readonly<Record<string, unknown>>;
+        kind: 'POST' | 'COMMENT';
+        parentSourceItemId?: string | null;
         contentHash: string;
         collectedAt: Date;
         scanRunId?: string | null;
@@ -54,7 +57,9 @@ export function createIngestionRepository(client: PrismaClient) {
           data: items.map((item) => ({
             source: item.source,
             sourceItemId: item.sourceItemId,
-            payload: item.payload,
+            payload: item.payload as Prisma.InputJsonValue,
+            kind: item.kind,
+            parentSourceItemId: item.parentSourceItemId ?? null,
             contentHash: item.contentHash,
             collectedAt: item.collectedAt,
             scanRunId: item.scanRunId ?? null,
@@ -80,13 +85,29 @@ export function createIngestionRepository(client: PrismaClient) {
     async findRawItems(
       ids: readonly string[],
     ): Promise<
-      { id: string; source: SourceKind; sourceItemId: string; payload: Prisma.JsonValue; collectedAt: Date }[]
+      {
+        id: string;
+        source: SourceKind;
+        sourceItemId: string;
+        kind: 'POST' | 'COMMENT';
+        parentSourceItemId: string | null;
+        payload: Prisma.JsonValue;
+        collectedAt: Date;
+      }[]
     > {
       if (ids.length === 0) return [];
       return withDatabaseErrors('RawItem', () =>
         client.rawItem.findMany({
           where: { id: { in: [...ids] } },
-          select: { id: true, source: true, sourceItemId: true, payload: true, collectedAt: true },
+          select: {
+            id: true,
+            source: true,
+            sourceItemId: true,
+            kind: true,
+            parentSourceItemId: true,
+            payload: true,
+            collectedAt: true,
+          },
         }),
       );
     },

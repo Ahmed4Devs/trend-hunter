@@ -1,5 +1,6 @@
 import { buildPaginationMeta, normalizePaginationParams, toSkipTake } from '@trendhunter/shared';
 import type {
+  ArabicOpportunityBreakdown,
   Paginated,
   PaginationParams,
   SortDirection,
@@ -8,7 +9,9 @@ import type {
   Topic,
   TopicClassification,
   TopicDetail,
+  TopicSignalExplanation,
   TopicStatus,
+  TrendScoreBreakdown,
 } from '@trendhunter/types';
 
 import type { PrismaClient } from '../client';
@@ -82,6 +85,17 @@ function buildWhere(filters: TopicListFilters = {}): Prisma.TopicWhereInput {
   }
 
   return where;
+}
+
+/**
+ * Narrows a domain value to Prisma's JSON input type.
+ *
+ * The domain interfaces are structurally JSON-compatible but do not carry the
+ * index signature Prisma's union requires, so the conversion goes through
+ * `unknown`. Confined to this one helper rather than scattered as casts.
+ */
+function toJson(value: unknown): Prisma.InputJsonValue {
+  return value as Prisma.InputJsonValue;
 }
 
 /** Loads source kinds and saved flags for a page of topics in two queries. */
@@ -345,9 +359,12 @@ export function createTopicRepository(client: PrismaClient) {
         velocity: number;
         arabicOpportunityScore: number;
         classification: TopicClassification;
-        classificationReasons: Prisma.InputJsonValue;
-        trendBreakdown: Prisma.InputJsonValue;
-        arabicOpportunityBreakdown: Prisma.InputJsonValue;
+        // Typed as the domain shapes rather than Prisma's JSON union: the cast
+        // to `InputJsonValue` belongs here, at the persistence boundary, not in
+        // every worker that computes a score.
+        classificationReasons: readonly TopicSignalExplanation[];
+        trendBreakdown: TrendScoreBreakdown;
+        arabicOpportunityBreakdown: ArabicOpportunityBreakdown;
         postCount: number;
         commentCount: number;
         englishPostCount: number;
@@ -357,7 +374,16 @@ export function createTopicRepository(client: PrismaClient) {
       },
     ): Promise<void> {
       await withDatabaseErrors('Topic', () =>
-        client.topic.update({ where: { id }, data, select: { id: true } }),
+        client.topic.update({
+          where: { id },
+          data: {
+            ...data,
+            classificationReasons: toJson(data.classificationReasons),
+            trendBreakdown: toJson(data.trendBreakdown),
+            arabicOpportunityBreakdown: toJson(data.arabicOpportunityBreakdown),
+          },
+          select: { id: true },
+        }),
       );
     },
 
@@ -460,6 +486,59 @@ export function createTopicRepository(client: PrismaClient) {
           meanEngagement: row.mean_engagement ?? 0,
           meanSourceAuthority: row.mean_source_authority ?? 50,
         };
+      });
+    },
+
+    /**
+     * Records a point-in-time trend snapshot.
+     *
+     * Upserted on `(topicId, recordedAt)` so a retried analysis job overwrites
+     * its own snapshot rather than adding a second one at the same instant,
+     * which would put a vertical step in every chart.
+     */
+    async recordSnapshot(input: {
+      topicId: string;
+      trendScore: number;
+      postCount: number;
+      engagement: number;
+      velocity: number;
+      relevance: number;
+      freshness: number;
+      crossSourceSignal: number;
+      sourceAuthority: number;
+      novelty: number;
+      arabicOpportunity: number;
+      saturationPenalty: number;
+      recordedAt: Date;
+    }): Promise<void> {
+      const { topicId, recordedAt, ...values } = input;
+      await withDatabaseErrors('TrendSnapshot', () =>
+        client.trendSnapshot.upsert({
+          where: { topicId_recordedAt: { topicId, recordedAt } },
+          update: values,
+          create: { topicId, recordedAt, ...values },
+          select: { id: true },
+        }),
+      );
+    },
+
+    /**
+     * Copies a topic's trend and opportunity scores onto its posts.
+     *
+     * A post inherits the headroom of the conversation it belongs to, and
+     * denormalising it here is what lets the posts table be sorted and filtered
+     * by trend without joining topics on every query.
+     */
+    async propagateScoresToPosts(
+      topicId: string,
+      scores: { trendScore: number; opportunityScore: number },
+    ): Promise<number> {
+      return withDatabaseErrors('Post', async () => {
+        const result = await client.post.updateMany({
+          where: { topicId },
+          data: scores,
+        });
+        return result.count;
       });
     },
 

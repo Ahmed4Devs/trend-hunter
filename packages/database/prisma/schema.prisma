@@ -44,6 +44,13 @@ datasource db {
 // Enums
 // ---------------------------------------------------------------------------
 
+enum RawItemKind {
+  POST
+  COMMENT
+
+  @@map("raw_item_kind")
+}
+
 enum SourceKind {
   X
   REDDIT
@@ -392,6 +399,12 @@ model RawItem {
   id           String     @id @default(cuid())
   source       SourceKind
   sourceItemId String     @map("source_item_id")
+  /// Whether the provider returned this as a post or as a comment on one.
+  /// Preserved because normalisation routes the two differently, and a comment
+  /// that arrives labelled as a post loses its parent and is silently dropped.
+  kind         RawItemKind @default(POST)
+  /// For a comment, the `source_item_id` of the post it belongs to.
+  parentSourceItemId String? @map("parent_source_item_id")
   payload      Json
   contentHash  String     @map("content_hash")
   scanRunId    String?    @map("scan_run_id")

@@ -20,3 +20,5 @@ export * from './repositories/interest-repository';
 export * from './repositories/content-repository';
 export * from './repositories/operations-repository';
 export * from './repositories/saved-repository';
+export * from './repositories/analytics-repository';
+export * from './repositories/user-repository';
