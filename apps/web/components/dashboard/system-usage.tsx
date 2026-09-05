@@ -11,7 +11,7 @@ import {
   Separator,
 } from '@trendhunter/ui';
 import { ActivityIcon, CircleIcon } from 'lucide-react';
-import { getFormatter, getTranslations } from 'next-intl/server';
+import { getFormatter, getNow, getTranslations } from 'next-intl/server';
 
 export interface SystemUsageProps {
   readonly usage: readonly ApiUsageSummary[];
@@ -37,6 +37,10 @@ export async function SystemUsage({ usage, health }: SystemUsageProps) {
   const t = await getTranslations('dashboard.usage');
   const h = await getTranslations('dashboard.health');
   const format = await getFormatter();
+  // Explicit, so the server and the client agree on "now". Without it
+  // next-intl falls back to each environment's own clock and the rendered
+  // string changes on hydration.
+  const now = await getNow();
 
   const statuses = [
     { labelKey: 'database', state: health.database },
@@ -83,7 +87,7 @@ export async function SystemUsage({ usage, health }: SystemUsageProps) {
           {health.workerLastHeartbeatAt === null
             ? h('neverSeen')
             : h('lastHeartbeat', {
-                time: format.relativeTime(new Date(health.workerLastHeartbeatAt)),
+                time: format.relativeTime(new Date(health.workerLastHeartbeatAt), now),
               })}
         </p>
 

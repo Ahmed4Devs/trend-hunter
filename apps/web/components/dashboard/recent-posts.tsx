@@ -11,7 +11,7 @@ import {
 } from '@trendhunter/ui';
 import { InboxIcon } from 'lucide-react';
 import Link from 'next/link';
-import { getFormatter, getTranslations } from 'next-intl/server';
+import { getFormatter, getNow, getTranslations } from 'next-intl/server';
 
 import { SavePostButton } from '@/components/posts/save-post-button';
 
@@ -28,6 +28,10 @@ export async function RecentPosts({ posts }: { readonly posts: readonly Post[] }
   const t = await getTranslations('dashboard.recent');
   const common = await getTranslations('common');
   const format = await getFormatter();
+  // Explicit, so the server and the client agree on "now". Without it
+  // next-intl falls back to each environment's own clock and the rendered
+  // string changes on hydration.
+  const now = await getNow();
 
   return (
     <Card className="h-full">
@@ -62,7 +66,7 @@ export async function RecentPosts({ posts }: { readonly posts: readonly Post[] }
                       </span>
                     )}
                     <span className="text-xs text-muted-foreground">
-                      {format.relativeTime(new Date(post.publishedAt))}
+                      {format.relativeTime(new Date(post.publishedAt), now)}
                     </span>
                     <Badge variant="neutral">{post.language}</Badge>
                   </div>

@@ -12,7 +12,7 @@ import { InboxIcon } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getFormatter, getTranslations } from 'next-intl/server';
+import { getFormatter, getNow, getTranslations } from 'next-intl/server';
 
 import { SourceBadge } from '@/components/dashboard/source-badge';
 import { ScoreMeter } from '@/components/posts/score-meter';
@@ -54,6 +54,10 @@ export default async function TopicDetailPage(props: { readonly params: Promise<
   const t = await getTranslations('topics.detail');
   const topics = await getTranslations('topics');
   const format = await getFormatter();
+  // Explicit, so the server and the client agree on "now". Without it
+  // next-intl falls back to each environment's own clock and the rendered
+  // string changes on hydration.
+  const now = await getNow();
 
   return (
     <div className="space-y-6">
@@ -71,8 +75,8 @@ export default async function TopicDetailPage(props: { readonly params: Promise<
           <p className="text-sm text-muted-foreground">{topic.summary}</p>
         )}
         <p className="text-xs text-muted-foreground">
-          {t('firstSeen', { time: format.relativeTime(new Date(topic.firstDetectedAt)) })} ·{' '}
-          {t('lastSeen', { time: format.relativeTime(new Date(topic.lastDetectedAt)) })}
+          {t('firstSeen', { time: format.relativeTime(new Date(topic.firstDetectedAt), now) })} ·{' '}
+          {t('lastSeen', { time: format.relativeTime(new Date(topic.lastDetectedAt), now) })}
         </p>
       </header>
 
@@ -105,7 +109,7 @@ export default async function TopicDetailPage(props: { readonly params: Promise<
                         <span className="flex flex-wrap items-center gap-2">
                           <SourceBadge source={post.source} />
                           <span className="text-xs text-muted-foreground">
-                            {format.relativeTime(new Date(post.publishedAt))}
+                            {format.relativeTime(new Date(post.publishedAt), now)}
                           </span>
                           <Badge variant="neutral">{post.language}</Badge>
                         </span>

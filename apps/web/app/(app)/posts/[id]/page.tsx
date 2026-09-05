@@ -13,7 +13,7 @@ import { ExternalLinkIcon, MessageSquareIcon } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getFormatter, getTranslations } from 'next-intl/server';
+import { getFormatter, getNow, getTranslations } from 'next-intl/server';
 
 import { SourceBadge } from '@/components/dashboard/source-badge';
 import { PostActions } from '@/components/posts/post-actions';
@@ -47,6 +47,10 @@ export default async function PostDetailPage(props: { readonly params: Promise<{
 
   const t = await getTranslations('posts.detail');
   const format = await getFormatter();
+  // Explicit, so the server and the client agree on "now". Without it
+  // next-intl falls back to each environment's own clock and the rendered
+  // string changes on hydration.
+  const now = await getNow();
 
   const metrics = [
     { labelKey: 'likes', value: post.metrics.likes },
@@ -117,7 +121,7 @@ export default async function PostDetailPage(props: { readonly params: Promise<{
                       <div className="flex flex-wrap items-center gap-2 text-xs">
                         <span className="font-medium">{comment.author ?? '—'}</span>
                         <span className="text-muted-foreground">
-                          {format.relativeTime(new Date(comment.publishedAt))}
+                          {format.relativeTime(new Date(comment.publishedAt), now)}
                         </span>
                         <Badge variant="neutral">{comment.language}</Badge>
                         <span className="tabular text-muted-foreground">
@@ -205,7 +209,7 @@ export default async function PostDetailPage(props: { readonly params: Promise<{
               )}
 
               <p className="text-xs text-muted-foreground">
-                {t('collected', { time: format.relativeTime(new Date(post.collectedAt)) })}
+                {t('collected', { time: format.relativeTime(new Date(post.collectedAt), now) })}
               </p>
             </CardContent>
           </Card>

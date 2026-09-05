@@ -3,7 +3,7 @@ import { Card, CardContent, EmptyState } from '@trendhunter/ui';
 import { HistoryIcon } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getFormatter, getTranslations } from 'next-intl/server';
+import { getFormatter, getNow, getTranslations } from 'next-intl/server';
 
 import { FilterSelect } from '@/components/common/filter-select';
 import { PageHeader } from '@/components/common/page-header';
@@ -30,6 +30,10 @@ export default async function ScansPage(props: {
 
   const t = await getTranslations('scans');
   const format = await getFormatter();
+  // Explicit, so the server and the client agree on "now". Without it
+  // next-intl falls back to each environment's own clock and the rendered
+  // string changes on hydration.
+  const now = await getNow();
 
   return (
     <div className="space-y-6">
@@ -65,7 +69,7 @@ export default async function ScansPage(props: {
                         {t(`trigger.${scan.trigger}`)}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {t('started', { time: format.relativeTime(new Date(scan.startedAt)) })}
+                        {t('started', { time: format.relativeTime(new Date(scan.startedAt), now) })}
                       </span>
                       <span className="ms-auto flex flex-wrap items-center gap-4 text-xs">
                         <span className="tabular">

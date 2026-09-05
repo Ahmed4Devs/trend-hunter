@@ -4,7 +4,7 @@ import type { Report, ReportResult } from '@trendhunter/types';
 import { Badge, Button, Card, CardContent, ChartFrame, ChartTooltip, toast } from '@trendhunter/ui';
 import { Trash2Icon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useFormatter, useNow, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import {
   Bar,
@@ -40,6 +40,10 @@ export function ReportCard({ report }: { readonly report: Report }) {
   const common = useTranslations('common');
   const router = useRouter();
   const format = useFormatter();
+  // Explicit, and refreshed on an interval: without it next-intl reads the
+  // environment's clock, the server and the client disagree at hydration, and
+  // the string never updates afterwards.
+  const now = useNow({ updateInterval: 60_000 });
   const [pending, setPending] = useState(false);
 
   const result = resultOf(report);
@@ -69,7 +73,7 @@ export function ReportCard({ report }: { readonly report: Report }) {
                 from: format.dateTime(new Date(report.rangeFrom), { dateStyle: 'medium' }),
                 to: format.dateTime(new Date(report.rangeTo), { dateStyle: 'medium' }),
               })}{' '}
-              · {t('generatedAt', { time: format.relativeTime(new Date(report.generatedAt)) })}
+              · {t('generatedAt', { time: format.relativeTime(new Date(report.generatedAt), now) })}
             </p>
           </div>
           <Badge variant="purple">{t(`kind.${report.kind}`)}</Badge>

@@ -1,7 +1,7 @@
 import type { Topic, TopicClassification } from '@trendhunter/types';
 import { Badge, Card, CardContent } from '@trendhunter/ui';
 import Link from 'next/link';
-import { getFormatter, getTranslations } from 'next-intl/server';
+import { getFormatter, getNow, getTranslations } from 'next-intl/server';
 
 import { SourceBadge } from '@/components/dashboard/source-badge';
 
@@ -26,6 +26,10 @@ export async function TopicCard({ topic }: { readonly topic: Topic }) {
   const t = await getTranslations('topics');
   const detail = await getTranslations('topics.detail');
   const format = await getFormatter();
+  // Explicit, so the server and the client agree on "now". Without it
+  // next-intl falls back to each environment's own clock and the rendered
+  // string changes on hydration.
+  const now = await getNow();
 
   return (
     <Card className="transition-colors hover:border-primary/40">
@@ -65,7 +69,7 @@ export async function TopicCard({ topic }: { readonly topic: Topic }) {
           <div>
             <dt className="text-muted-foreground">{t('posts', { count: topic.postCount })}</dt>
             <dd className="tabular font-medium">
-              {format.relativeTime(new Date(topic.lastDetectedAt))}
+              {format.relativeTime(new Date(topic.lastDetectedAt), now)}
             </dd>
           </div>
         </dl>

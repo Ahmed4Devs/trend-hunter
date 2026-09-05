@@ -4,7 +4,7 @@ import type { PaginationMeta, Post } from '@trendhunter/types';
 import { Badge, columnHelperFor, DataTable, EmptyState } from '@trendhunter/ui';
 import { InboxIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useFormatter, useNow, useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 
 import { SourceBadge } from '@/components/dashboard/source-badge';
@@ -31,6 +31,10 @@ export function PostsTable({
 }) {
   const t = useTranslations('posts');
   const format = useFormatter();
+  // Explicit, and refreshed on an interval: without it next-intl reads the
+  // environment's clock, the server and the client disagree at hydration, and
+  // the string never updates afterwards.
+  const now = useNow({ updateInterval: 60_000 });
   const router = useRouter();
 
   // `column.columns` keeps each definition's own value type through the array,
@@ -99,7 +103,7 @@ export function PostsTable({
           header: () => t('columns.published'),
           cell: (context) => (
             <span className="text-xs whitespace-nowrap text-muted-foreground">
-              {format.relativeTime(new Date(context.getValue()))}
+              {format.relativeTime(new Date(context.getValue()), now)}
             </span>
           ),
         }),
@@ -121,7 +125,7 @@ export function PostsTable({
           ),
         }),
       ]),
-    [t, format],
+    [t, format, now],
   );
 
   return (

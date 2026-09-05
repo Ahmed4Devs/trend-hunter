@@ -9,7 +9,7 @@ import {
 } from '@trendhunter/ui';
 import { RadioIcon } from 'lucide-react';
 import type { Metadata } from 'next';
-import { getFormatter, getTranslations } from 'next-intl/server';
+import { getFormatter, getNow, getTranslations } from 'next-intl/server';
 
 import { PageHeader } from '@/components/common/page-header';
 import { SourceBadge } from '@/components/dashboard/source-badge';
@@ -36,6 +36,10 @@ export default async function SourcesPage() {
   const t = await getTranslations('sources');
   const interestsT = await getTranslations('sources.interests');
   const format = await getFormatter();
+  // Explicit, so the server and the client agree on "now". Without it
+  // next-intl falls back to each environment's own clock and the rendered
+  // string changes on hydration.
+  const now = await getNow();
 
   return (
     <div className="space-y-6">
@@ -73,7 +77,7 @@ export default async function SourcesPage() {
                     {source.lastScannedAt === null
                       ? t('neverCollected')
                       : t('lastCollected', {
-                          time: format.relativeTime(new Date(source.lastScannedAt)),
+                          time: format.relativeTime(new Date(source.lastScannedAt), now),
                         })}
                   </div>
                 </dl>
