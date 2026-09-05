@@ -81,7 +81,11 @@ export function createQueueProducers(connection: Redis): QueueProducers {
             since: input.since === null ? null : input.since.toISOString(),
           };
           return queueFor(COLLECT_QUEUE_BY_SOURCE[source.kind]).add('collect', payload, {
-            jobId: `${input.scanRunId}:${source.kind}`,
+            // Hyphens, not colons. BullMQ builds its own Redis keys with a
+            // colon and rejects a custom id containing one — at run time, on
+            // the request, which is what made "Scan now" fail with a 500 while
+            // every unit test passed.
+            jobId: `${input.scanRunId}-${source.kind}`,
           });
         }),
       );
@@ -92,7 +96,8 @@ export function createQueueProducers(connection: Redis): QueueProducers {
       // translation while the first is still queued is one job, not two calls
       // to a paid provider.
       const job = await queueFor(QUEUE_NAMES.translation).add('translate', payload, {
-        jobId: `${payload.targetKind}:${payload.targetId}:${payload.mode}:${payload.targetLanguage}`,
+        // Hyphen-separated for the same reason as the collect ids above.
+        jobId: `${payload.targetKind}-${payload.targetId}-${payload.mode}-${payload.targetLanguage}`,
       });
       return job.id ?? '';
     },
