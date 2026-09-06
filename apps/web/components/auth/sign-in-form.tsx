@@ -35,7 +35,11 @@ export function SignInForm() {
   function safeNextPath(): string {
     const requested = searchParams.get('next');
     if (requested === null) return '/';
-    if (!requested.startsWith('/') || requested.startsWith('//')) return '/';
+    // `//evil.test` is protocol-relative; so is `/\evil.test`, because browsers
+    // normalise the backslash to a slash before resolving. Checking only for
+    // the doubled slash lets the backslash form through.
+    if (!requested.startsWith('/')) return '/';
+    if (requested.startsWith('//') || requested.startsWith('/\\')) return '/';
     return requested;
   }
 

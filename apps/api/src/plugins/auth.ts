@@ -3,6 +3,7 @@ import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 
 import type { Container } from '../container';
+import { authRateLimit } from './rate-limit';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -35,7 +36,16 @@ export interface AuthPluginOptions {
  * outright — the user simply never gets a session, with no error anywhere.
  * `getSetCookie()` returns them as an array, which is what is forwarded.
  */
-const authPlugin: FastifyPluginAsync<AuthPluginOptions> = async (app, options) => {
+/**
+ * Resolves the session for every request.
+ *
+ * Split from the auth routes below so it can be registered *before* the rate
+ * limiter while the routes are registered *after* it. Fastify copies the parent
+ * instance's hooks into a child when the child is created, so a scope created
+ * before the limiter loads never receives its hook — which is how the auth
+ * endpoints ended up with no Fastify rate limiting at all.
+ */
+const sessionPlugin: FastifyPluginAsync<AuthPluginOptions> = (app, options) => {
   const { auth } = options.container;
 
   // Resolve the session once per request, before any handler or rate limiter
@@ -51,6 +61,12 @@ const authPlugin: FastifyPluginAsync<AuthPluginOptions> = async (app, options) =
     }
   });
 
+  return Promise.resolve();
+};
+
+const authRoutesPlugin: FastifyPluginAsync<AuthPluginOptions> = async (app, options) => {
+  const { auth } = options.container;
+
   await app.register((scope) => {
     scope.removeAllContentTypeParsers();
     scope.addContentTypeParser('*', { parseAs: 'buffer' }, (_request, body, done) => {
@@ -60,6 +76,11 @@ const authPlugin: FastifyPluginAsync<AuthPluginOptions> = async (app, options) =
     scope.route({
       method: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       url: '/api/auth/*',
+      // Better Auth applies its own, stricter per-endpoint rules; this is the
+      // outer bound, keyed by address because an unauthenticated caller has no
+      // account to key on. It is only reachable because this plugin is
+      // registered after the rate limiter.
+      config: { rateLimit: authRateLimit(options.container.env) },
       // The routes are described by Better Auth, not by our Zod schemas, so
       // they are hidden from the generated OpenAPI document rather than
       // appearing in it untyped.
@@ -95,4 +116,5 @@ const authPlugin: FastifyPluginAsync<AuthPluginOptions> = async (app, options) =
   });
 };
 
-export default fp(authPlugin, { name: 'auth' });
+export const authSession = fp(sessionPlugin, { name: 'auth-session' });
+export const authRoutes = fp(authRoutesPlugin, { name: 'auth-routes' });

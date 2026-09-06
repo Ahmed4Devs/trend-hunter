@@ -1,10 +1,9 @@
 import fastifyRateLimit from '@fastify/rate-limit';
 import type { ApiEnvironment } from '@trendhunter/env';
+import { AppError } from '@trendhunter/shared';
 import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import type { Redis } from 'ioredis';
-
-import { errorBody } from '../http/envelope';
 
 /**
  * Rate limiting.
@@ -69,9 +68,16 @@ const rateLimitPlugin: FastifyPluginAsync<RateLimitOptions> = async (app, option
       'x-ratelimit-reset': true,
       'retry-after': true,
     },
-    errorResponseBuilder: (request, context) =>
-      errorBody('RATE_LIMITED', `Too many requests. Retry in ${context.after}.`, {
-        requestId: request.id,
+    // `@fastify/rate-limit` THROWS whatever this returns (`throw
+    // params.errorResponseBuilder(...)`), it does not send it. Returning a bare
+    // envelope object meant the error handler saw something with no
+    // `statusCode`, fell through to its catch-all, and answered 500 "An
+    // unexpected error occurred" — so every throttled caller across the whole
+    // API got a server error instead of a 429, with no Retry-After and none of
+    // the detail assembled here. An `AppError` carries the status and its own
+    // client projection, and the handler already knows how to render one.
+    errorResponseBuilder: (_request, context) =>
+      new AppError('RATE_LIMITED', `Too many requests. Retry in ${context.after}.`, {
         details: { limit: context.max, windowSeconds: env.RATE_LIMIT_WINDOW_SECONDS },
       }),
   });

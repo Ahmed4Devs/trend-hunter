@@ -15,6 +15,8 @@ import type {
   TrendingTopicSummary,
 } from '@trendhunter/types';
 
+import { AppError } from '@trendhunter/shared';
+
 import type { PrismaClient } from '../client';
 import { withDatabaseErrors } from '../errors';
 import { toSourceDistribution } from '../mappers';
@@ -35,6 +37,24 @@ import { toSourceDistribution } from '../mappers';
 
 /** Relevance at or above which a post counts as a "relevant idea". */
 const RELEVANT_IDEA_THRESHOLD = 60;
+
+/**
+ * The tables a bucketed report may count rows in, and the timestamp each one
+ * is bucketed by.
+ *
+ * A lookup rather than a type: `loadReportSeries` builds its SQL with
+ * `$queryRawUnsafe`, so these two identifiers are interpolated rather than
+ * bound. Reading them out of this object is what makes that safe, and it stays
+ * safe even if a caller ever passes an unvalidated string.
+ */
+const REPORT_SERIES_SOURCES = {
+  posts: { table: 'posts', timestampColumn: 'collected_at' },
+  topics: { table: 'topics', timestampColumn: 'created_at' },
+  translations: { table: 'translations', timestampColumn: 'created_at' },
+  content_drafts: { table: 'content_drafts', timestampColumn: 'created_at' },
+} as const satisfies Record<string, { table: string; timestampColumn: string }>;
+
+export type ReportSeriesTable = keyof typeof REPORT_SERIES_SOURCES;
 
 export function createAnalyticsRepository(client: PrismaClient) {
   return {
@@ -279,13 +299,21 @@ export function createAnalyticsRepository(client: PrismaClient) {
 
     /** A bucketed count for one report kind, over an explicit range. */
     async loadReportSeries(input: {
-      table: 'posts' | 'topics' | 'translations' | 'content_drafts';
+      table: ReportSeriesTable;
       from: Date;
       to: Date;
       bucketHours: number;
     }): Promise<{ label: string; value: number }[]> {
-      // The table name is chosen from a closed set here, never from a request.
-      const timestampColumn = input.table === 'posts' ? 'collected_at' : 'created_at';
+      // `$queryRawUnsafe` interpolates the table and column names, so the only
+      // thing standing between this and an injection is that they came from a
+      // closed set. A TypeScript union is erased at run time and proves nothing
+      // once a value reaches here from JSON, so the identifiers are resolved
+      // through this lookup instead: an unknown table cannot spell itself into
+      // the SQL, it throws.
+      const target = REPORT_SERIES_SOURCES[input.table];
+      if (target === undefined) {
+        throw new AppError('INTERNAL_ERROR', 'Unknown report series table.', { expose: false });
+      }
       const interval = `${String(Math.max(1, input.bucketHours))} hours`;
 
       return withDatabaseErrors('Report', async () => {
@@ -297,9 +325,9 @@ export function createAnalyticsRepository(client: PrismaClient) {
           SELECT b.bucket_start, COALESCE(c.total, 0) AS total
           FROM buckets b
           LEFT JOIN LATERAL (
-            SELECT COUNT(*) AS total FROM "${input.table}"
-            WHERE "${timestampColumn}" >= b.bucket_start
-              AND "${timestampColumn}" <  b.bucket_start + $3::interval
+            SELECT COUNT(*) AS total FROM "${target.table}"
+            WHERE "${target.timestampColumn}" >= b.bucket_start
+              AND "${target.timestampColumn}" <  b.bucket_start + $3::interval
           ) c ON TRUE
           ORDER BY b.bucket_start ASC
           `,

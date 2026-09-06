@@ -94,6 +94,15 @@ export function requireRole(
  * do NOT bypass this: user content — drafts, translations, saved items — is not
  * an administrator's to read, and an admin flag should not become a way to read
  * everyone's private work.
+ *
+ * Throws `ForbiddenError`, which the tests pin deliberately. That is a different
+ * choice from the one the routes make: a route that loads by id scoped to the
+ * owner answers 404, so another user's row is indistinguishable from one that
+ * does not exist. The distinction is which of the two the caller already knows.
+ * This guard is for a resource the caller reached legitimately and whose
+ * existence is therefore not a secret — the refusal is about the operation, not
+ * about hiding the row. Where existence IS the secret, scope the query by user
+ * and answer 404 rather than loading first and calling this.
  */
 export function requireOwnership(
   session: SessionContext | null,
@@ -101,8 +110,6 @@ export function requireOwnership(
 ): SessionContext {
   const authenticated = requireUser(session);
   if (ownerId === null || ownerId === undefined || ownerId !== authenticated.user.id) {
-    // Reported as not-found rather than forbidden: confirming that an id exists
-    // but belongs to someone else is itself a disclosure.
     throw new ForbiddenError('You do not have access to this resource.');
   }
   return authenticated;

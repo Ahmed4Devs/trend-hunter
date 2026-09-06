@@ -5,7 +5,7 @@ import Fastify from 'fastify';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 
 import type { Container } from './container';
-import authPlugin from './plugins/auth';
+import { authRoutes, authSession } from './plugins/auth';
 import contextPlugin from './plugins/context';
 import errorHandlerPlugin from './plugins/error-handler';
 import openApiPlugin from './plugins/openapi';
@@ -20,10 +20,14 @@ import { registerRoutes } from './routes';
  *
  *  1. the error handler, so a failure in any later plugin is still formatted;
  *  2. security headers and CORS, so even a rejected request carries them;
- *  3. auth, because the rate limiter keys on the resolved session;
+ *  3. session resolution, because the rate limiter keys on the resolved session;
  *  4. the rate limiter;
- *  5. OpenAPI, which must see every route schema registered after it;
- *  6. the routes.
+ *  5. the auth routes — after the limiter, so they are covered by it. Fastify
+ *     copies the parent's hooks into a child scope when that scope is created,
+ *     so registering them earlier left `/api/auth/*` with no Fastify limiter at
+ *     all, however carefully one was configured;
+ *  6. OpenAPI, which must see every route schema registered after it;
+ *  7. the routes.
  */
 /**
  * The concrete server type.
@@ -77,8 +81,9 @@ export function buildApp(container: Container) {
     .register(contextPlugin, { container })
     .register(fastifySensible)
     .register(securityPlugin, { env })
-    .register(authPlugin, { container })
+    .register(authSession, { container })
     .register(rateLimitPlugin, { env, redis: container.redis })
+    .register(authRoutes, { container })
     .register(openApiPlugin, { env })
     .register(registerRoutes, { prefix: '/api/v1' });
 }
