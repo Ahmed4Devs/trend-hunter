@@ -168,19 +168,38 @@ describeWithDatabase('database integration', () => {
 
   describe('nearest-neighbour search', () => {
     it('ranks a related post above an unrelated one', async () => {
+      // The search runs over the whole table, not just these fixtures, so the
+      // assertions below are about ORDER rather than about membership of a
+      // small top-k. Asserting on a similarity read out of a 4-row window
+      // assumed the table held nothing else: as soon as it did, the deliberately
+      // distant `unrelated` post dropped out of the window — which is the
+      // ranking working, not failing — and the `?? 1` fallback turned that into
+      // a failure.
       const neighbours = await findNearestNeighbours(db, {
         table: 'posts',
         embedding: vector(1),
-        limit: 4,
+        limit: 50,
       });
+
+      /** Position in the ranking; absent means "further than everything here". */
+      const rankOf = (key: string): number => {
+        const id = postIds.get(key);
+        const index = neighbours.findIndex((entry) => entry.id === id);
+        return index === -1 ? Number.POSITIVE_INFINITY : index;
+      };
 
       const byId = new Map(neighbours.map((entry) => [entry.id, entry.similarity]));
       const launch = byId.get(postIds.get('launch') ?? '');
-      const discussion = byId.get(postIds.get('discussion') ?? '');
-      const unrelated = byId.get(postIds.get('unrelated') ?? '');
 
+      // The query vector IS the launch post's embedding, so it is always first
+      // and always ~1. This is what pins the distance-to-similarity conversion.
+      expect(rankOf('launch')).toBe(0);
       expect(launch).toBeGreaterThan(0.99);
-      expect(discussion ?? 0).toBeGreaterThan(unrelated ?? 1);
+
+      // The near-duplicate must surface, and must outrank the distant post
+      // whether or not that one made the window at all.
+      expect(rankOf('discussion')).toBeLessThan(Number.POSITIVE_INFINITY);
+      expect(rankOf('discussion')).toBeLessThan(rankOf('unrelated'));
     });
 
     it('honours the exclusion list', async () => {
