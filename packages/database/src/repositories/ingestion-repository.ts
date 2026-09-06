@@ -124,6 +124,16 @@ export function createIngestionRepository(client: PrismaClient) {
      * catches the same item collected twice, and the content-hash lookup that
      * runs first catches the same story republished under a different id — the
      * cross-source case the trend engine would otherwise double-count.
+     *
+     * Only the first of those two layers is atomic. `content_hash` carries no
+     * unique constraint — the table already holds legitimate collisions — so
+     * the hash pass is a read followed by a write, and two batches inserting
+     * the same story concurrently can still both write it. It is deduplicated
+     * within a batch and against everything already stored, which covers the
+     * pipeline as it actually runs (one normalise job per source per scan);
+     * the concurrent case is left to the trend engine's own cross-source
+     * counting rather than papered over with a constraint that would reject
+     * real posts.
      */
     async storePosts(
       posts: readonly (NormalizedPost & {
@@ -144,7 +154,18 @@ export function createIngestionRepository(client: PrismaClient) {
         });
         const knownHashes = new Set(existingByHash.map((row) => row.contentHash));
 
-        const fresh = posts.filter((post) => !knownHashes.has(post.contentHash));
+        // The seen-set carries forward within the batch as well as across it.
+        // Filtering only against what the database already held missed the
+        // commonest case entirely: one scan collects the same story from
+        // several feeds at once, so both copies arrive in this batch, neither
+        // is in the table yet, and both were written. Every duplicate found in
+        // the development database had a single `collected_at` — all of them
+        // came in together, none from a later scan.
+        const fresh = posts.filter((post) => {
+          if (knownHashes.has(post.contentHash)) return false;
+          knownHashes.add(post.contentHash);
+          return true;
+        });
         const now = new Date();
 
         const created =
