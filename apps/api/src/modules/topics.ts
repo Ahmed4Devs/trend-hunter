@@ -241,7 +241,7 @@ export const topicRoutes: RouteModule = (app) => {
       },
     },
     handler: async (request) => {
-      currentUser(request);
+      const session = currentUser(request);
       const { id } = request.params;
       const query = request.query;
 
@@ -250,26 +250,31 @@ export const topicRoutes: RouteModule = (app) => {
       const topic = await repositories.topics.findById(id);
       if (topic === null) throw new NotFoundError('Topic');
 
-      const result = await repositories.posts.list({
-        pagination: { page: query.page, pageSize: query.pageSize },
-        sortBy: query.sortBy,
-        sortDirection: query.sortDirection,
-        filters: {
-          topicId: id,
-          ...(query.sources === undefined ? {} : { sources: query.sources }),
-          ...(query.languages === undefined ? {} : { languages: query.languages }),
-          ...(query.publishedFrom === undefined
-            ? {}
-            : { publishedFrom: new Date(query.publishedFrom) }),
-          ...(query.publishedTo === undefined ? {} : { publishedTo: new Date(query.publishedTo) }),
-          ...(query.minRelevance === undefined ? {} : { minRelevance: query.minRelevance }),
-          ...(query.minTrend === undefined ? {} : { minTrend: query.minTrend }),
-          ...(query.minOpportunity === undefined ? {} : { minOpportunity: query.minOpportunity }),
-          ...(query.isSaved === undefined ? {} : { isSaved: query.isSaved }),
-          ...(query.isRead === undefined ? {} : { isRead: query.isRead }),
-          includeHidden: query.includeHidden,
+      const result = await repositories.posts.list(
+        {
+          pagination: { page: query.page, pageSize: query.pageSize },
+          sortBy: query.sortBy,
+          sortDirection: query.sortDirection,
+          filters: {
+            topicId: id,
+            ...(query.sources === undefined ? {} : { sources: query.sources }),
+            ...(query.languages === undefined ? {} : { languages: query.languages }),
+            ...(query.publishedFrom === undefined
+              ? {}
+              : { publishedFrom: new Date(query.publishedFrom) }),
+            ...(query.publishedTo === undefined
+              ? {}
+              : { publishedTo: new Date(query.publishedTo) }),
+            ...(query.minRelevance === undefined ? {} : { minRelevance: query.minRelevance }),
+            ...(query.minTrend === undefined ? {} : { minTrend: query.minTrend }),
+            ...(query.minOpportunity === undefined ? {} : { minOpportunity: query.minOpportunity }),
+            ...(query.isSaved === undefined ? {} : { isSaved: query.isSaved }),
+            ...(query.isRead === undefined ? {} : { isRead: query.isRead }),
+            includeHidden: query.includeHidden,
+          },
         },
-      });
+        session.user.id,
+      );
 
       return paginated(result.items, result.pagination);
     },

@@ -43,29 +43,37 @@ export const postRoutes: RouteModule = (app) => {
       response: { 200: paginatedEnvelope(postSchema), ...commonErrorResponses },
     },
     handler: async (request) => {
-      currentUser(request);
+      const session = currentUser(request);
       const query = request.query;
 
-      const result = await repositories.posts.list({
-        pagination: { page: query.page, pageSize: query.pageSize },
-        sortBy: query.sortBy,
-        sortDirection: query.sortDirection,
-        filters: {
-          ...(query.sources === undefined ? {} : { sources: query.sources }),
-          ...(query.languages === undefined ? {} : { languages: query.languages }),
-          ...(query.topicId === undefined ? {} : { topicId: query.topicId }),
-          ...(query.publishedFrom === undefined
-            ? {}
-            : { publishedFrom: new Date(query.publishedFrom) }),
-          ...(query.publishedTo === undefined ? {} : { publishedTo: new Date(query.publishedTo) }),
-          ...(query.minRelevance === undefined ? {} : { minRelevance: query.minRelevance }),
-          ...(query.minTrend === undefined ? {} : { minTrend: query.minTrend }),
-          ...(query.minOpportunity === undefined ? {} : { minOpportunity: query.minOpportunity }),
-          ...(query.isSaved === undefined ? {} : { isSaved: query.isSaved }),
-          ...(query.isRead === undefined ? {} : { isRead: query.isRead }),
-          includeHidden: query.includeHidden,
+      // The caller is passed to the reader, not merely authenticated: `isSaved`
+      // is per-user state, so both the filter and the flag on each row are
+      // answered from this user's rows in `saved_items`.
+      const result = await repositories.posts.list(
+        {
+          pagination: { page: query.page, pageSize: query.pageSize },
+          sortBy: query.sortBy,
+          sortDirection: query.sortDirection,
+          filters: {
+            ...(query.sources === undefined ? {} : { sources: query.sources }),
+            ...(query.languages === undefined ? {} : { languages: query.languages }),
+            ...(query.topicId === undefined ? {} : { topicId: query.topicId }),
+            ...(query.publishedFrom === undefined
+              ? {}
+              : { publishedFrom: new Date(query.publishedFrom) }),
+            ...(query.publishedTo === undefined
+              ? {}
+              : { publishedTo: new Date(query.publishedTo) }),
+            ...(query.minRelevance === undefined ? {} : { minRelevance: query.minRelevance }),
+            ...(query.minTrend === undefined ? {} : { minTrend: query.minTrend }),
+            ...(query.minOpportunity === undefined ? {} : { minOpportunity: query.minOpportunity }),
+            ...(query.isSaved === undefined ? {} : { isSaved: query.isSaved }),
+            ...(query.isRead === undefined ? {} : { isRead: query.isRead }),
+            includeHidden: query.includeHidden,
+          },
         },
-      });
+        session.user.id,
+      );
 
       return paginated(result.items, result.pagination);
     },
@@ -109,15 +117,20 @@ export const postRoutes: RouteModule = (app) => {
       },
     },
     handler: async (request) => {
-      currentUser(request);
+      const session = currentUser(request);
+      const userId = session.user.id;
       const { id } = request.params;
       const body = request.body;
 
-      let post = await repositories.posts.findById(id);
+      let post = await repositories.posts.findById(id, userId);
       if (post === null) throw new NotFoundError('Post');
 
-      if (body.isRead !== undefined) post = await repositories.posts.markRead(id, body.isRead);
-      if (body.isHidden !== undefined) post = await repositories.posts.setHidden(id, body.isHidden);
+      if (body.isRead !== undefined) {
+        post = await repositories.posts.markRead(id, body.isRead, userId);
+      }
+      if (body.isHidden !== undefined) {
+        post = await repositories.posts.setHidden(id, body.isHidden, userId);
+      }
 
       return ok(post);
     },
@@ -141,10 +154,16 @@ export const postRoutes: RouteModule = (app) => {
       },
     },
     handler: async (request) => {
-      currentUser(request);
+      const session = currentUser(request);
       const post = await repositories.posts.findById(request.params.id);
       if (post === null) throw new NotFoundError('Post');
-      return ok(await repositories.posts.findRelated(request.params.id, request.query.limit));
+      return ok(
+        await repositories.posts.findRelated(
+          request.params.id,
+          request.query.limit,
+          session.user.id,
+        ),
+      );
     },
   });
 

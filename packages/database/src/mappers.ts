@@ -151,7 +151,6 @@ export const POST_SELECT = {
   opportunityScore: true,
   relevanceBreakdown: true,
   isRead: true,
-  isSaved: true,
   isHidden: true,
   topicId: true,
   createdAt: true,
@@ -162,7 +161,17 @@ export const POST_SELECT = {
 
 export type PostRow = Prisma.PostGetPayload<{ select: typeof POST_SELECT }>;
 
-export function toPost(row: PostRow): Post {
+/**
+ * Projects a post row onto the domain shape.
+ *
+ * `isSaved` arrives as an extra rather than as a column. Saving is per user —
+ * `saved_items` is keyed on `(user_id, post_id)` — so a column on `posts` would
+ * be one deployment-wide flag standing in for every caller's private state:
+ * one user's save would light up the button for everyone, and their unsave
+ * would clear it. The topic mapper resolves it the same way, for the same
+ * reason.
+ */
+export function toPost(row: PostRow, extras: { isSaved?: boolean } = {}): Post {
   return {
     id: row.id,
     source: row.source,
@@ -187,7 +196,7 @@ export function toPost(row: PostRow): Post {
     trendScore: round(row.trendScore, 2),
     opportunityScore: round(row.opportunityScore, 2),
     isRead: row.isRead,
-    isSaved: row.isSaved,
+    isSaved: extras.isSaved ?? false,
     isHidden: row.isHidden,
     topicId: row.topicId,
     topicName: row.topic?.name ?? null,

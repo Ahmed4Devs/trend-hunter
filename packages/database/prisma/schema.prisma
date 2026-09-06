@@ -455,7 +455,10 @@ model Post {
   /// Inspectable components behind relevance_score.
   relevanceBreakdown Json?        @map("relevance_breakdown")
   isRead          Boolean         @default(false) @map("is_read")
-  isSaved         Boolean         @default(false) @map("is_saved")
+  /// Saving is per user and lives in `saved_items`. There is deliberately no
+  /// `is_saved` column here: a post belongs to the deployment, so one boolean
+  /// would have to mean "saved" for every caller at once — one user's save lit
+  /// the button up for everyone, and their unsave cleared it.
   isHidden        Boolean         @default(false) @map("is_hidden")
   rawItemId       String?         @map("raw_item_id")
   topicId         String?         @map("topic_id")

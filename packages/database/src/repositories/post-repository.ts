@@ -22,6 +22,7 @@ import {
   toPostRelevanceBreakdown,
   toTranslation,
 } from '../mappers';
+import { loadSavedPostIds } from './saved-flags';
 
 /**
  * Post reads and writes.
@@ -36,24 +37,52 @@ import {
  * Nearest neighbours of a post by embedding proximity.
  *
  * Declared outside the factory so both `findRelated` and `findDetailById` share
- * one implementation. The join is done in SQL rather than by fetching the
- * source embedding first: that keeps a 768-float vector out of the Node process
- * entirely and lets PostgreSQL use the HNSW index directly.
+ * one implementation.
+ *
+ * The source embedding is read first and then bound as a parameter, rather than
+ * joining `posts` to itself and ordering by `source.embedding <=> other.embedding`.
+ * The self-join reads as the tidier query and cost a sequential scan on every
+ * call: pgvector can only use an HNSW index when one side of the distance
+ * operator is a constant, so with a column on both sides PostgreSQL computed
+ * the distance to every row and sorted the lot. `EXPLAIN` showed a Seq Scan and
+ * a full Sort where the plan below shows an Index Scan. Nothing errors when
+ * that happens, which is exactly why it survived — it is only slow, and only
+ * once the table is large.
  */
-async function findRelatedPosts(client: PrismaClient, id: string, limit: number): Promise<Post[]> {
+async function findRelatedPosts(
+  client: PrismaClient,
+  id: string,
+  limit: number,
+  userId: string | null,
+): Promise<Post[]> {
   const bounded = Math.max(1, Math.min(20, Math.trunc(limit)));
-  const rows = await client.$queryRaw<{ related_id: string }[]>`
-    SELECT other."id" AS "related_id"
-    FROM "posts" source
-    JOIN "posts" other
-      ON other."id" <> source."id"
-     AND other."embedding" IS NOT NULL
-     AND other."is_hidden" = false
-    WHERE source."id" = ${id}
-      AND source."embedding" IS NOT NULL
-    ORDER BY source."embedding" <=> other."embedding"
-    LIMIT ${bounded}
+
+  const [source] = await client.$queryRaw<{ embedding: string | null }[]>`
+    SELECT "embedding"::text AS "embedding" FROM "posts" WHERE "id" = ${id} LIMIT 1
   `;
+  // No embedding means the post has not been through the embeddings worker yet;
+  // it has no neighbours to offer rather than an empty result to explain.
+  if (source?.embedding === null || source?.embedding === undefined) return [];
+  const literal = source.embedding;
+
+  // `is_hidden` is applied after the index scan, so ask the index for more
+  // candidates than the page needs; `strict_order` keeps it scanning until the
+  // limit is met without disturbing distance ordering.
+  const efSearch = Math.min(1000, Math.max(bounded, bounded * 8));
+
+  const rows = await client.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT set_config('hnsw.ef_search', ${String(efSearch)}, true)`;
+    await tx.$executeRaw`SELECT set_config('hnsw.iterative_scan', 'strict_order', true)`;
+    return tx.$queryRaw<{ related_id: string }[]>`
+      SELECT p."id" AS "related_id"
+      FROM "posts" p
+      WHERE p."embedding" IS NOT NULL
+        AND p."is_hidden" = false
+        AND p."id" <> ${id}
+      ORDER BY p."embedding" <=> ${literal}::vector
+      LIMIT ${bounded}
+    `;
+  });
   if (rows.length === 0) return [];
 
   const related = await client.post.findMany({
@@ -61,10 +90,15 @@ async function findRelatedPosts(client: PrismaClient, id: string, limit: number)
     select: POST_SELECT,
   });
   const byId = new Map(related.map((row) => [row.id, row]));
+  const saved = await loadSavedPostIds(
+    client,
+    related.map((row) => row.id),
+    userId,
+  );
   return rows
     .map((row) => byId.get(row.related_id))
     .filter((row): row is NonNullable<typeof row> => row !== undefined)
-    .map(toPost);
+    .map((row) => toPost(row, { isSaved: saved.has(row.id) }));
 }
 
 export interface PostListFilters {
@@ -76,6 +110,11 @@ export interface PostListFilters {
   readonly minRelevance?: number;
   readonly minTrend?: number;
   readonly minOpportunity?: number;
+  /**
+   * Restricts to posts the calling user has, or has not, saved. Ignored when
+   * the reader is given no user id: "saved by nobody in particular" is not a
+   * question the table can answer.
+   */
   readonly isSaved?: boolean;
   readonly isRead?: boolean;
   readonly includeHidden?: boolean;
@@ -98,7 +137,10 @@ export interface PostListOptions {
   readonly sortDirection?: SortDirection;
 }
 
-function buildWhere(filters: PostListFilters = {}): Prisma.PostWhereInput {
+function buildWhere(
+  filters: PostListFilters = {},
+  userId: string | null = null,
+): Prisma.PostWhereInput {
   const where: Prisma.PostWhereInput = {};
 
   if (filters.includeHidden !== true) where.isHidden = false;
@@ -107,7 +149,12 @@ function buildWhere(filters: PostListFilters = {}): Prisma.PostWhereInput {
     where.language = { in: [...filters.languages] };
   }
   if (filters.topicId !== undefined) where.topicId = filters.topicId;
-  if (filters.isSaved !== undefined) where.isSaved = filters.isSaved;
+  // Answered from `saved_items`, which is the only place that knows *whose*
+  // save it is. A boolean column on `posts` would filter one user's page by
+  // every other user's saves.
+  if (filters.isSaved !== undefined && userId !== null) {
+    where.savedItems = filters.isSaved ? { some: { userId } } : { none: { userId } };
+  }
   if (filters.isRead !== undefined) where.isRead = filters.isRead;
   if (filters.ids !== undefined) where.id = { in: [...filters.ids] };
 
@@ -127,10 +174,13 @@ function buildWhere(filters: PostListFilters = {}): Prisma.PostWhereInput {
 
 export function createPostRepository(client: PrismaClient) {
   return {
-    async list(options: PostListOptions = {}): Promise<Paginated<Post>> {
+    async list(
+      options: PostListOptions = {},
+      userId: string | null = null,
+    ): Promise<Paginated<Post>> {
       const pagination = normalizePaginationParams(options.pagination);
       const { skip, take } = toSkipTake(pagination);
-      const where = buildWhere(options.filters);
+      const where = buildWhere(options.filters, userId);
       const sortBy = options.sortBy ?? 'publishedAt';
       const direction = options.sortDirection ?? 'desc';
 
@@ -150,8 +200,14 @@ export function createPostRepository(client: PrismaClient) {
           client.post.count({ where }),
         ]);
 
+        const saved = await loadSavedPostIds(
+          client,
+          rows.map((row) => row.id),
+          userId,
+        );
+
         return {
-          items: rows.map(toPost),
+          items: rows.map((row) => toPost(row, { isSaved: saved.has(row.id) })),
           pagination: buildPaginationMeta(pagination, totalItems),
         };
       });
@@ -198,10 +254,12 @@ export function createPostRepository(client: PrismaClient) {
       );
     },
 
-    async findById(id: string): Promise<Post | null> {
+    async findById(id: string, userId: string | null = null): Promise<Post | null> {
       return withDatabaseErrors('Post', async () => {
         const row = await client.post.findUnique({ where: { id }, select: POST_SELECT });
-        return row === null ? null : toPost(row);
+        if (row === null) return null;
+        const saved = await loadSavedPostIds(client, [row.id], userId);
+        return toPost(row, { isSaved: saved.has(row.id) });
       });
     },
 
@@ -233,13 +291,14 @@ export function createPostRepository(client: PrismaClient) {
             where: { id },
             select: { rawItem: { select: { payload: true } } },
           }),
-          findRelatedPosts(client, id, 6),
+          findRelatedPosts(client, id, 6, userId),
         ]);
 
         const payload = rawItem?.rawItem?.payload ?? null;
+        const saved = await loadSavedPostIds(client, [row.id], userId);
 
         return {
-          ...toPost(row),
+          ...toPost(row, { isSaved: saved.has(row.id) }),
           relevanceBreakdown: toPostRelevanceBreakdown(row),
           rawMetadata:
             typeof payload === 'object' && payload !== null && !Array.isArray(payload)
@@ -253,12 +312,12 @@ export function createPostRepository(client: PrismaClient) {
     },
 
     /** Related posts by embedding proximity, excluding the post itself. */
-    async findRelated(id: string, limit = 6): Promise<Post[]> {
-      return withDatabaseErrors('Post', () => findRelatedPosts(client, id, limit));
+    async findRelated(id: string, limit = 6, userId: string | null = null): Promise<Post[]> {
+      return withDatabaseErrors('Post', () => findRelatedPosts(client, id, limit, userId));
     },
 
     /** Preserves the ranking order supplied by the search layer. */
-    async findManyInOrder(ids: readonly string[]): Promise<Post[]> {
+    async findManyInOrder(ids: readonly string[], userId: string | null = null): Promise<Post[]> {
       if (ids.length === 0) return [];
       return withDatabaseErrors('Post', async () => {
         const rows = await client.post.findMany({
@@ -266,40 +325,40 @@ export function createPostRepository(client: PrismaClient) {
           select: POST_SELECT,
         });
         const byId = new Map(rows.map((row) => [row.id, row]));
+        const saved = await loadSavedPostIds(
+          client,
+          rows.map((row) => row.id),
+          userId,
+        );
         return ids
           .map((id) => byId.get(id))
           .filter((row): row is NonNullable<typeof row> => row !== undefined)
-          .map(toPost);
+          .map((row) => toPost(row, { isSaved: saved.has(row.id) }));
       });
     },
 
-    async markRead(id: string, isRead: boolean): Promise<Post> {
+    async markRead(id: string, isRead: boolean, userId: string | null = null): Promise<Post> {
       return withDatabaseErrors('Post', async () => {
         const row = await client.post.update({
           where: { id },
           data: { isRead },
           select: POST_SELECT,
         });
-        return toPost(row);
+        const saved = await loadSavedPostIds(client, [row.id], userId);
+        return toPost(row, { isSaved: saved.has(row.id) });
       });
     },
 
-    async setHidden(id: string, isHidden: boolean): Promise<Post> {
+    async setHidden(id: string, isHidden: boolean, userId: string | null = null): Promise<Post> {
       return withDatabaseErrors('Post', async () => {
         const row = await client.post.update({
           where: { id },
           data: { isHidden },
           select: POST_SELECT,
         });
-        return toPost(row);
+        const saved = await loadSavedPostIds(client, [row.id], userId);
+        return toPost(row, { isSaved: saved.has(row.id) });
       });
-    },
-
-    /** Keeps the denormalised `is_saved` flag in step with the saved_items table. */
-    async setSaved(id: string, isSaved: boolean): Promise<void> {
-      await withDatabaseErrors('Post', () =>
-        client.post.update({ where: { id }, data: { isSaved }, select: { id: true } }),
-      );
     },
 
     async updateScores(

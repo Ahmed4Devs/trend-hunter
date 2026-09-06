@@ -124,9 +124,10 @@ export const searchRoutes: RouteModule = (app) => {
       const topicIds = idsOfEntity('topic');
 
       const [posts, topics] = await Promise.all([
-        repositories.posts.findManyInOrder(postIds),
-        // The topic reader pages, so the page is sized to the hits; the saved
-        // flag needs the caller because it is per-user state.
+        // Both readers take the caller for the same reason: the saved flag is
+        // per-user state, resolved from `saved_items` rather than from a column.
+        repositories.posts.findManyInOrder(postIds, session.user.id),
+        // The topic reader pages, so the page is sized to the hits.
         topicIds.length === 0
           ? Promise.resolve([])
           : repositories.topics

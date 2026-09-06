@@ -134,14 +134,19 @@ export const dashboardRoutes: RouteModule = (app) => {
         repositories.analytics.loadTrendingTopics(range, TRENDING_TOPIC_COUNT, now),
         repositories.analytics.loadSourceDistribution(range, now),
         repositories.analytics.countPosts(),
-        repositories.posts.list({
-          pagination: { page: 1, pageSize: RECENT_POST_COUNT },
-          // Collection order, not publication order: the panel answers "what
-          // has just arrived", and a backfilled week-old post is not news.
-          sortBy: 'collectedAt',
-          sortDirection: 'desc',
-          filters: { includeHidden: false },
-        }),
+        repositories.posts.list(
+          {
+            pagination: { page: 1, pageSize: RECENT_POST_COUNT },
+            // Collection order, not publication order: the panel answers "what
+            // has just arrived", and a backfilled week-old post is not news.
+            sortBy: 'collectedAt',
+            sortDirection: 'desc',
+            filters: { includeHidden: false },
+          },
+          // The panel renders a save button per row, so it needs the caller's
+          // own saved state rather than the deployment's.
+          session.user.id,
+        ),
         repositories.analytics.loadActivity(range, now),
         loadApiUsage(range, now),
         loadHealth(now),

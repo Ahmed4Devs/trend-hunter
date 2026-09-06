@@ -28,6 +28,7 @@ import {
   toTopicTrendBreakdown,
   toTrendSnapshot,
 } from '../mappers';
+import { loadSavedPostIds } from './saved-flags';
 
 /**
  * Topic reads and writes.
@@ -239,6 +240,14 @@ export function createTopicRepository(client: PrismaClient) {
           sourceCounts.map((entry) => ({ source: entry.source, count: entry._count._all })),
         );
 
+        // Saved state for the posts on this page. Per user, like the topic's
+        // own, so it is read from `saved_items` rather than from a column.
+        const savedPostIds = await loadSavedPostIds(
+          client,
+          posts.map((post) => post.id),
+          options.userId,
+        );
+
         return {
           ...toTopic(row, {
             sourceKinds: extras.sourcesByTopic.get(id) ?? [],
@@ -247,7 +256,7 @@ export function createTopicRepository(client: PrismaClient) {
           trendBreakdown: toTopicTrendBreakdown(row),
           arabicOpportunityBreakdown: toTopicArabicBreakdown(row),
           snapshots: snapshots.map(toTrendSnapshot),
-          posts: posts.map(toPost),
+          posts: posts.map((post) => toPost(post, { isSaved: savedPostIds.has(post.id) })),
           sourceBreakdown: breakdown,
         };
       });

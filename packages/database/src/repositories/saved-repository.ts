@@ -8,10 +8,15 @@ import { SAVED_ITEM_SELECT, toSavedItem } from '../mappers';
 /**
  * Saved items.
  *
- * The `saved_items` table is the source of truth; `posts.is_saved`,
- * `threads.is_saved` and `content_drafts.is_saved` are denormalised flags that
- * exist so a list query does not need a join per row. Every write here updates
- * both inside one transaction, so the two can never disagree.
+ * The `saved_items` table is the source of truth. `threads.is_saved` and
+ * `content_drafts.is_saved` are denormalised flags that exist so a list query
+ * does not need a join per row; every write here updates them inside the same
+ * transaction, so the two can never disagree. Both targets belong to exactly
+ * one user, which is what makes a single boolean able to describe them.
+ *
+ * Posts and topics carry no such flag, because they belong to the deployment
+ * and are saved by each user independently: the readers join `saved_items` for
+ * a whole page instead.
  */
 
 export interface SaveItemInput {
@@ -109,11 +114,7 @@ export function createSavedRepository(client: PrismaClient) {
           await tx.savedItem.delete({ where: { id } });
           await setSavedFlag(
             tx,
-            {
-              postId: existing.postId,
-              threadId: existing.threadId,
-              contentDraftId: existing.contentDraftId,
-            },
+            { threadId: existing.threadId, contentDraftId: existing.contentDraftId },
             false,
           );
           return true;
@@ -206,19 +207,24 @@ function uniqueWhere(input: {
 
 type TransactionClient = Parameters<Parameters<PrismaClient['$transaction']>[0]>[0];
 
-/** Keeps the denormalised `is_saved` flag in step with the saved_items table. */
+/**
+ * Keeps the denormalised `is_saved` flag in step with the saved_items table.
+ *
+ * Only for the targets a single user owns outright. A post belongs to the
+ * deployment and is saved by each user separately, so it carries no flag: one
+ * boolean column cannot represent "saved" for one caller and "not saved" for
+ * the next, and while it existed one user's save lit the button up for
+ * everyone and their unsave cleared it. The post reader joins `saved_items`
+ * for the whole page instead, exactly as the topic reader does.
+ */
 async function setSavedFlag(
   tx: TransactionClient,
   target: {
-    postId?: string | null;
     threadId?: string | null;
     contentDraftId?: string | null;
   },
   isSaved: boolean,
 ): Promise<void> {
-  if (target.postId !== null && target.postId !== undefined) {
-    await tx.post.updateMany({ where: { id: target.postId }, data: { isSaved } });
-  }
   if (target.threadId !== null && target.threadId !== undefined) {
     await tx.thread.updateMany({ where: { id: target.threadId }, data: { isSaved } });
   }
