@@ -434,6 +434,8 @@ export function createTopicRepository(client: PrismaClient) {
       distinctSourceCount: number;
       recentPostCount: number;
       previousPostCount: number;
+      /** Publication time of the topic's oldest post; the age novelty decays from. */
+      firstPostAt: Date | null;
       lastPostAt: Date | null;
       meanRelevance: number;
       meanEngagement: number;
@@ -453,6 +455,7 @@ export function createTopicRepository(client: PrismaClient) {
             distinct_source_count: bigint;
             recent_post_count: bigint;
             previous_post_count: bigint;
+            first_post_at: Date | null;
             last_post_at: Date | null;
             mean_relevance: number | null;
             mean_engagement: number | null;
@@ -470,6 +473,7 @@ export function createTopicRepository(client: PrismaClient) {
               WHERE p."published_at" >= ${previousFrom}
                 AND p."published_at" <  ${recentFrom}
             )                                                           AS previous_post_count,
+            MIN(p."published_at")                                       AS first_post_at,
             MAX(p."published_at")                                       AS last_post_at,
             AVG(p."relevance_score")::float8                            AS mean_relevance,
             AVG(p."engagement_score")::float8                           AS mean_engagement,
@@ -500,6 +504,7 @@ export function createTopicRepository(client: PrismaClient) {
           distinctSourceCount: Number(row.distinct_source_count),
           recentPostCount: Number(row.recent_post_count),
           previousPostCount: Number(row.previous_post_count),
+          firstPostAt: row.first_post_at,
           lastPostAt: row.last_post_at,
           meanRelevance: row.mean_relevance ?? 0,
           meanEngagement: row.mean_engagement ?? 0,

@@ -71,10 +71,12 @@ export async function processTrendAnalysisJob(
       relevance: stats.meanRelevance,
       sourceAuthority: stats.meanSourceAuthority,
       arabicOpportunity: arabic.arabicOpportunityScore,
-      // A topic's first detection is its earliest post, which the aggregate
-      // does not return; the last post bounds it safely and novelty decays from
-      // the topic row's own first_detected_at on subsequent passes.
-      firstDetectedAt: stats.lastPostAt ?? now,
+      // The topic's earliest post, not its latest. Passing the latest made
+      // every topic look brand new on every pass: novelty decays from this
+      // date, so it sat at its maximum forever, and the saturation penalty's
+      // age term — which grows with it — stayed pinned at zero. Both ranked
+      // week-old saturated topics like breaking stories.
+      firstDetectedAt: stats.firstPostAt ?? stats.lastPostAt ?? now,
       lastPostAt: stats.lastPostAt ?? now,
       now,
     });

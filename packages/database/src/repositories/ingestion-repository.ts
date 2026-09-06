@@ -291,13 +291,18 @@ export function createIngestionRepository(client: PrismaClient) {
               similarity: input.similarity,
             },
           });
-          // The topic's activity window has to move with its newest post, or a
-          // freshly-joined post would not lift the topic's freshness score.
-          await tx.topic.update({
-            where: { id: input.topicId },
-            data: { lastDetectedAt: input.publishedAt },
-            select: { id: true },
-          });
+          // The topic's activity window widens to include the post; it never
+          // moves to it. A plain assignment let a backfilled post drag
+          // `last_detected_at` backwards, which both depressed the freshness
+          // score and could push the topic out of the clustering candidate
+          // window (`last_detected_at >= since`) — so the next post about the
+          // same story would open a second topic instead of joining this one.
+          await tx.$executeRaw`
+            UPDATE "topics"
+            SET "last_detected_at" = GREATEST("last_detected_at", ${input.publishedAt}),
+                "first_detected_at" = LEAST("first_detected_at", ${input.publishedAt})
+            WHERE "id" = ${input.topicId}
+          `;
         }),
       );
     },
