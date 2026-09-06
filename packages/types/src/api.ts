@@ -82,6 +82,18 @@ export interface Paginated<TItem> {
 export const DEFAULT_PAGE_SIZE = 25;
 export const MAX_PAGE_SIZE = 100;
 
+/**
+ * Deepest page any list endpoint will serve.
+ *
+ * Offset pagination degrades with depth — PostgreSQL still walks every skipped
+ * row — and the vector arm of search derives `hnsw.ef_search` from the offset,
+ * where pgvector's own ceiling of 1000 turns a deep page into a failed query
+ * rather than a slow one. Nothing in this product pages past a few hundred
+ * results by hand, so the depth is capped rather than left for a scripted
+ * caller to discover.
+ */
+export const MAX_PAGE = 500;
+
 export type SortDirection = 'asc' | 'desc';
 
 export interface SortParams<TField extends string = string> {

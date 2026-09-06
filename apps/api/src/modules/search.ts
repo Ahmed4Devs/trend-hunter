@@ -1,5 +1,6 @@
 import {
   CONTENT_LANGUAGES,
+  MAX_PAGE,
   MAX_PAGE_SIZE,
   SEARCH_ENTITY_KINDS,
   SEARCH_MODES,
@@ -215,12 +216,17 @@ function searchPagination(
   hasNextPage: boolean,
 ): PaginationMeta {
   const totalItems = (page - 1) * pageSize + hitCount;
+  // The last servable page reports no next page even when one more row was
+  // found. Advertising it would send a client that pages on `hasNextPage` —
+  // which this endpoint tells it to do — straight into a 400 from the page
+  // bound on the very next request.
+  const more = hasNextPage && page < MAX_PAGE;
   return {
     page,
     pageSize,
     totalItems,
-    totalPages: totalItems === 0 ? 0 : hasNextPage ? page + 1 : page,
-    hasNextPage,
+    totalPages: totalItems === 0 ? 0 : more ? page + 1 : page,
+    hasNextPage: more,
     hasPreviousPage: page > 1,
   };
 }

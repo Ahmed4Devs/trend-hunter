@@ -38,6 +38,18 @@ const TEXT_SEARCH_CONFIG: Readonly<Record<ContentLanguage, string>> = {
 /** RRF smoothing constant. 60 is the value from the original RRF paper. */
 const RRF_K = 60;
 
+/**
+ * pgvector's own ceiling on `hnsw.ef_search`.
+ *
+ * Not advisory: PostgreSQL raises `1004 is outside the valid range for
+ * parameter "hnsw.ef_search" (1 .. 1000)` and the whole search fails. Deep
+ * pagination pushes the derived value past it — a page size of 20 reaches it
+ * around page 13 — so every derived value is clamped here as well as being
+ * bounded by the page limit at the request boundary. Recall degrades past this
+ * depth; an exception would be worse.
+ */
+const MAX_EF_SEARCH = 1000;
+
 export interface SearchFilters {
   readonly sources?: readonly SourceKind[];
   readonly languages?: readonly ContentLanguage[];
@@ -161,7 +173,10 @@ export async function semanticSearchPosts(
   const literal = toVectorLiteral(options.embedding);
   const limit = Math.max(1, Math.min(200, Math.trunc(options.limit)));
   const offset = Math.max(0, Math.trunc(options.offset ?? 0));
-  const efSearch = Math.max(limit + offset, options.efSearch ?? (limit + offset) * 4);
+  const efSearch = Math.min(
+    MAX_EF_SEARCH,
+    Math.max(limit + offset, options.efSearch ?? (limit + offset) * 4),
+  );
   const filters = postFilterFragment(options.filters ?? {});
 
   const rows = await client.$transaction(async (tx) => {
@@ -225,8 +240,10 @@ export async function hybridSearchPosts(
   );
   const filters = postFilterFragment(options.filters ?? {});
 
+  const efSearch = Math.min(MAX_EF_SEARCH, pool * 2);
+
   const rows = await client.$transaction(async (tx) => {
-    await tx.$executeRaw`SELECT set_config('hnsw.ef_search', ${String(pool * 2)}, true)`;
+    await tx.$executeRaw`SELECT set_config('hnsw.ef_search', ${String(efSearch)}, true)`;
     await tx.$executeRaw`SELECT set_config('hnsw.iterative_scan', 'strict_order', true)`;
     return tx.$queryRaw<
       {
@@ -248,6 +265,12 @@ export async function hybridSearchPosts(
         FROM "posts" p, q
         WHERE p."search_vector" @@ q.tsq
           ${filters}
+        -- Repeated from the window's own ORDER BY. Without it the LIMIT keeps
+        -- an arbitrary subset of the matches and only those are ranked, so the
+        -- fusion sees the wrong candidates. It happens to work while the
+        -- planner sorts for the WindowAgg anyway, which is not a guarantee.
+        ORDER BY ts_rank_cd('{0.1,0.2,0.4,1.0}'::float4[], p."search_vector", q.tsq, 32) DESC,
+                 p."published_at" DESC
         LIMIT ${pool}
       ),
       semantic AS (
@@ -291,10 +314,11 @@ export async function hybridSearchPosts(
 /** Full-text search over topics. */
 export async function keywordSearchTopics(
   client: PrismaClient,
-  options: { query: string; language: ContentLanguage; limit: number },
+  options: { query: string; language: ContentLanguage; limit: number; offset?: number },
 ): Promise<SearchHit[]> {
   const config = TEXT_SEARCH_CONFIG[options.language];
   const limit = Math.max(1, Math.min(100, Math.trunc(options.limit)));
+  const offset = Math.max(0, Math.trunc(options.offset ?? 0));
 
   const rows = await client.$queryRaw<{ id: string; rank: number }[]>`
     WITH q AS (SELECT websearch_to_tsquery(${config}::regconfig, ${options.query}) AS tsq)
@@ -304,14 +328,14 @@ export async function keywordSearchTopics(
     WHERE t."search_vector" @@ q.tsq
       AND t."status" = 'ACTIVE'
     ORDER BY "rank" DESC, t."trend_score" DESC
-    LIMIT ${limit}
+    LIMIT ${limit} OFFSET ${offset}
   `;
 
   return rows.map((row, index) => ({
     id: row.id,
     entity: 'topic' as const,
     score: row.rank,
-    keywordRank: index + 1,
+    keywordRank: index + 1 + offset,
     semanticRank: null,
     headline: null,
   }));
@@ -320,10 +344,11 @@ export async function keywordSearchTopics(
 /** Full-text search over comments. */
 export async function keywordSearchComments(
   client: PrismaClient,
-  options: { query: string; language: ContentLanguage; limit: number },
+  options: { query: string; language: ContentLanguage; limit: number; offset?: number },
 ): Promise<SearchHit[]> {
   const config = TEXT_SEARCH_CONFIG[options.language];
   const limit = Math.max(1, Math.min(100, Math.trunc(options.limit)));
+  const offset = Math.max(0, Math.trunc(options.offset ?? 0));
 
   const rows = await client.$queryRaw<{ id: string; rank: number }[]>`
     WITH q AS (SELECT websearch_to_tsquery(${config}::regconfig, ${options.query}) AS tsq)
@@ -332,14 +357,14 @@ export async function keywordSearchComments(
     FROM "comments" c, q
     WHERE c."search_vector" @@ q.tsq
     ORDER BY "rank" DESC, c."published_at" DESC
-    LIMIT ${limit}
+    LIMIT ${limit} OFFSET ${offset}
   `;
 
   return rows.map((row, index) => ({
     id: row.id,
     entity: 'comment' as const,
     score: row.rank,
-    keywordRank: index + 1,
+    keywordRank: index + 1 + offset,
     semanticRank: null,
     headline: null,
   }));

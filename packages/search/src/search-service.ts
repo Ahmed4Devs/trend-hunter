@@ -126,11 +126,25 @@ export function createSearchService({ database, embeddings }: SearchServiceDepen
               withHeadline: true,
             })
           : Promise.resolve([]),
+        // Every arm is paged, not just the post arm. While the topic and
+        // comment arms ignored the offset they returned their first page
+        // again on every request, so page 2 of a multi-entity search repeated
+        // the same topics under the posts that had genuinely advanced.
         entities.includes('topic')
-          ? keywordSearchTopics(database, { query, language, limit: perEntity })
+          ? keywordSearchTopics(database, {
+              query,
+              language,
+              limit: perEntity,
+              ...(options.offset === undefined ? {} : { offset: options.offset }),
+            })
           : Promise.resolve([]),
         entities.includes('comment')
-          ? keywordSearchComments(database, { query, language, limit: perEntity })
+          ? keywordSearchComments(database, {
+              query,
+              language,
+              limit: perEntity,
+              ...(options.offset === undefined ? {} : { offset: options.offset }),
+            })
           : Promise.resolve([]),
       ]);
 

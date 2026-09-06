@@ -5,6 +5,7 @@ import {
   CONTENT_LANGUAGES,
   CONTENT_TONES,
   DEFAULT_PAGE_SIZE,
+  MAX_PAGE,
   MAX_PAGE_SIZE,
   REPORT_KINDS,
   SAVED_ITEM_KINDS,
@@ -41,7 +42,7 @@ export const idListSchema = z.array(idSchema).min(1).max(200);
 
 /** Query-string values arrive as strings, so every numeric input is coerced. */
 export const paginationQuerySchema = z.object({
-  page: z.coerce.number().int().min(1).default(1),
+  page: z.coerce.number().int().min(1).max(MAX_PAGE).default(1),
   pageSize: z.coerce.number().int().min(1).max(MAX_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
 });
 

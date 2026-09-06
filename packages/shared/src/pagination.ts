@@ -1,5 +1,6 @@
 import {
   DEFAULT_PAGE_SIZE,
+  MAX_PAGE,
   MAX_PAGE_SIZE,
   type PaginationMeta,
   type PaginationParams,
@@ -8,15 +9,18 @@ import {
 /**
  * Offset pagination helpers.
  *
- * Every list endpoint is bounded: an unpaginated query against `Post` would
- * happily try to serialise the whole table, so `pageSize` is clamped here
- * rather than trusted from the request.
+ * Every list endpoint is bounded in both directions: an unpaginated query
+ * against `Post` would happily try to serialise the whole table, and an
+ * unbounded `page` would ask PostgreSQL to walk millions of rows only to
+ * discard them. Both are clamped here rather than trusted from the request —
+ * the request schemas reject an out-of-range value outright, and this is the
+ * backstop for the callers that reach a repository without passing through one.
  */
 
 export function normalizePaginationParams(
   input: Partial<PaginationParams> | undefined,
 ): PaginationParams {
-  const page = Math.max(1, Math.floor(input?.page ?? 1));
+  const page = Math.min(MAX_PAGE, Math.max(1, Math.floor(input?.page ?? 1)));
   const requested = Math.floor(input?.pageSize ?? DEFAULT_PAGE_SIZE);
   const pageSize = Math.min(MAX_PAGE_SIZE, Math.max(1, requested));
   return { page, pageSize };
