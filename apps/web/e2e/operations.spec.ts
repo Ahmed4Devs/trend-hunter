@@ -25,13 +25,34 @@ test.describe('operations', () => {
       return;
     }
 
+    // The button saves with a background fetch and does not block on it — it
+    // updates optimistically, which is what makes the list feel responsive.
+    // Navigating straight after the click therefore raced the request and
+    // usually cancelled it before it reached the API, leaving nothing to find
+    // on the next page. Both halves of the toggle wait for their own call.
+    const stored = page.waitForResponse(
+      (response) =>
+        response.url().includes('/api/v1/saved') &&
+        response.request().method() === 'POST' &&
+        response.ok(),
+    );
     await save.click();
+    await stored;
+
     await page.goto('/saved');
     await expect(page.getByRole('heading', { name: 'Saved', level: 1 })).toBeVisible();
 
     const remove = page.getByRole('button', { name: 'Remove from saved' }).first();
     await expect(remove).toBeVisible();
+
+    const removed = page.waitForResponse(
+      (response) =>
+        response.url().includes('/api/v1/saved') &&
+        response.request().method() === 'DELETE' &&
+        response.ok(),
+    );
     await remove.click();
+    await removed;
   });
 
   test('shows publications as a separate tab', async ({ signedIn: page }) => {
