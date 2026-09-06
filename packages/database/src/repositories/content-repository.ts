@@ -492,6 +492,17 @@ export function createContentRepository(client: PrismaClient) {
       });
     },
 
+    /** One publication belonging to the caller, or null. */
+    async findPublication(userId: string, id: string): Promise<ManualPublication | null> {
+      return withDatabaseErrors('ManualPublication', async () => {
+        const row = await client.manualPublication.findFirst({
+          where: { id, userId },
+          select: MANUAL_PUBLICATION_SELECT,
+        });
+        return row === null ? null : toManualPublication(row);
+      });
+    },
+
     /**
      * Records that the user published something on X by hand, and marks the
      * source draft or thread as published in the same transaction.

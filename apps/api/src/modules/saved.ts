@@ -4,7 +4,6 @@ import {
   ValidationError,
   X_LONG_POST_CHARACTER_LIMIT,
 } from '@trendhunter/shared';
-import { MAX_PAGE_SIZE, type ManualPublication } from '@trendhunter/types';
 import {
   boundedTextSchema,
   createManualPublicationBodySchema,
@@ -383,7 +382,10 @@ export const savedRoutes: RouteModule = (app) => {
     },
     handler: async (request) => {
       const session = currentUser(request);
-      const publication = await findPublication(session.user.id, request.params.id);
+      const publication = await repositories.content.findPublication(
+        session.user.id,
+        request.params.id,
+      );
       if (publication === null) throw new NotFoundError('Manual publication');
       return ok(publication);
     },
@@ -445,30 +447,6 @@ export const savedRoutes: RouteModule = (app) => {
       return reply.code(204).send(null);
     },
   });
-
-  /**
-   * Fetches one publication belonging to the caller.
-   *
-   * The content repository exposes no scoped single-fetch for publications, and
-   * a lookup by id alone would answer "this exists" for another user's record,
-   * so the caller's own list is walked instead. A publication history is a
-   * hand-written log of things the user posted personally, so the walk almost
-   * always ends on the first page.
-   */
-  async function findPublication(userId: string, id: string): Promise<ManualPublication | null> {
-    let page = 1;
-    let totalPages = 1;
-    while (page <= totalPages) {
-      const result = await repositories.content.listPublications(userId, {
-        pagination: { page, pageSize: MAX_PAGE_SIZE },
-      });
-      const match = result.items.find((item) => item.id === id);
-      if (match !== undefined) return match;
-      totalPages = result.pagination.totalPages;
-      page += 1;
-    }
-    return null;
-  }
 
   return Promise.resolve();
 };
