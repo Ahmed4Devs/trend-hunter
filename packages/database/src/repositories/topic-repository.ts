@@ -478,7 +478,14 @@ export function createTopicRepository(client: PrismaClient) {
           LEFT JOIN LATERAL (
             SELECT COUNT(*) AS comment_count FROM "comments" cm WHERE cm."post_id" = p."id"
           ) c ON TRUE
-          LEFT JOIN "sources" s ON s."kind" = p."source"
+          -- Aggregated in the lateral rather than joined on. sources.kind is
+          -- not unique - only slug is - so a plain join against it multiplies
+          -- every post row by the number of sources configured for its kind,
+          -- and a second RSS feed would silently double every count below.
+          LEFT JOIN LATERAL (
+            SELECT AVG(src."authority_weight") AS authority_weight
+            FROM "sources" src WHERE src."kind" = p."source"
+          ) s ON TRUE
           WHERE p."topic_id" = ${topicId}
         `;
 

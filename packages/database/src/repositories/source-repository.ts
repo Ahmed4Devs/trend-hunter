@@ -38,7 +38,10 @@ export function createSourceRepository(client: PrismaClient) {
 
     async findByKind(kind: SourceKind): Promise<Source | null> {
       return withDatabaseErrors('Source', async () => {
-        const row = await client.source.findFirst({ where: { kind }, select: SOURCE_SELECT });
+        // `kind` is unique, so this is a keyed lookup rather than "whichever
+        // row comes back first" — which is what it silently was before the
+        // constraint existed.
+        const row = await client.source.findUnique({ where: { kind }, select: SOURCE_SELECT });
         return row === null ? null : toSource(row);
       });
     },
@@ -195,7 +198,13 @@ export function createSourceRepository(client: PrismaClient) {
       );
     },
 
-    /** Authority weight per source kind, used by the relevance engine. */
+    /**
+     * Authority weight per source kind, used by the relevance engine.
+     *
+     * One entry per kind, which the unique constraint on `sources.kind`
+     * guarantees. Without it this Map silently kept whichever row was read
+     * last and dropped the rest.
+     */
     async loadAuthorityWeights(): Promise<Map<SourceKind, number>> {
       return withDatabaseErrors('Source', async () => {
         const rows = await client.source.findMany({

@@ -371,6 +371,13 @@ model Source {
 
   configs SourceConfig[]
 
+  // One row per provider, enforced rather than assumed. A post records only its
+  // `SourceKind`, so a second row of the same kind has nothing to distinguish
+  // it by: authority lookups keyed on kind would silently pick one of the two,
+  // and per-kind post counts would be attributed to both. Providers that cover
+  // several endpoints — RSS with many `feedUrls`, Reddit with many subreddits —
+  // express that in `source_configs`, not as extra rows here.
+  @@unique([kind])
   @@index([kind, enabled])
   @@map("sources")
 }
