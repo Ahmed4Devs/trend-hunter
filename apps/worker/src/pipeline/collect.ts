@@ -88,12 +88,14 @@ export async function processCollectJob(context: JobContext<CollectJobPayload>):
   });
   await repositories.sources.markScanned(source.id, new Date());
 
-  // A scheduled run finishes here: there are no other collectors reporting into
-  // it, and leaving it RUNNING would make the scan history look permanently
-  // stuck.
-  if (payload.scanRunId === null) {
-    await repositories.operations.finishScanRun(scanRunId, { status: 'COMPLETED' });
-  }
+  // Both paths close their run the same way. Finishing only when
+  // `payload.scanRunId === null` closed the scheduled runs — which open a run
+  // per source — and left every manual run PENDING for ever, because a manual
+  // scan fans out one collect job per source into one shared row and no single
+  // collector is the one that finished it. The repository makes that decision
+  // against the run's own `source_kinds`, so the last collector to report in is
+  // the one that closes it.
+  await repositories.operations.recordCollectorFinished(scanRunId, payload.source);
 
   logger.info(
     {

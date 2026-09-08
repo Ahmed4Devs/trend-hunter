@@ -56,13 +56,50 @@ export function createOperationsRepository(client: PrismaClient) {
       });
     },
 
-    async markScanRunning(id: string): Promise<void> {
+    /**
+     * Records that one source's collector has finished, and closes the run when
+     * that was the last one outstanding.
+     *
+     * A manual scan fans out one collect job per source, all reporting into a
+     * single row, so no individual collector can decide the run is over. The
+     * decision is made here, in one statement, against the row's own
+     * `source_kinds`.
+     *
+     * Written as raw SQL rather than read-modify-write because the collectors
+     * finish concurrently: PostgreSQL takes a row lock for the UPDATE and
+     * re-evaluates the SET expressions against the newly committed row, so two
+     * collectors landing together cannot both read the same array and lose one
+     * another's write.
+     *
+     * Idempotent in the kind: queue delivery is at-least-once, and appending
+     * unconditionally would let a redelivered collector close a run whose
+     * siblings are still collecting.
+     */
+    async recordCollectorFinished(id: string, source: SourceKind): Promise<void> {
       await withDatabaseErrors('ScanRun', () =>
-        client.scanRun.update({
-          where: { id },
-          data: { status: 'RUNNING' },
-          select: { id: true },
-        }),
+        client.$executeRaw`
+          UPDATE "scan_runs"
+          SET "finished_source_kinds" =
+                CASE WHEN ${source}::"source_kind" = ANY("finished_source_kinds")
+                     THEN "finished_source_kinds"
+                     ELSE array_append("finished_source_kinds", ${source}::"source_kind") END,
+              "status" =
+                CASE WHEN cardinality("finished_source_kinds")
+                          + (CASE WHEN ${source}::"source_kind" = ANY("finished_source_kinds") THEN 0 ELSE 1 END)
+                          >= cardinality("source_kinds")
+                     THEN 'COMPLETED'::"job_status" ELSE 'RUNNING'::"job_status" END,
+              "finished_at" =
+                CASE WHEN cardinality("finished_source_kinds")
+                          + (CASE WHEN ${source}::"source_kind" = ANY("finished_source_kinds") THEN 0 ELSE 1 END)
+                          >= cardinality("source_kinds")
+                     THEN now() ELSE NULL END,
+              "duration_ms" =
+                CASE WHEN cardinality("finished_source_kinds")
+                          + (CASE WHEN ${source}::"source_kind" = ANY("finished_source_kinds") THEN 0 ELSE 1 END)
+                          >= cardinality("source_kinds")
+                     THEN (EXTRACT(EPOCH FROM (now() - "started_at")) * 1000)::int ELSE NULL END
+          WHERE "id" = ${id} AND "status" <> 'COMPLETED'::"job_status"
+        `,
       );
     },
 

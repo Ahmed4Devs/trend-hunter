@@ -796,6 +796,12 @@ model ScanRun {
   trigger           ScanTrigger
   status            JobStatus    @default(PENDING)
   sourceKinds       SourceKind[] @map("source_kinds")
+  /// Source kinds whose collector has reported in. A manual run fans out one
+  /// collect job per kind and they all report into this one row, so the run is
+  /// only finished once this covers `sourceKinds`. Recorded as the set of kinds
+  /// rather than as a count so that an at-least-once redelivery of the same
+  /// collector cannot close the run while its siblings are still working.
+  finishedSourceKinds SourceKind[] @map("finished_source_kinds")
   itemsCollected    Int          @default(0) @map("items_collected")
   itemsStored       Int          @default(0) @map("items_stored")
   duplicatesSkipped Int          @default(0) @map("duplicates_skipped")

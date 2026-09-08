@@ -106,6 +106,8 @@ export class HttpClient {
     let target = request.url;
     let method = request.method ?? 'GET';
     let body = request.body;
+    let headers = request.headers;
+    const origin = new URL(request.url).origin;
 
     for (let hop = 0; hop <= this.#options.maxRedirects; hop += 1) {
       request.signal?.throwIfAborted();
@@ -113,7 +115,7 @@ export class HttpClient {
       const { url } = await assertSafeUrl(target, {
         allowPrivateNetworks: this.#options.allowPrivateNetworks,
       });
-      const response = await this.#attempt(url, { ...request, method, body });
+      const response = await this.#attempt(url, { ...request, method, body, headers });
 
       if (!REDIRECT_STATUSES.has(response.status)) {
         return {
@@ -144,6 +146,20 @@ export class HttpClient {
         body = undefined;
       }
       target = resolveLocation(location, url, request.provider);
+
+      // Credentials do not leave the origin they were issued for. `fetch` does
+      // this for you — undici strips `authorization` on a cross-origin redirect
+      // — and following redirects by hand opts out of it, so it has to be done
+      // here. Without it an open redirect on a provider domain, a hijacked
+      // subdomain or a compromised edge is enough to collect the bearer token
+      // every request carries; the 307 case is worse still, because the method
+      // and body survive, so Reddit's token endpoint would replay its
+      // long-lived `Basic <client_id:secret>` to the redirect target. The SSRF
+      // guard does not help here: it rejects private addresses, and an
+      // exfiltration host is a perfectly ordinary public one.
+      if (new URL(target).origin !== origin) {
+        headers = stripCredentialHeaders(headers);
+      }
     }
 
     throw new UpstreamError(
@@ -245,6 +261,23 @@ export class HttpClient {
     const delayMs = Math.min(this.#options.maxRetryDelayMs, Math.max(exponential, requested ?? 0));
     await this.#sleep(delayMs, signal);
   }
+}
+
+/**
+ * Header names that authenticate the caller to one specific origin and are
+ * meaningless — and dangerous — anywhere else.
+ */
+const CREDENTIAL_HEADERS = new Set(['authorization', 'proxy-authorization', 'cookie']);
+
+/** Drops the credential headers, keeping everything else the caller set. */
+function stripCredentialHeaders(
+  headers: Readonly<Record<string, string>> | undefined,
+): Readonly<Record<string, string>> | undefined {
+  if (headers === undefined) return undefined;
+  const kept = Object.entries(headers).filter(
+    ([name]) => !CREDENTIAL_HEADERS.has(name.toLowerCase()),
+  );
+  return kept.length === Object.keys(headers).length ? headers : Object.fromEntries(kept);
 }
 
 /** 429 and 5xx are worth another attempt; 408 is a server-side read timeout. */

@@ -31,6 +31,28 @@ export const MAX_TITLE_LENGTH = 500;
 export const MAX_AUTHOR_LENGTH = 200;
 
 /**
+ * Longest URL accepted from a provider.
+ *
+ * `posts.canonical_url` carries a btree index, and PostgreSQL refuses an index
+ * entry over 2704 bytes: `index row size 3856 exceeds btree version 4 maximum
+ * 2704`. Posts are inserted with `createMany`, so one over-long URL does not
+ * lose one item — it fails the whole batch. Bounding it here turns that into
+ * the per-item rejection this module exists to produce. 2048 is the practical
+ * ceiling browsers and proxies have used for decades; a canonical URL is
+ * percent-encoded ASCII, so it stays clear of the byte limit too.
+ */
+export const MAX_URL_LENGTH = 2048;
+
+/**
+ * How far ahead of our own clock a published date may be.
+ *
+ * Small skew between us and a provider is ordinary. A date years out is not,
+ * and it is not harmless: posts are ranked and paged by `published_at DESC`, so
+ * one item dated 9999 sits at the top of every list for ever.
+ */
+const MAX_FUTURE_SKEW_MS = 24 * 60 * 60 * 1000;
+
+/**
  * Counters below this are treated as real. Above it a provider is either
  * reporting in a different unit or the payload is hostile, and an absurd
  * engagement number would dominate every ranking it touched.
@@ -81,8 +103,22 @@ export function toDate(value: unknown): Date | null {
   return null;
 }
 
+/**
+ * The one gate every branch of {@link toDate} passes through.
+ *
+ * The NaN check lives here rather than in the callers because it was missing
+ * from exactly one of them: the numeric branch handed `new Date(ms)` straight
+ * to this function, and an out-of-range epoch makes an Invalid Date whose
+ * `getTime()` is NaN. `NaN < EARLIEST_TIMESTAMP_MS` is false, so the invalid
+ * date was returned as if it were good and only failed later, at the insert,
+ * taking the batch with it.
+ */
 function accept(date: Date): Date | null {
-  return date.getTime() < EARLIEST_TIMESTAMP_MS ? null : date;
+  const ms = date.getTime();
+  if (Number.isNaN(ms)) return null;
+  if (ms < EARLIEST_TIMESTAMP_MS) return null;
+  if (ms > Date.now() + MAX_FUTURE_SKEW_MS) return null;
+  return date;
 }
 
 /** Sanitises an optional text field, collapsing an empty result to `null`. */
@@ -126,6 +162,17 @@ export function buildNormalizedPost(draft: PostDraft): NormalizedPost {
   if (url === '') {
     throw new ValidationError('The item has no URL.');
   }
+  if (url.length > MAX_URL_LENGTH) {
+    throw new ValidationError('The item URL is too long.');
+  }
+
+  // The canonical form is what carries the index, and canonicalisation can
+  // lengthen a URL by percent-encoding it, so it is bounded on its own terms
+  // rather than trusted to have stayed under the limit.
+  const canonicalUrl = canonicalizeUrl(url);
+  if (canonicalUrl.length > MAX_URL_LENGTH) {
+    throw new ValidationError('The item URL is too long once canonicalised.');
+  }
 
   return {
     source: draft.source,
@@ -144,7 +191,7 @@ export function buildNormalizedPost(draft: PostDraft): NormalizedPost {
     // Hashed over the text alone: the same story published under two URLs is a
     // duplicate, and the same URL with two different bodies is not.
     contentHash: contentHash(title ?? '', content),
-    canonicalUrl: canonicalizeUrl(url),
+    canonicalUrl,
   };
 }
 
